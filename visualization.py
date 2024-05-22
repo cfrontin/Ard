@@ -76,6 +76,7 @@ def plot_wind_rose(
                         width=0.9 * np.radians(wd_step),
                         color=color_array(ws_idx),
                         edgecolor="k",
+                        linewidth=0.5,
                         label=ws_labels[ws_idx],
                     )
                 )
@@ -92,6 +93,7 @@ def plot_wind_rose(
         ax.set_theta_direction(-1)
         ax.set_theta_offset(np.pi / 2.0)
         ax.set_theta_zero_location("N")
+        ax.tick_params(axis='x', which='major', pad=-1) # 1 for AEP paper
         ax.set_xticklabels(["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
         ax.set_yticklabels([])
         ax.set_axisbelow(True)

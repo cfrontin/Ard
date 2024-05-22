@@ -24,8 +24,10 @@ else:
 save_file = 'solutions/aep_layout_' + model + '.p'
 
 # Load layout, boundaries, and rose
-layout_x = 126. * np.array([0.,0.,0.,7.,7.,7.,14.,14.,14.])
-layout_y = 126. * np.array([0.,7.,14.,0.,7.,14.,0.,7.,14.])
+layout_x = 126. * np.array([3.,3.,3.,7.,7.,7.,11.,11.,11.])
+layout_y = 126. * np.array([3.,7.,11.,3.,7.,11.,3.,7.,11.])
+# layout_x = 126. * np.array([0.,0.,0.,7.,7.,7.,14.,14.,14.])
+# layout_y = 126. * np.array([0.,7.,14.,0.,7.,14.,0.,7.,14.])
 boundaries = [(14*126, 0.),(14*126, 14*126.),(0, 14*126.),(0., 0.)]
 wr = tl.load_wind_rose(7)
 
@@ -34,6 +36,7 @@ solution = opt.run_optimization(optimizer=optimizer, solver="SNOPT", gradient=gr
 
 # print(solution["init_aep"])
 # print(solution["opt_aep"])
+# print(solution["opt_aep"]/solution["init_aep"]*100)
 # print(solution["total_time"])
 # print(solution["iter"])
 # print("Exit code: " + str(solution["exit_code"]))

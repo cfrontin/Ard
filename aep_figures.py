@@ -13,7 +13,18 @@ from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 from matplotlib.ticker import MultipleLocator
 
 save = False
-dpi = 500
+dpi = 600
+# plt.rcParams['figure.dpi'] = 150
+# Formatting
+font = 8
+plt.rc('font', size=font)          # controls default text sizes
+plt.rc('axes', titlesize=font)     # fontsize of the axes title
+plt.rc('axes', labelsize=font)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=font)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=font)    # fontsize of the tick labels
+plt.rc('legend', fontsize=font-2)    # legend fontsize
+plt.rc('legend', title_fontsize=font-2)    # legend fontsize
+plt.rc('figure', titlesize=font)  # fontsize of the figure title
 
 ###########################################################################
 # RANDOMIZED LAYOUT / WIND ROSE
@@ -27,69 +38,73 @@ aep_park /= 1e12
 
 # print(np.mean(time_park/time_flowers))
 # print(np.max(time_park/time_flowers))
+# print(np.mean((aep_flowers - aep_park)/aep_park))
+# print(np.median((aep_flowers - aep_park)/aep_park))
+# print(np.min((aep_flowers - aep_park)/aep_park))
 # dasd
 
 # Wind roses
-fig = plt.figure(figsize=(11,8))
+fig = plt.figure(figsize=(6.5,5.5))
 for i in np.arange(1,10):
     wind_rose = tl.load_wind_rose(i)
     ax = fig.add_subplot(3,3,i,projection='polar')
     vis.plot_wind_rose(wind_rose,ax=ax)
     ax.get_legend().remove()
     ax.set_title('WR ' + str(i), fontweight='bold')
-fig.tight_layout(rect=[0.15,0.04,0.85,1])
+fig.tight_layout(rect=[0.1,0.04,0.9,1]) #rect=[0.15,0.04,0.85,1]
 fig.legend(['20-25 m/s', '15-20 m/s', '10-15 m/s', '5-10 m/s', '0-5 m/s'],ncol=5,loc='lower center',reverse=True)
 if save:
     plt.savefig('./figures/roses.png', dpi=dpi)
 
 # AEP Comparison
-fig, ax = plt.subplots(1,1,figsize=(11,6))
+fig, ax = plt.subplots(1,1,figsize=(6.5,3.5))
 markers = ['o','v','^','s','P','*','X','D','p']
 cmap2 = cm.get_cmap('hot')
 for i in range(9):
     p = np.ma.polyfit(np.ma.masked_where(wr!=i+1,aep_park),np.ma.masked_where(wr!=i+1,aep_flowers),1)
     xrange = np.array([0,np.max(np.ma.masked_where(wr!=i+1,aep_park))])
     yrange = p[0]*xrange + p[1]
-    im = ax.scatter(np.ma.masked_where(wr!=i+1,aep_park),np.ma.masked_where(wr!=i+1,aep_flowers),20,alpha=0.90,marker=markers[i],zorder=15,color=cmap2(0.1*i))
-    ax.plot([],[],linestyle='--',markersize=5,marker=markers[i],label=str(i+1),color=cmap2(0.1*i))
-    ax.plot(xrange,yrange,'--',zorder=14,color=cmap2(0.1*i))
+    im = ax.scatter(np.ma.masked_where(wr!=i+1,aep_park),np.ma.masked_where(wr!=i+1,aep_flowers),8,alpha=0.90,marker=markers[i],zorder=15,color=cmap2(0.1*i))
+    ax.plot([],[],linestyle='--',linewidth=0.75,markersize=2,marker=markers[i],label=str(i+1),color=cmap2(0.1*i))
+    ax.plot(xrange,yrange,'--',linewidth=0.75,zorder=14,color=cmap2(0.1*i))
 xlim = ax.get_xlim()
 cmap = cm.get_cmap('coolwarm_r')
-ax.plot([0,xlim[1]],[0,xlim[1]],'k',linewidth=2, label='0%',zorder=10)
+ax.plot([0,xlim[1]],[0,xlim[1]],'k',linewidth=1, label='0%',zorder=10)
 ax.fill_between([0, xlim[1]],[0, 0.95*xlim[1]],[0, 1*xlim[1]],alpha=0.4,label='[-5%,0%]',color=cmap(0.4),zorder=1)
 ax.fill_between([0, xlim[1]],[0, 0.9*xlim[1]],[0, 0.95*xlim[1]],alpha=0.4,label='[-10%,-5%]',color=cmap(0.3),zorder=1)
 ax.fill_between([0, xlim[1]],[0, 0.8*xlim[1]],[0, 0.9*xlim[1]],alpha=0.4,label='[-20%,-10%]',color=cmap(0.2),zorder=1)
 ax.fill_between([0, xlim[1]],[0, 0.7*xlim[1]],[0, 0.8*xlim[1]],alpha=0.4,label='[-30%,-20%]',color=cmap(0.1),zorder=1)
-ax.set(xlabel='Conventional-Jensen AEP [TWh]',ylabel='FLOWERS AEP [TWh]',aspect='equal')
+ax.set(xlabel='Conventional-Jensen AEP [TWh]',ylabel='FLOWERS AEP [TWh]',aspect='equal',xticks=[0,2,4,6,8,10,12,14],yticks=[0,2,4,6,8,10,12,14])
 handles, labels = ax.get_legend_handles_labels()
-tmp = ax.legend(handles[9:],labels[9:],bbox_to_anchor=(0.195,0.1099999,0.9,0.89),title='AEP % Diff.')
+tmp = ax.legend(handles[9:],labels[9:],bbox_to_anchor=(0.19,0.1099999,0.9,0.89),title='AEP % Diff.')
 ax.add_artist(tmp)
 tmp2 = ax.legend(handles[0:9],labels[0:9],loc='upper left',title='Wind Rose')
 tmp2.get_frame().set_facecolor('gainsboro')
 axins = zoomed_inset_axes(ax, zoom=6, loc='lower right')
 for i in range(9):
-    p = np.ma.polyfit(np.ma.masked_where(wr!=i+1,aep_park),np.ma.masked_where(wr!=i+1,aep_flowers),1)
-    xrange = np.array([0,np.max(np.ma.masked_where(wr!=i+1,aep_park))])
-    yrange = p[0]*xrange + p[1]
-    im = axins.scatter(np.ma.masked_where(wr!=i+1,aep_park),np.ma.masked_where(wr!=i+1,aep_flowers),20,alpha=0.90,marker=markers[i],zorder=15,color=cmap2(0.1*i))
+    # p = np.ma.polyfit(np.ma.masked_where(wr!=i+1,aep_park),np.ma.masked_where(wr!=i+1,aep_flowers),1)
+    # xrange = np.array([0,np.max(np.ma.masked_where(wr!=i+1,aep_park))])
+    # yrange = p[0]*xrange + p[1]
+    im = axins.scatter(np.ma.masked_where(wr!=i+1,aep_park),np.ma.masked_where(wr!=i+1,aep_flowers),8,alpha=0.90,marker=markers[i],zorder=15,color=cmap2(0.1*i))
     # axins.plot([],[],linestyle='--',markersize=5,marker=markers[i],label=str(i+1),color=cmap2(0.1*i))
     # axins.plot(xrange,yrange,'--',zorder=14,color=cmap2(0.1*i))
 xlim = axins.get_xlim()
 cmap = cm.get_cmap('coolwarm_r')
-axins.plot([0,xlim[1]],[0,xlim[1]],'k',linewidth=2, label='0%',zorder=10)
+axins.plot([0,xlim[1]],[0,xlim[1]],'k',linewidth=1, label='0%',zorder=10)
 axins.fill_between([0, xlim[1]],[0, 0.95*xlim[1]],[0, 1*xlim[1]],alpha=0.4,label='[-5%,0%]',color=cmap(0.4),zorder=1)
 axins.fill_between([0, xlim[1]],[0, 0.9*xlim[1]],[0, 0.95*xlim[1]],alpha=0.4,label='[-10%,-5%]',color=cmap(0.3),zorder=1)
 axins.fill_between([0, xlim[1]],[0, 0.8*xlim[1]],[0, 0.9*xlim[1]],alpha=0.4,label='[-20%,-10%]',color=cmap(0.2),zorder=1)
 axins.fill_between([0, xlim[1]],[0, 0.7*xlim[1]],[0, 0.8*xlim[1]],alpha=0.4,label='[-30%,-20%]',color=cmap(0.1),zorder=1)
 axins.set(xlim=[0,1],ylim=[0,1],aspect='equal',xticks=[],yticks=[])
 mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5", zorder=25)
+fig.tight_layout()
 
 if save:
     plt.savefig('./figures/aep_comparison.png', dpi=dpi)
 
 # Cost Comparison
-fig, ax = plt.subplots(1,1, figsize=(11,5))
-im = ax.scatter(time_park/1e-3,time_flowers/1e-3,c=nt,alpha=0.7,cmap='plasma',zorder=5,vmin=2,vmax=500)
+fig, ax = plt.subplots(1,1, figsize=(6.5,3))
+im = ax.scatter(time_park/1e-3,time_flowers/1e-3,10,c=nt,alpha=0.7,cmap='plasma',zorder=5,vmin=2,vmax=500)
 # im = ax.scatter(time_park/1e-3,time_flowers/1e-3,c=nt,cmap='plasma',zorder=5,vmin=2,vmax=500)
 ax.set(xscale='log',yscale='log',aspect='equal')
 plt.autoscale(False)
@@ -133,19 +148,19 @@ num_turbs2 = np.linspace(80,500,endpoint=True)
 # plt.show()
 # dasd
 
-fig, ax = plt.subplots(1,1, figsize=(11,5))
-ax.scatter(nt,time_flowers/1e-3,s=10,linewidth=1, alpha=0.5, facecolors='tab:blue', edgecolors='tab:blue', label='FLOWERS')
-ax.scatter(nt,time_park/1e-3,s=10,linewidth=1, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange', label='Conventional')
-ax.plot(num_turbs, 0.8*(5.1e-4*num_turbs**(2)+0.35), '--', color='tab:blue', linewidth=3)
-ax.plot(num_turbs1, 1.4*(1.65*num_turbs1**(1)-12), '--', color='tab:orange', linewidth=3)
-ax.plot(num_turbs2, 0.8*(0.108*num_turbs2**(1.535)+25), '--', color='tab:orange', linewidth=3)
+fig, ax = plt.subplots(1,1, figsize=(6.5,3))
+ax.scatter(nt,time_flowers/1e-3,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:blue', edgecolors='tab:blue', label='FLOWERS')
+ax.scatter(nt,time_park/1e-3,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange', label='Conventional')
+ax.plot(num_turbs, 0.8*(5.1e-4*num_turbs**(2)+0.35), '--', color='tab:blue', linewidth=1.5)
+ax.plot(num_turbs1, 1.4*(1.65*num_turbs1**(1)-12), '--', color='tab:orange', linewidth=1.5)
+ax.plot(num_turbs2, 0.8*(0.108*num_turbs2**(1.535)+25), '--', color='tab:orange', linewidth=1.5)
 # ax.plot([0, 100], 1*np.array([25,1e3*np.max(time_park)]), '--', color='tab:orange', linewidth=2)
 # ax.plot(range(1,101),power_law(range(1,101),p[0],p[1]),'--',linewidth=2, %(p[1]))
 # ax.plot(range(31,101),power_law(range(31,101),q[0],q[1]),'--',linewidth=2,label='Conventional: $\mathcal{O}(N^{%.1f})$' %(q[1]))
 # ax.plot(range(1,31),power_law(range(1,31),r[0],r[1]),'--',color="tab:orange",linewidth=2,label='')
-ax.text(185,8,'$\mathcal{O}(N^2)$',color='tab:blue',fontsize=14)
-ax.text(10,160,'$\mathcal{O}(N)$',color='tab:orange',fontsize=14)
-ax.text(265,270,'$\mathcal{O}(N^{1.5})$',color='tab:orange',fontsize=14)
+ax.text(185,8,'$\mathcal{O}(N^2)$',color='tab:blue')
+ax.text(10,160,'$\mathcal{O}(N)$',color='tab:orange')
+ax.text(265,270,'$\mathcal{O}(N^{1.5})$',color='tab:orange')
 ax.set(xlabel='Number of Turbines, $N$',ylabel='AEP Evaluation Time [ms]',yscale='log')
 ax.legend()
 fig.tight_layout(rect=[0.2,0,.8,1])
@@ -182,12 +197,12 @@ n_bins = np.linspace(20,360,endpoint=True)
 # plt.show()
 # das
 
-fig, ax = plt.subplots(1,1, figsize=(11,5))
+fig, ax = plt.subplots(1,1, figsize=(6.5,3))
 ax2 = ax.twinx()
-ax.scatter(time_flowers/1e-3,N_terms,s=10,linewidth=1, alpha=0.5, facecolors='tab:blue', edgecolors='tab:blue',zorder=3,label='FLOWERS')
-ax2.scatter(time_park/1e-3,N_bins,s=10,linewidth=1, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange',zorder=2)
-ax.plot(0.7*(0.69*n_terms**(1)-3),n_terms, '--', color='tab:blue', linewidth=3)
-ax2.plot(0.7*(0.6*n_bins**(1)+112), n_bins, '--', color='tab:orange', linewidth=3)
+ax.scatter(time_flowers/1e-3,N_terms,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:blue', edgecolors='tab:blue',zorder=3,label='FLOWERS')
+ax2.scatter(time_park/1e-3,N_bins,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange',zorder=2)
+ax.plot(0.7*(0.69*n_terms**(1)-3),n_terms, '--', color='tab:blue', linewidth=1.5)
+ax2.plot(0.7*(0.6*n_bins**(1)+112), n_bins, '--', color='tab:orange', linewidth=1.5)
 # ax.plot(xrange,p[0]*xrange+p[1],'--',linewidth=2,color='tab:blue')
 # ax2.plot(xrange2,q[0]*xrange2+q[1],'--',linewidth=2,color='tab:orange')
 # ax2.plot(xrange1,r[0]*xrange1+r[1],'--',linewidth=2,color='tab:orange')
@@ -196,9 +211,9 @@ ax.set_ylabel('Number of Fourier Modes, $M$', color='tab:blue')
 ax.tick_params(axis='y',labelcolor='tab:blue')
 ax2.set_ylabel('Number of Wind Direction Bins, $\mathcal{D}$', color='tab:orange')
 ax2.tick_params(axis='y',labelcolor='tab:orange')
-ax.scatter([],[],s=10,linewidth=1, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange',label='Conventional')
-ax2.text(22,200,'$\mathcal{O}(M)$',color='tab:blue',fontsize=14)
-ax2.text(64,110,'$\mathcal{O}(\mathcal{D})$',color='tab:orange',fontsize=14)
+ax.scatter([],[],s=5,linewidth=0.5, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange',label='Conventional')
+ax2.text(22,200,'$\mathcal{O}(M)$',color='tab:blue')
+ax2.text(60,110,'$\mathcal{O}(\mathcal{D})$',color='tab:orange')
 ax.legend(loc="upper left")
 fig.tight_layout(rect=[0.2,0,.8,1])
 if save:
@@ -214,13 +229,14 @@ N = len(x_all) - 1
 flowers_terms = resolution[0]
 floris_resolution = resolution[1]
 
-fig = plt.figure(figsize=(11,7.5))
+fig = plt.figure(figsize=(6.5,5.25))
 ax0 = plt.subplot2grid((3,2),(0,0),rowspan=3)
 ax1 = plt.subplot2grid((3,2),(0,1))
 ax2 = plt.subplot2grid((3,2),(1,1))
 ax3 = plt.subplot2grid((3,2),(2,1))
 
 ax0.set(aspect='equal', xlim=[-3,17], ylim=[-3,17], xticks=[0,5,10,15], yticks=[0,5,10,15], xlabel='$x/D$', ylabel='$y/D$')
+ax0.grid(linestyle=':')
 ax1.set(xlim=[0,N], ylim=[0.975,1.025], ylabel='Normalized AEP',xticklabels=[])
 ax1.set_title('FLOWERS',fontweight='bold')
 ax1.grid(linestyle=':')
@@ -237,20 +253,20 @@ cmap = cm.get_cmap('Reds')
 
 patches = []
 for n in range(len(x_all[0])):
-    patches.append(ax0.add_patch(plt.Circle((x_all[-1,n], y_all[-1,n]), 1/2, color='tab:red')))
+    patches.append(ax0.add_patch(plt.Circle((x_all[-1,n], y_all[-1,n]), 1/2, color='tab:red',zorder=2)))
 
 for i in np.arange(1,26):
     for n in range(len(x_all[0])):
-        ax0.plot([x_all[i-1,n],x_all[i,n]],[y_all[i-1,n],y_all[i,n]],"-o",color=cmap(i/N),markersize=3)
-ax1.plot(aep_flowers[0],"-o",color=colors[0],markersize=3)
-ax1.plot(aep_flowers[1],":o",color=colors[1],markersize=3)
-ax1.plot(aep_flowers[2],"--o",color=colors[2],markersize=3)
-ax2.plot(aep_park[0],"-o",color=colors[4],markersize=3)
-ax2.plot(aep_park[1],":o",color=colors[5],markersize=3)
-ax2.plot(aep_park[2],"--o",color=colors[6],markersize=3)
-ax3.plot(aep_gauss[0],"-o",color=colors[8],markersize=3)
-ax3.plot(aep_gauss[1],":o",color=colors[9],markersize=3)
-ax3.plot(aep_gauss[2],"--o",color=colors[10],markersize=3)
+        ax0.plot([x_all[i-1,n],x_all[i,n]],[y_all[i-1,n],y_all[i,n]],"-o",color=cmap(i/N),markersize=1.5,linewidth=1)
+ax1.plot(aep_flowers[0],"-o",color=colors[0],markersize=2,linewidth=0.75)
+ax1.plot(aep_flowers[1],"--o",color=colors[1],markersize=2,linewidth=0.75)
+ax1.plot(aep_flowers[2],":o",color=colors[2],markersize=2,linewidth=0.75)
+ax2.plot(aep_park[0],"-o",color=colors[4],markersize=2,linewidth=0.75)
+ax2.plot(aep_park[1],"--o",color=colors[5],markersize=2,linewidth=0.75)
+ax2.plot(aep_park[2],":o",color=colors[6],markersize=2,linewidth=0.75)
+ax3.plot(aep_gauss[0],"-o",color=colors[8],markersize=2,linewidth=0.75)
+ax3.plot(aep_gauss[1],"--o",color=colors[9],markersize=2,linewidth=0.75)
+ax3.plot(aep_gauss[2],":o",color=colors[10],markersize=2,linewidth=0.75)
 divider = make_axes_locatable(ax0)
 cbar_ax = divider.append_axes('top', size='5%', pad=0.05)
 cbar = plt.colorbar(cm.ScalarMappable(cmap=cmap,norm=co.Normalize(vmin=0,vmax=N)),cax=cbar_ax,label='Iteration',orientation='horizontal')
@@ -259,6 +275,7 @@ cbar_ax.xaxis.set_label_position('top')
 ax1.legend(['$M = %.0f$' %(flowers_terms[0]), '$M = %.0f$' %(flowers_terms[1]), '$M = %.0f$' %(flowers_terms[2])],loc='lower left')
 ax2.legend(['$\mathcal{D} = 360$','$\mathcal{D} = 72$','$\mathcal{D} = 36$'],loc='lower left')
 ax3.legend(['$\mathcal{D} = 360$','$\mathcal{D} = 72$','$\mathcal{D} = 36$'],loc='lower left')
+fig.tight_layout()
 
 if save:
     plt.savefig('./figures/aep_mutation.png', dpi=dpi)
@@ -329,7 +346,7 @@ xx, yy, flowers_aep, park_aep, gauss_aep, terms, conv_resolution, wind_rose, X0,
 # bounds=[0.94,0.995,1.0]
 # norm = co.BoundaryNorm(bounds, cmap.N)
 
-fig, ax = plt.subplots(3,3,figsize=(11,10))
+fig, ax = plt.subplots(3,3,figsize=(6.5,6.5))
 
 for i in range(3):
     for j in range(3):
@@ -369,7 +386,7 @@ for i in range(3):
         axx.fill_between([-1,15],-1,0,color='lightgray')
         axx.fill_betweenx([-1,15],14,15,color='lightgray')
         axx.fill_betweenx([-1,15],-1,0,color='lightgray')
-        axx.plot(boundary[0],boundary[1],linewidth=2,color="black",zorder=6)
+        axx.plot(boundary[0],boundary[1],linewidth=1.5,color="black",zorder=6)
         circ1=[]
         circ2=[]
         for n in range(len(X0)):
@@ -383,21 +400,21 @@ for i in range(3):
         # global_sol = np.where(model==1.0)
 
         # axx.imshow(np.flip(model,axis=0), cmap=cmap, norm=norm, extent=[-1,15,-1,15])
-        axx.contour(xx,yy,model,levels=np.linspace(0.94,1.,60,endpoint=True),cmap='viridis',vmin=0.94,vmax=1.)
+        axx.contour(xx,yy,model,levels=np.linspace(0.94,1.,60,endpoint=True),linewidths=0.75,cmap='viridis',vmin=0.94,vmax=1.)
         # axx.contour(xx,yy,model,levels=np.linspace(0.94,1.,60,endpoint=True),cmap=cmap_new,vmin=0.94,vmax=1.)
         # axx.scatter(xx[global_sol],yy[global_sol],50,color='r',marker='*',zorder=20)
         # axx.contour(xx,yy,model,levels=[0.99,0.999],colors=["darkred","indianred"])
         axx.set(
             title=label, 
             xlabel='$x/D$', 
-            ylabel='$y/D$',
             aspect='equal',
             xticks=[0,7,14],
             yticks=[0,7,14],
         )
+        axx.set_ylabel('$y/D$',labelpad=0)
 fig.tight_layout()
-fig.subplots_adjust(right=0.9)
-cbar_ax = fig.add_axes([0.9, 0.18, 0.02, 0.637])
+fig.subplots_adjust(right=0.87)
+cbar_ax = fig.add_axes([0.89, 0.18, 0.02, 0.637])
 cbar = plt.colorbar(cm.ScalarMappable(norm=co.Normalize(vmin=0.94,vmax=1.)),cax=cbar_ax,label='Normalized AEP')
 # cbar = plt.colorbar(cm.ScalarMappable(norm=co.Normalize(vmin=0.94,vmax=1.),cmap=cmap_new),cax=cbar_ax,label='Normalized AEP')
 # cmap = cm.get_cmap('Reds_r')
@@ -574,7 +591,7 @@ solution_gauss, _, _ = pickle.load(open('solutions/aep_layout_gauss.p','rb'))
 boundaries /= 126.
 boundaries = np.append(boundaries,np.reshape(boundaries[:,0],(2,1)),axis=1)
 
-fig, ax = plt.subplots(1,3,figsize=(11,4.5))
+fig, ax = plt.subplots(1,3,figsize=(6.5,3))
 
 layout_init = []
 layout_final = []
@@ -582,16 +599,18 @@ for i in range(len(solution_flowers['opt_x'])):
     layout_init.append(plt.Circle((solution_flowers['init_x'][i]/126., solution_flowers['init_y'][i]/126.), 1/2))
     layout_final.append(plt.Circle((solution_flowers['opt_x'][i]/126., solution_flowers['opt_y'][i]/126.), 1/2))
 
-tmp0 = plt.Circle(([],[]),1/2,color='r',label='Initial Layout')
-tmp1 = plt.Circle(([],[]),1/2,color='tab:blue',label='Optimal Layout')
+# tmp0 = plt.Circle((-10,-10),1/2,linestyle='--',facecolor='none',edgecolor='k',label='Initial Layout')
+# tmp1 = plt.Circle((-10,-10),1/2,color='k',label='Optimal Layout')
+tmp0 = plt.scatter([],[],12,marker='o',color='k',facecolor='none',linestyle='--',label='Initial',linewidth=0.5)
+tmp1 = plt.scatter([],[],12,marker='o',color='k',label='Optimal')
 
-layout0 = coll.PatchCollection(layout_init, color='r')
+layout0 = coll.PatchCollection(layout_init, linestyle='--', facecolor='none', edgecolor='tab:blue',zorder=2)
 layout1 = coll.PatchCollection(layout_final, color='tab:blue',zorder=2)
-# ax[0].add_collection(layout0)
+ax[0].add_collection(layout0)
 ax[0].add_collection(layout1)
-ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
 ax[0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='FLOWERS',xticks=[0,7,14],yticks=[0,7,14])
-ax[0].grid(linestyle=':',which='both')
+ax[0].grid(linestyle=':',which='both',linewidth=0.5)
 ax[0].xaxis.set_minor_locator(MultipleLocator(1))
 ax[0].yaxis.set_minor_locator(MultipleLocator(1))
 
@@ -601,16 +620,16 @@ for i in range(len(solution_flowers['opt_x'])):
     layout_init.append(plt.Circle((solution_jensen['init_x'][i]/126., solution_jensen['init_y'][i]/126.), 1/2))
     layout_final.append(plt.Circle((solution_jensen['opt_x'][i]/126., solution_jensen['opt_y'][i]/126.), 1/2))
 
-tmp0 = plt.Circle(([],[]),1/2,color='r',label='Initial Layout')
-tmp1 = plt.Circle(([],[]),1/2,color='tab:orange',label='Optimal Layout')
+# tmp0 = plt.Circle(([],[]),1/2,color='r',label='Initial Layout')
+# tmp1 = plt.Circle(([],[]),1/2,color='tab:orange',label='Optimal Layout')
 
-layout0 = coll.PatchCollection(layout_init, color='r')
+layout0 = coll.PatchCollection(layout_init, linestyle='--', facecolor='none', edgecolor='tab:orange',zorder=2)
 layout1 = coll.PatchCollection(layout_final, color='tab:orange',zorder=2)
-# ax[1].add_collection(layout0)
+ax[1].add_collection(layout0)
 ax[1].add_collection(layout1)
-ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
 ax[1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='Conventional-Jensen',xticks=[0,7,14],yticks=[0,7,14])
-ax[1].grid(linestyle=':',which='both')
+ax[1].grid(linestyle=':',which='both',linewidth=0.5)
 ax[1].xaxis.set_minor_locator(MultipleLocator(1))
 ax[1].yaxis.set_minor_locator(MultipleLocator(1))
 
@@ -621,26 +640,38 @@ for i in range(len(solution_flowers['opt_x'])):
     layout_init.append(plt.Circle((solution_gauss['init_x'][i]/126., solution_gauss['init_y'][i]/126.), 1/2))
     layout_final.append(plt.Circle((solution_gauss['opt_x'][i]/126., solution_gauss['opt_y'][i]/126.), 1/2))
 
-tmp0 = plt.Circle(([],[]),1/2,color='r',label='Initial Layout')
-tmp1 = plt.Circle(([],[]),1/2,color='tab:green',label='Optimal Layout')
+# tmp0 = plt.Circle(([],[]),1/2,color='r',label='Initial Layout')
+# tmp1 = plt.Circle(([],[]),1/2,color='tab:green',label='Optimal Layout')
 
-layout0 = coll.PatchCollection(layout_init, color='r')
+layout0 = coll.PatchCollection(layout_init, linestyle='--', facecolor='none', edgecolor='tab:green',zorder=2)
 layout1 = coll.PatchCollection(layout_final, color='tab:green',zorder=2)
-# ax[2].add_collection(layout0)
+ax[2].add_collection(layout0)
 ax[2].add_collection(layout1)
-ax[2].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+ax[2].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
 ax[2].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='Conventional-Gauss',xticks=[0,7,14],yticks=[0,7,14])
-ax[2].grid(linestyle=':',which='both')
+ax[2].grid(linestyle=':',which='both',linewidth=0.5)
 ax[2].xaxis.set_minor_locator(MultipleLocator(1))
 ax[2].yaxis.set_minor_locator(MultipleLocator(1))
-# ax.legend(handles=[tmp0,tmp1],loc='upper right')
+ax[1].legend(handles=[tmp0,tmp1],ncols=2,loc='lower center',bbox_to_anchor=(0.5,-0.425)) #bbox_to_anchor=(0.2,0.25,0.45,0.4)
 fig.tight_layout()
 
 if save:
     plt.savefig('./figures/aep_layout.png', dpi=dpi)
 
-print("FLOWERS Time: {:.2f}".format(solution_flowers['total_time']))
-print("Jensen Time: {:.2f}".format(solution_jensen['total_time']))
-print("Gauss Time: {:.2f}".format(solution_gauss['total_time']))
+print("FLOWERS AEP: {:.2f} GWh".format(solution_flowers['opt_aep']/1e9))
+print("Jensen AEP: {:.2f} GWh".format(solution_jensen['opt_aep']/1e9))
+print("Gauss AEP: {:.2f} GWh".format(solution_gauss['opt_aep']/1e9))
+print()
+print("FLOWERS AEP Gain: {:.1f}%".format((solution_flowers['opt_aep'] - solution_flowers['init_aep'])/solution_flowers['init_aep']*100))
+print("Jensen AEP Gain: {:.1f}%".format((solution_jensen['opt_aep']-solution_jensen['init_aep'])/solution_jensen['init_aep']*100))
+print("Gauss AEP Gain: {:.1f}%".format((solution_gauss['opt_aep']-solution_gauss['init_aep'])/solution_gauss['init_aep']*100))
+print()
+print("FLOWERS Time: {:.2f} s".format(solution_flowers['total_time']))
+print("Jensen Time: {:.2f} s".format(solution_jensen['total_time']))
+print("Gauss Time: {:.2f} s".format(solution_gauss['total_time']))
+print()
+print("FLOWERS Iterations: {:.0f}".format(solution_flowers['iter']))
+print("Jensen Iterations: {:.0f}".format(solution_jensen['iter']))
+print("Gauss Iterations: {:.0f}".format(solution_gauss['iter']))
 
 plt.show()

@@ -13,7 +13,20 @@ from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 import colorsys
 
 save = False
-dpi = 500
+
+dpi = 750
+if save == False:
+    plt.rcParams['figure.dpi'] = 150
+# Formatting
+font = 8
+plt.rc('font', size=font)          # controls default text sizes
+plt.rc('axes', titlesize=font)     # fontsize of the axes title
+plt.rc('axes', labelsize=font)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=font)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=font)    # fontsize of the tick labels
+plt.rc('legend', fontsize=font-2)    # legend fontsize
+plt.rc('legend', title_fontsize=font-2)    # legend fontsize
+plt.rc('figure', titlesize=font)  # fontsize of the figure title
 
 # figs = "cases"
 # figs = "multistart"
@@ -31,7 +44,7 @@ color_numerical = 'mediumpurple'
 
 if figs == "cases":
     # Farm definitions
-    fig = plt.figure(figsize=(11,9))
+    fig = plt.figure(figsize=(6.5,5.25))
     ax0 = fig.add_subplot(2,3,1)
     ax1 = fig.add_subplot(2,3,2)
     ax2 = fig.add_subplot(2,3,3)
@@ -54,9 +67,9 @@ if figs == "cases":
     layouts = coll.PatchCollection(layout, color=color_neutral,zorder=2)
     ax[0][0].add_collection(layouts)
 
-    ax[0][0].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
-    ax[0][0].set(xlabel='x/D', ylabel='y/D', aspect='equal', title='$N$ = 10', xticks = [0,2,4,6,8,10], yticks = [0,2,4,6,8,10])
-    ax[0][0].grid(linestyle=':')
+    ax[0][0].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
+    ax[0][0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='$N = 10$', xticks = [0,2,4,6,8,10], yticks = [0,2,4,6,8,10])
+    ax[0][0].grid(linestyle=':',linewidth=0.5)
     ax[0][0].set_axisbelow(True)
 
     vis.plot_wind_rose(wr, ax=ax[1][0])
@@ -75,9 +88,9 @@ if figs == "cases":
     layouts = coll.PatchCollection(layout, color=color_neutral,zorder=2)
     ax[0][1].add_collection(layouts)
 
-    ax[0][1].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
-    ax[0][1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='$N$ = 50', xticks = [0,5,10,15,20,25,30,35], yticks = [0,5,10,15,20,25,30,35])
-    ax[0][1].grid(linestyle=':')
+    ax[0][1].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
+    ax[0][1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='$N = 50$', xticks = [0,5,10,15,20,25,30,35], yticks = [0,5,10,15,20,25,30,35])
+    ax[0][1].grid(linestyle=':',linewidth=0.5)
     ax[0][1].set_axisbelow(True)
 
     vis.plot_wind_rose(wr, ax=ax[1][1])
@@ -96,9 +109,9 @@ if figs == "cases":
     layouts = coll.PatchCollection(layout, color=color_neutral,zorder=2)
     ax[0][2].add_collection(layouts)
 
-    ax[0][2].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
-    ax[0][2].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='$N$ = 250', xticks = [0,25,50,75,100,125,150], yticks = [0,25,50,75,100,125,150])
-    ax[0][2].grid(linestyle=':')
+    ax[0][2].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
+    ax[0][2].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='$N = 250$', xticks = [0,25,50,75,100,125], yticks = [0,25,50,75,100,125,150])
+    ax[0][2].grid(linestyle=':',linewidth=0.5)
     ax[0][2].set_axisbelow(True)
 
     vis.plot_wind_rose(wr, ax=ax[1][2])
@@ -109,8 +122,12 @@ if figs == "cases":
 
     # fig.tight_layout(rect=[0.,0.04,0.,1])
     fig.tight_layout()
-    fig.subplots_adjust(bottom=0.05)
+    fig.subplots_adjust(top=0.9,bottom=0.08)
     fig.legend(reversed(h), l, ncol=5,loc='lower center')
+    fig.text(0.199, 0.96, 'Small (SM) Case', fontweight='bold', horizontalalignment='center', verticalalignment='center')
+    fig.text(0.519, 0.96, 'Medium (MD) Case', fontweight='bold', horizontalalignment='center', verticalalignment='center')
+    fig.text(0.834, 0.96, 'Large (LG) Case', fontweight='bold', horizontalalignment='center', verticalalignment='center')
+
     if save:
         plt.savefig('./figures/opt_multistart_setup.png', dpi=dpi)
 
@@ -262,16 +279,22 @@ if figs == "multistart":
         time_scale_string = '[min]'
         xticks = [0,2,4,6,8,10]
         yticks = [0,2,4,6,8,10]
+        timeticks = [0.,0.5,1.,1.5,2.,2.5,3.,3.5]
+        iterticks = [0,100,200,300,400]
     elif farm == "medium":
         time_scale = 60
         time_scale_string = '[min]'
         xticks = [0,5,10,15,20,25,30,35]
         yticks = [0,5,10,15,20,25,30,35]
+        timeticks = [0,20,40,60,80,100,120,140,160]
+        iterticks = [0,100,200,300,400,500]
     elif farm == "large":
         time_scale = 3600
         time_scale_string = '[hr]'
-        xticks = [0,25,50,75,100,125,150]
+        xticks = [0,25,50,75,100,125]
         yticks = [0,25,50,75,100,125,150]
+        timeticks = [0,20,40,60,80,100]
+        iterticks = [0,200,400,600,800,1000,1200,1400]
 
     print("FLOWERS Median Cost: {:.1f} s".format(np.median(flowers_solver_time)))
     print("Conventional Median Cost: {:.1f} ".format(np.median(conventional_solver_time)/time_scale) + time_scale_string[1:-1])
@@ -316,7 +339,7 @@ if figs == "multistart":
         plt.savefig(fig_name + 'conventional_codes.png', dpi=dpi)
 
     # Superimposed layouts
-    fig, ax = plt.subplots(1,3,figsize=(11,4.5))
+    fig, ax = plt.subplots(1,3,figsize=(6.5,2.5))
     for n in range(N):
         solution = solutions_flowers[n]
         layout = []
@@ -324,9 +347,9 @@ if figs == "multistart":
             layout.append(plt.Circle((solution['init_x'][i]/126., solution['init_y'][i]/126.), 1/2))
         layouts = coll.PatchCollection(layout, color=color_neutral, alpha=0.2)
         ax[0].add_collection(layouts)
-    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='Initial',xticks=xticks,yticks=yticks)
-    ax[0].grid(linestyle=':')
+    ax[0].grid(linestyle=':',linewidth=0.5)
 
     for n in range(N):
         solution = solutions_flowers[n]
@@ -347,9 +370,9 @@ if figs == "multistart":
 
         layouts = coll.PatchCollection(layout, color=color_flowers, alpha=0.2)
         ax[1].add_collection(layouts)
-    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='FLOWERS-AD',xticks=xticks,yticks=yticks)
-    ax[1].grid(linestyle=':')
+    ax[1].grid(linestyle=':',linewidth=0.5)
 
     for n in range(N):
         solution = solutions_conventional[n]
@@ -370,9 +393,9 @@ if figs == "multistart":
 
         layouts = coll.PatchCollection(layout, color=color_conventional, alpha=0.2)
         ax[2].add_collection(layouts)
-    ax[2].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[2].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[2].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='Conventional-FD',xticks=xticks,yticks=yticks)
-    ax[2].grid(linestyle=':')
+    ax[2].grid(linestyle=':',linewidth=0.5)
 
     fig.tight_layout()
     if save:
@@ -383,7 +406,7 @@ if figs == "multistart":
     # print(np.where(conventional_min_dist < 1))
 
     # Best cases
-    fig, ax = plt.subplots(1,2,figsize=(11,4.5))
+    fig, ax = plt.subplots(1,2,figsize=(6.5,2.5))
     if farm == "small":
         nn = 8
     elif farm == "medium":
@@ -404,10 +427,10 @@ if figs == "multistart":
     layout1 = coll.PatchCollection(layout_final, color=color_flowers,zorder=2)
     # ax[0].add_collection(layout0)
     ax[0].add_collection(layout1)
-    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='FLOWERS-AD'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
     # ax[0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='FLOWERS Best: {:.2f} GWh'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
-    ax[0].grid(linestyle=':')
+    ax[0].grid(linestyle=':',linewidth=0.5)
 
     if farm == "small":
         nn = 2
@@ -429,12 +452,12 @@ if figs == "multistart":
     layout1 = coll.PatchCollection(layout_final, color=color_conventional,zorder=2)
     # ax[1].add_collection(layout0)
     ax[1].add_collection(layout1)
-    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='Conventional-FD'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
     # ax[1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='Conventional Best: {:.2f} GWh'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
-    ax[1].grid(linestyle=':')
+    ax[1].grid(linestyle=':',linewidth=0.5)
     # ax.legend(handles=[tmp0,tmp1],loc='upper right')
-    fig.tight_layout()
+    fig.tight_layout(rect=[0.1,0,0.9,1])
     if save:
         plt.savefig(fig_name + 'best.png', dpi=dpi)
 
@@ -443,47 +466,52 @@ if figs == "multistart":
     conventional_optimal_aep = np.ma.masked_where(conventional_outliers,conventional_optimal_aep)
 
     # AEP vs. Time
-    fig, ax = plt.subplots(1,2,figsize=(11,5))
-    ax[0].scatter(flowers_solver_time/time_scale,flowers_optimal_aep/1e9,20,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
-    ax[0].scatter(conventional_solver_time/time_scale,conventional_optimal_aep/1e9,20,alpha=0.75,color=color_conventional,label='Conventional-FD')
+    fig, ax = plt.subplots(1,2,figsize=(6.5,3))
+    ax[0].scatter(flowers_solver_time/time_scale,flowers_optimal_aep/1e9,10,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
+    ax[0].scatter(conventional_solver_time/time_scale,conventional_optimal_aep/1e9,10,alpha=0.75,color=color_conventional,label='Conventional-FD')
+    ax[0].set(xticks=timeticks)
     xlim = ax[0].get_xlim()
     ylim = ax[0].get_ylim()
-    ax[0].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--')
-    ax[0].vlines(np.median(flowers_solver_time)/time_scale,ylim[0],ylim[1],colors=color_flowers,linestyles='--')
-    ax[0].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_conventional,linestyles='--')
-    ax[0].vlines(np.median(conventional_solver_time)/time_scale,ylim[0],ylim[1],colors=color_conventional,linestyles='--')
+    ax[0].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[0].vlines(np.median(flowers_solver_time)/time_scale,ylim[0],ylim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[0].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_conventional,linestyles='--',linewidths=0.75)
+    ax[0].vlines(np.median(conventional_solver_time)/time_scale,ylim[0],ylim[1],colors=color_conventional,linestyles='--',linewidths=0.75)
     ax[0].set(xlabel='Solver Time ' + time_scale_string,ylabel='Optimal AEP [GWh]',xlim=xlim,ylim=ylim)
-    ax[0].grid(linestyle=':')
+    ax[0].grid(linestyle=':',linewidth=0.5)
     ax[0].set_axisbelow(True)
     # ax[0].legend(loc='lower right')
 
     # AEP vs. Iterations
     # fig, ax = plt.subplots(1,1,figsize=(11,5))
-    ax[1].scatter(flowers_iterations,flowers_optimal_aep/1e9,20,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
-    ax[1].scatter(conventional_iterations,conventional_optimal_aep/1e9,20,alpha=0.75,color=color_conventional,label='Conventional-FD')
+    ax[1].scatter(flowers_iterations,flowers_optimal_aep/1e9,10,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
+    ax[1].scatter(conventional_iterations,conventional_optimal_aep/1e9,10,alpha=0.75,color=color_conventional,label='Conventional-FD')
+    ax[1].set(xticks=iterticks)
     xlim = ax[1].get_xlim()
     ylim = ax[1].get_ylim()
-    ax[1].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--')
-    ax[1].vlines(np.median(flowers_iterations),ylim[0],ylim[1],colors=color_flowers,linestyles='--')
-    ax[1].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_conventional,linestyles='--')
-    ax[1].vlines(np.median(conventional_iterations),ylim[0],ylim[1],colors=color_conventional,linestyles='--')
+    ax[1].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[1].vlines(np.median(flowers_iterations),ylim[0],ylim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[1].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_conventional,linestyles='--',linewidths=0.75)
+    ax[1].vlines(np.median(conventional_iterations),ylim[0],ylim[1],colors=color_conventional,linestyles='--',linewidths=0.75)
     ax[1].set(xlabel='Iterations',xlim=xlim,ylim=ylim,yticklabels=[])
-    ax[1].grid(linestyle=':')
+    ax[1].grid(linestyle=':',linewidth=0.5)
     ax[1].set_axisbelow(True)
     ax[1].legend(loc='lower right')
 
-    fig.text(0.49,0.92,'(a)',fontweight='bold')
-    fig.text(0.955,0.92,'(b)',fontweight='bold')
+    if farm == "large":
+        ax[0].text(0.86,0.04,'(a)',fontweight='bold',transform=ax[0].transAxes)
+    else:
+        ax[0].text(0.92,0.04,'(a)',fontweight='bold',transform=ax[0].transAxes)
+    ax[1].text(0.92,0.17,'(b)',fontweight='bold',transform=ax[1].transAxes)
 
     fig.tight_layout()
     if save:
         plt.savefig(fig_name + 'qoi.png', dpi=dpi)
 
     # AEP Gain per Study
-    fig, ax = plt.subplots(1,1,figsize=(11,5))
+    fig, ax = plt.subplots(1,1,figsize=(6.5,3))
     off_val = 0.15
-    mrk_sz = 2
-    line_width = 1
+    mrk_sz = 1
+    line_width = 0.75
     for n in range(N):
         if flowers_outliers[n] == 0:
             ax.scatter(n-off_val,initial_aep[n]/1e9,mrk_sz,color=color_neutral, zorder=100)
@@ -494,12 +522,12 @@ if figs == "multistart":
             ax.scatter(n+off_val,initial_aep[n]/1e9,mrk_sz,color=color_neutral, zorder=100)
             ax.scatter(n+off_val,conventional_optimal_aep[n]/1e9,mrk_sz,color=color_conventional)
             ax.vlines(n+off_val,initial_aep[n]/1e9,conventional_optimal_aep[n]/1e9,color=color_conventional,linewidth=line_width)
-    ax.scatter([],[],20,color=color_neutral,label='Initial')
-    ax.scatter([],[],20,color=color_flowers,label='FLOWERS-AD')
-    ax.scatter([],[],20,color=color_conventional,label='Conventional-FD')
-    ax.set(xlabel='Index',ylabel='AEP [GWh]')
+    ax.scatter([],[],5,color=color_neutral,label='Initial')
+    ax.scatter([],[],5,color=color_flowers,label='FLOWERS-AD')
+    ax.scatter([],[],5,color=color_conventional,label='Conventional-FD')
+    ax.set(xlabel='Index',ylabel='AEP [GWh]',xticks=[0,10,20,30,40,50,60,70,80,90,100])
     ax.legend()
-    ax.grid(linestyle=':')
+    ax.grid(linestyle=':',linewidth=0.5)
     fig.tight_layout()
 
     if save:
@@ -585,16 +613,22 @@ if figs == "gradients":
         time_scale_string = '[s]'
         xticks = [0,2,4,6,8,10]
         yticks = [0,2,4,6,8,10]
+        timeticks = [0,2,4,6,8]
+        iterticks = [0,100,200,300,400]
     elif farm == "medium":
         time_scale = 1
         time_scale_string = '[s]'
         xticks = [0,5,10,15,20,25,30,35]
         yticks = [0,5,10,15,20,25,30,35]
+        timeticks = [0,10,20,30,40,50]
+        iterticks = [0,100,200,300,400,500]
     elif farm == "large":
         time_scale = 3600
         time_scale_string = '[hr]'
-        xticks = [0,25,50,75,100,125,150]
+        xticks = [0,25,50,75,100,125]
         yticks = [0,25,50,75,100,125,150]
+        timeticks = [0.,0.5,1.,1.5,2.,2.5,3.,3.5]
+        iterticks = [0,200,400,600,800,1000,1200,1400]
 
     print("FLOWERS-AD Median Cost: {:.1f} s".format(np.median(flowers_solver_time)))
     print("FLOWERS-FD Median Cost: {:.1f} ".format(np.median(conventional_solver_time)/time_scale) + time_scale_string[1:-1])
@@ -639,7 +673,7 @@ if figs == "gradients":
         plt.savefig(fig_name + 'conventional_codes.png', dpi=dpi)
 
     # Superimposed layouts
-    fig, ax = plt.subplots(1,3,figsize=(11,4.5))
+    fig, ax = plt.subplots(1,3,figsize=(6.5,2.5))
     for n in range(N):
         solution = solutions_flowers[n]
         layout = []
@@ -647,9 +681,9 @@ if figs == "gradients":
             layout.append(plt.Circle((solution['init_x'][i]/126., solution['init_y'][i]/126.), 1/2))
         layouts = coll.PatchCollection(layout, color=color_neutral, alpha=0.2)
         ax[0].add_collection(layouts)
-    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='Initial',xticks=xticks,yticks=yticks)
-    ax[0].grid(linestyle=':')
+    ax[0].grid(linestyle=':',linewidth=0.5)
 
     for n in range(N):
         solution = solutions_flowers[n]
@@ -670,9 +704,9 @@ if figs == "gradients":
 
         layouts = coll.PatchCollection(layout, color=color_flowers, alpha=0.2)
         ax[1].add_collection(layouts)
-    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='FLOWERS-AD',xticks=xticks,yticks=yticks)
-    ax[1].grid(linestyle=':')
+    ax[1].grid(linestyle=':',linewidth=0.5)
 
     for n in range(N):
         solution = solutions_conventional[n]
@@ -693,9 +727,9 @@ if figs == "gradients":
 
         layouts = coll.PatchCollection(layout, color=color_numerical, alpha=0.2)
         ax[2].add_collection(layouts)
-    ax[2].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[2].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[2].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal', title='FLOWERS-FD',xticks=xticks,yticks=yticks)
-    ax[2].grid(linestyle=':')
+    ax[2].grid(linestyle=':',linewidth=0.5)
 
     fig.tight_layout()
     if save:
@@ -706,7 +740,7 @@ if figs == "gradients":
     # print(np.where(conventional_min_dist < 1))
 
     # Best cases
-    fig, ax = plt.subplots(1,2,figsize=(11,4.5))
+    fig, ax = plt.subplots(1,2,figsize=(6.5,2.5))
     if farm == "small":
         nn = 8
     elif farm == "medium":
@@ -727,10 +761,10 @@ if figs == "gradients":
     layout1 = coll.PatchCollection(layout_final, color=color_flowers,zorder=2)
     # ax[0].add_collection(layout0)
     ax[0].add_collection(layout1)
-    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[0].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='FLOWERS-AD'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
     # ax[0].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='FLOWERS-AD Best: {:.2f} GWh'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
-    ax[0].grid(linestyle=':')
+    ax[0].grid(linestyle=':',linewidth=0.5)
 
     if farm == "small":
         nn = 8
@@ -752,12 +786,12 @@ if figs == "gradients":
     layout1 = coll.PatchCollection(layout_final, color=color_numerical,zorder=2)
     # ax[1].add_collection(layout0)
     ax[1].add_collection(layout1)
-    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax[1].plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax[1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='FLOWERS-FD'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
     # ax[1].set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title='FLOWERS-FD Best: {:.2f} GWh'.format(solution['opt_aep']/1e9),xticks=xticks,yticks=yticks)
-    ax[1].grid(linestyle=':')
+    ax[1].grid(linestyle=':',linewidth=0.5)
     # ax.legend(handles=[tmp0,tmp1],loc='upper right')
-    fig.tight_layout()
+    fig.tight_layout(rect=[0.1,0,0.9,1])
     if save:
         plt.savefig(fig_name + 'best.png', dpi=dpi)
 
@@ -766,45 +800,49 @@ if figs == "gradients":
     conventional_optimal_aep = np.ma.masked_where(conventional_outliers,conventional_optimal_aep)
 
     # AEP vs. Time
-    fig, ax = plt.subplots(1,2,figsize=(11,5))
-    ax[0].scatter(flowers_solver_time/time_scale,flowers_optimal_aep/1e9,20,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
-    ax[0].scatter(conventional_solver_time/time_scale,conventional_optimal_aep/1e9,20,alpha=0.75,color=color_numerical,label='FLOWERS-FD')
+    fig, ax = plt.subplots(1,2,figsize=(6.5,3))
+    ax[0].scatter(flowers_solver_time/time_scale,flowers_optimal_aep/1e9,10,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
+    ax[0].scatter(conventional_solver_time/time_scale,conventional_optimal_aep/1e9,10,alpha=0.75,color=color_numerical,label='FLOWERS-FD')
+    ax[0].set(xticks=timeticks)
     xlim = ax[0].get_xlim()
     ylim = ax[0].get_ylim()
-    ax[0].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--')
-    ax[0].vlines(np.median(flowers_solver_time)/time_scale,ylim[0],ylim[1],colors=color_flowers,linestyles='--')
-    ax[0].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_numerical,linestyles='--')
-    ax[0].vlines(np.median(conventional_solver_time)/time_scale,ylim[0],ylim[1],colors=color_numerical,linestyles='--')
+    ax[0].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[0].vlines(np.median(flowers_solver_time)/time_scale,ylim[0],ylim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[0].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_numerical,linestyles='--',linewidths=0.75)
+    ax[0].vlines(np.median(conventional_solver_time)/time_scale,ylim[0],ylim[1],colors=color_numerical,linestyles='--',linewidths=0.75)
     ax[0].set(xlabel='Solver Time ' + time_scale_string,ylabel='Optimal AEP [GWh]',xlim=xlim,ylim=ylim)
-    ax[0].grid(linestyle=':')
+    ax[0].grid(linestyle=':',linewidth=0.5)
     ax[0].set_axisbelow(True)
+    if farm == "large":
+        ax[0].set(xticks=[0,0.5,1,1.5,2,2.5,3,3.5])
     # ax[0].legend(loc='lower right')
 
     # AEP vs. Iterations
-    ax[1].scatter(flowers_iterations,flowers_optimal_aep/1e9,20,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
-    ax[1].scatter(conventional_iterations,conventional_optimal_aep/1e9,20,alpha=0.75,color=color_numerical,label='FLOWERS-FD')
+    ax[1].scatter(flowers_iterations,flowers_optimal_aep/1e9,10,alpha=0.75,color=color_flowers,label='FLOWERS-AD')
+    ax[1].scatter(conventional_iterations,conventional_optimal_aep/1e9,10,alpha=0.75,color=color_numerical,label='FLOWERS-FD')
+    ax[1].set(xticks=iterticks)
     xlim = ax[1].get_xlim()
     ylim = ax[1].get_ylim()
-    ax[1].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--')
-    ax[1].vlines(np.median(flowers_iterations),ylim[0],ylim[1],colors=color_flowers,linestyles='--')
-    ax[1].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_numerical,linestyles='--')
-    ax[1].vlines(np.median(conventional_iterations),ylim[0],ylim[1],colors=color_numerical,linestyles='--')
+    ax[1].hlines(np.median(flowers_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[1].vlines(np.median(flowers_iterations),ylim[0],ylim[1],colors=color_flowers,linestyles='--',linewidths=0.75)
+    ax[1].hlines(np.median(conventional_optimal_aep)/1e9,xlim[0],xlim[1],colors=color_numerical,linestyles='--',linewidths=0.75)
+    ax[1].vlines(np.median(conventional_iterations),ylim[0],ylim[1],colors=color_numerical,linestyles='--',linewidths=0.75)
     ax[1].set(xlabel='Iterations',xlim=xlim,ylim=ylim,yticklabels=[])
-    ax[1].grid(linestyle=':')
+    ax[1].grid(linestyle=':',linewidth=0.5)
     ax[1].set_axisbelow(True)
     ax[1].legend(loc='lower right')
 
-    fig.text(0.49,0.92,'(a)',fontweight='bold')
-    fig.text(0.955,0.92,'(b)',fontweight='bold')
+    ax[0].text(0.92,0.04,'(a)',fontweight='bold',transform=ax[0].transAxes)
+    ax[1].text(0.92,0.17,'(b)',fontweight='bold',transform=ax[1].transAxes)
     fig.tight_layout()
     if save:
         plt.savefig(fig_name + 'qoi.png', dpi=dpi)
 
     # AEP Gain per Study
-    fig, ax = plt.subplots(1,1,figsize=(11,5))
+    fig, ax = plt.subplots(1,1,figsize=(6.5,3))
     off_val = 0.15
-    mrk_sz = 2
-    line_width = 1
+    mrk_sz = 1
+    line_width = 0.75
     for n in range(N):
         if flowers_outliers[n] == 0:
             ax.scatter(n-off_val,initial_aep[n]/1e9,mrk_sz,color=color_neutral, zorder=100)
@@ -815,11 +853,12 @@ if figs == "gradients":
             ax.scatter(n+off_val,initial_aep[n]/1e9,mrk_sz,color=color_neutral, zorder=100)
             ax.scatter(n+off_val,conventional_optimal_aep[n]/1e9,mrk_sz,color=color_numerical)
             ax.vlines(n+off_val,initial_aep[n]/1e9,conventional_optimal_aep[n]/1e9,color=color_numerical,linewidth=line_width)
-    ax.scatter([],[],20,color=color_neutral,label='Initial')
-    ax.scatter([],[],20,color=color_flowers,label='FLOWERS-AD')
-    ax.scatter([],[],20,color=color_numerical,label='FLOWERS-FD')
-    ax.set(xlabel='Index',ylabel='AEP [GWh]')
+    ax.scatter([],[],5,color=color_neutral,label='Initial')
+    ax.scatter([],[],5,color=color_flowers,label='FLOWERS-AD')
+    ax.scatter([],[],5,color=color_numerical,label='FLOWERS-FD')
+    ax.set(xlabel='Index',ylabel='AEP [GWh]',xticks=[0,10,20,30,40,50,60,70,80,90,100])
     ax.legend()
+    ax.grid(linestyle=':',linewidth=0.5)
     fig.tight_layout()
 
     if save:
@@ -886,16 +925,22 @@ if figs == "parameter":
         time_scale_string = '[s]'
         xticks = [0,2,4,6,8,10]
         yticks = [0,2,4,6,8,10]
+        timeticks = [0.,0.5,1.,1.5,2.,2.5,3.,3.5]
+        iterticks = [0,100,200,300,400]
     elif farm == "medium":
         time_scale = 1
         time_scale_string = '[s]'
         xticks = [0,5,10,15,20,25,30,35]
         yticks = [0,5,10,15,20,25,30,35]
+        timeticks = [0,2,4,6,8,10,12,14,16,18]
+        iterticks = [0,200,400,600,800,1000]
     elif farm == "large":
         time_scale = 1
         time_scale_string = '[s]'
-        xticks = [0,25,50,75,100,125,150]
+        xticks = [0,25,50,75,100,125]
         yticks = [0,25,50,75,100,125,150]
+        timeticks = [0,20,40,60,80,100]
+        iterticks = [0,200,400,600,800,1000,1200,1400]
 
     # # Superimposed layouts
     # fig, ax = plt.subplots(1,3,figsize=(11,4.5))
@@ -942,7 +987,7 @@ if figs == "parameter":
     # print(np.where(conventional_min_dist < 1))
 
     # Best cases
-    fig, ax = plt.subplots(1,1,figsize=(11,4.5))
+    fig, ax = plt.subplots(1,1,figsize=(6.5,3))
     if farm == "small":
         nn = [20,80,50,24,8,55,7,55,95,83]
         case_title = 'Best: 251.8 $\pm$ 0.5 GWh'
@@ -999,13 +1044,13 @@ if figs == "parameter":
     #     print((np.mean(post_aep[:,TI_idx]) - np.min(post_aep[:,TI_idx]))/np.mean(post_aep[:,TI_idx])*100)
     # das
 
-    ax.plot(boundaries[0],boundaries[1],color='k',linewidth=2,zorder=1)
+    ax.plot(boundaries[0],boundaries[1],color='k',linewidth=1.5,zorder=1)
     ax.set(xlabel='$x/D$', ylabel='$y/D$', aspect='equal',title=case_title,xticks=xticks,yticks=yticks)
-    ax.grid(linestyle=':')
+    ax.grid(linestyle=':',linewidth=0.5)
 
     cbar = plt.colorbar(cm.ScalarMappable(cmap=cmap,norm=co.Normalize(vmin=0.01,vmax=0.11)),ax=ax,label='$k$', ticks=[0.015,0.025,0.035,0.045,0.055,0.065,0.075,0.085,0.095,0.105],fraction=0.07,shrink=0.85)
     cbar.set_ticklabels(['0.01','0.02','0.03','0.04','0.05','0.06','0.07','0.08','0.09','0.10'])
-    fig.tight_layout(rect=[0.2,0,0.75,1])
+    fig.tight_layout(rect=[0.2,0,0.8,1])
     if save:
         plt.savefig(fig_name + 'layouts.png', dpi=dpi)
 
@@ -1014,34 +1059,36 @@ if figs == "parameter":
     # conventional_optimal_aep = np.ma.masked_where(conventional_outliers,conventional_optimal_aep)
 
     # AEP vs. Time
-    fig, ax = plt.subplots(1,2,figsize=(11,5))
+    fig, ax = plt.subplots(1,2,figsize=(6.5,3))
     for k in range(10):
-        ax[0].scatter(parameter_solver_time[k]/time_scale,parameter_optimal_aep[k]/1e9,20,alpha=0.75,color=color_parameter[k])
+        ax[0].scatter(parameter_solver_time[k]/time_scale,parameter_optimal_aep[k]/1e9,10,alpha=0.75,color=color_parameter[k])
+    ax[0].set(xticks=timeticks)
     xlim = ax[0].get_xlim()
     ylim = ax[0].get_ylim()
     for k in range(10):
-        ax[0].hlines(np.median(parameter_optimal_aep[k])/1e9,xlim[0],xlim[1],colors=color_parameter[k],linestyles='--')
-        ax[0].vlines(np.median(parameter_solver_time[k])/time_scale,ylim[0],ylim[1],colors=color_parameter[k],linestyles='--')
+        ax[0].hlines(np.median(parameter_optimal_aep[k])/1e9,xlim[0],xlim[1],colors=color_parameter[k],linestyles='--',linewidths=0.75)
+        ax[0].vlines(np.median(parameter_solver_time[k])/time_scale,ylim[0],ylim[1],colors=color_parameter[k],linestyles='--',linewidths=0.75)
     ax[0].set(xlabel='Solver Time ' + time_scale_string,ylabel='Optimal AEP [GWh]',xlim=xlim,ylim=ylim)
-    ax[0].grid(linestyle=':')
+    ax[0].grid(linestyle=':',linewidth=0.5)
     ax[0].set_axisbelow(True)
 
     # AEP vs. Iterations
     for k in range(10):
         ax[1].scatter(parameter_iterations[k],parameter_optimal_aep[k]/1e9,20,alpha=0.75,color=color_parameter[k])
+    ax[1].set(xticks=iterticks)
     xlim = ax[1].get_xlim()
     ylim = ax[1].get_ylim()
     for k in range(10):
-        ax[1].hlines(np.median(parameter_optimal_aep[k])/1e9,xlim[0],xlim[1],colors=color_parameter[k],linestyles='--')
-        ax[1].vlines(np.median(parameter_iterations[k]),ylim[0],ylim[1],colors=color_parameter[k],linestyles='--')
+        ax[1].hlines(np.median(parameter_optimal_aep[k])/1e9,xlim[0],xlim[1],colors=color_parameter[k],linestyles='--',linewidths=0.75)
+        ax[1].vlines(np.median(parameter_iterations[k]),ylim[0],ylim[1],colors=color_parameter[k],linestyles='--',linewidths=0.75)
     ax[1].set(xlabel='Iterations',xlim=xlim,ylim=ylim,yticklabels=[])
-    ax[1].grid(linestyle=':')
+    ax[1].grid(linestyle=':',linewidth=0.5)
     ax[1].set_axisbelow(True)
-    fig.tight_layout()
-    cbar = plt.colorbar(cm.ScalarMappable(cmap=cmap,norm=co.Normalize(vmin=0.01,vmax=0.11)),ax=ax,label='$k$', ticks=[0.015,0.025,0.035,0.045,0.055,0.065,0.075,0.085,0.095,0.105],fraction=0.07,pad=0.04,shrink=0.85)
+    fig.tight_layout(rect=[0.,0,0.98,1])
+    cbar = plt.colorbar(cm.ScalarMappable(cmap=cmap,norm=co.Normalize(vmin=0.01,vmax=0.11)),ax=ax,label='$k$', ticks=[0.015,0.025,0.035,0.045,0.055,0.065,0.075,0.085,0.095,0.105],fraction=0.07,pad=0.02,shrink=0.85)
     cbar.set_ticklabels(['0.01','0.02','0.03','0.04','0.05','0.06','0.07','0.08','0.09','0.10'])
-    fig.text(0.44,0.92,'(a)',fontweight='bold')
-    fig.text(0.855,0.92,'(b)',fontweight='bold')
+    ax[0].text(0.91,0.04,'(a)',fontweight='bold',transform=ax[0].transAxes)
+    ax[1].text(0.91,0.04,'(b)',fontweight='bold',transform=ax[1].transAxes)
     if save:
         plt.savefig(fig_name + 'qoi.png', dpi=dpi)
 
