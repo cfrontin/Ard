@@ -105,9 +105,10 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
     yy = np.zeros(n_turb)
 
     # Indices of discrete grid
-    s = n_turb + 1
-    x_idx = np.random.randint(0,s,n_turb)
-    y_idx = np.random.randint(0,s,n_turb)
+    sx = n_turb + 1
+    sy = 6
+    x_idx = np.random.randint(0,sx,n_turb)
+    y_idx = np.random.randint(0,sy,n_turb)
     pts = [(x_idx[i],y_idx[i]) for i in range(n_turb)]
     while len(np.unique(pts)) < len(pts):
         tmp = np.unique(pts)
@@ -115,8 +116,8 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
         for i in range(n_turb):
             if i not in tmp:
                 new_set.append(i)
-        x_idx[new_set] = np.random.randint(0,s,len(new_set))
-        y_idx[new_set] = np.random.randint(0,s,len(new_set))
+        x_idx[new_set] = np.random.randint(0,sx,len(new_set))
+        y_idx[new_set] = np.random.randint(0,sy,len(new_set))
         pts = [(x_idx[i],y_idx[i]) for i in range(n_turb)]
 
     # Check that all combinations of x,y are unique

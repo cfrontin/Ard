@@ -12,7 +12,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 from matplotlib.ticker import MultipleLocator
 
-save = False
+save = True
 dpi = 600
 # plt.rcParams['figure.dpi'] = 150
 # Formatting
@@ -41,6 +41,7 @@ aep_park /= 1e12
 # print(np.mean((aep_flowers - aep_park)/aep_park))
 # print(np.median((aep_flowers - aep_park)/aep_park))
 # print(np.min((aep_flowers - aep_park)/aep_park))
+# print(sorted((aep_flowers - aep_park)/aep_park))
 # dasd
 
 # Wind roses
@@ -96,7 +97,7 @@ axins.fill_between([0, xlim[1]],[0, 0.9*xlim[1]],[0, 0.95*xlim[1]],alpha=0.4,lab
 axins.fill_between([0, xlim[1]],[0, 0.8*xlim[1]],[0, 0.9*xlim[1]],alpha=0.4,label='[-20%,-10%]',color=cmap(0.2),zorder=1)
 axins.fill_between([0, xlim[1]],[0, 0.7*xlim[1]],[0, 0.8*xlim[1]],alpha=0.4,label='[-30%,-20%]',color=cmap(0.1),zorder=1)
 axins.set(xlim=[0,1],ylim=[0,1],aspect='equal',xticks=[],yticks=[])
-mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5", zorder=25)
+mark_inset(ax, axins, loc1=2, loc2=3, fc="none", ec="0.5", zorder=25)
 fig.tight_layout()
 
 if save:
@@ -135,15 +136,16 @@ def power_law(x, a, b):
 # # q = np.polyfit(nt[sorting[idx:idx2]],time_park[sorting[idx:idx2]],1)
 # q , _ = curve_fit(power_law,nt[sorting[idx:idx2]],time_park[sorting[idx:idx2]]*1e3)
 # r , _ = curve_fit(power_law,nt[sorting[idx2:]],time_park[sorting[idx2]]*1e3)
-num_turbs = np.linspace(30,500,endpoint=True)
-num_turbs1 = np.linspace(30,80,endpoint=True)
-num_turbs2 = np.linspace(80,500,endpoint=True)
+num_turbs = np.linspace(50,500,endpoint=True)
+# num_turbs1 = np.linspace(30,80,endpoint=True)
+# num_turbs2 = np.linspace(80,500,endpoint=True)
 
 # fig, ax = plt.subplots(1,1)
-# ax.scatter(nt,time_flowers/1e-3, s=40,linewidth=1, alpha=0.25,facecolors='none', edgecolors='tab:blue',zorder=2)
-# ax.plot(num_turbs,5.1e-4*num_turbs**(2)+0.35, '--', color='tab:blue', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
+# # ax.scatter(nt,time_flowers/1e-3, s=40,linewidth=1, alpha=0.25,facecolors='none', edgecolors='tab:blue',zorder=2)
+# ax.scatter(nt,time_park/1e-3, s=40,linewidth=1, alpha=0.25,facecolors='none', edgecolors='tab:orange',zorder=2)
+# # ax.plot(num_turbs,3.6e-4*num_turbs**(2)+0.35, '--', color='tab:blue', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
 # # ax.plot(num_turbs1,1.65*num_turbs1**(1)-12, '--', color='tab:orange', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
-# # ax.plot(num_turbs2,0.108*num_turbs2**(1.535)+25, '--', color='tab:orange', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
+# ax.plot(num_turbs,0.128*num_turbs**(1.5)+12, '--', color='tab:orange', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
 # ax.set(xlabel='Number of Terms',ylabel='AEP Evaluation Time [ms]')
 # plt.show()
 # dasd
@@ -151,15 +153,15 @@ num_turbs2 = np.linspace(80,500,endpoint=True)
 fig, ax = plt.subplots(1,1, figsize=(6.5,3))
 ax.scatter(nt,time_flowers/1e-3,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:blue', edgecolors='tab:blue', label='FLOWERS')
 ax.scatter(nt,time_park/1e-3,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange', label='Conventional')
-ax.plot(num_turbs, 0.8*(5.1e-4*num_turbs**(2)+0.35), '--', color='tab:blue', linewidth=1.5)
-ax.plot(num_turbs1, 1.4*(1.65*num_turbs1**(1)-12), '--', color='tab:orange', linewidth=1.5)
-ax.plot(num_turbs2, 0.8*(0.108*num_turbs2**(1.535)+25), '--', color='tab:orange', linewidth=1.5)
+ax.plot(num_turbs, 0.85*(3.6e-4*num_turbs**(2)+0.35), '--', color='tab:blue', linewidth=1.5)
+# ax.plot(num_turbs1, 1.4*(1.65*num_turbs1**(1)-12), '--', color='tab:orange', linewidth=1.5)
+ax.plot(num_turbs, 0.85*(0.128*num_turbs**(1.5)+12), '--', color='tab:orange', linewidth=1.5)
 # ax.plot([0, 100], 1*np.array([25,1e3*np.max(time_park)]), '--', color='tab:orange', linewidth=2)
 # ax.plot(range(1,101),power_law(range(1,101),p[0],p[1]),'--',linewidth=2, %(p[1]))
 # ax.plot(range(31,101),power_law(range(31,101),q[0],q[1]),'--',linewidth=2,label='Conventional: $\mathcal{O}(N^{%.1f})$' %(q[1]))
 # ax.plot(range(1,31),power_law(range(1,31),r[0],r[1]),'--',color="tab:orange",linewidth=2,label='')
-ax.text(185,8,'$\mathcal{O}(N^2)$',color='tab:blue')
-ax.text(10,160,'$\mathcal{O}(N)$',color='tab:orange')
+ax.text(185,6,'$\mathcal{O}(N^2)$',color='tab:blue')
+# ax.text(10,160,'$\mathcal{O}(N)$',color='tab:orange')
 ax.text(265,270,'$\mathcal{O}(N^{1.5})$',color='tab:orange')
 ax.set(xlabel='Number of Turbines, $N$',ylabel='AEP Evaluation Time [ms]',yscale='log')
 ax.legend()
@@ -189,10 +191,10 @@ n_terms = np.linspace(10,180,endpoint=True)
 n_bins = np.linspace(20,360,endpoint=True)
 
 # fig, ax = plt.subplots(1,1)
-# # ax.scatter(N_bins,time_park/1e-3, s=40,linewidth=1, alpha=0.25,facecolors='none', edgecolors='tab:orange',zorder=2)
-# # ax.plot(n_bins,0.6*n_bins**(1)+112, '--', color='tab:orange', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
-# ax.scatter(N_terms,time_flowers/1e-3, s=40,linewidth=1, alpha=0.25,facecolors='none', edgecolors='tab:orange',zorder=2)
-# ax.plot(n_terms,0.69*n_terms**(1)-3, '--', color='tab:orange', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
+# ax.scatter(N_bins,time_park/1e-3, s=40,linewidth=1, alpha=0.25,facecolors='none', edgecolors='tab:orange',zorder=2)
+# ax.plot(n_bins,0.6*n_bins**(1)+112, '--', color='tab:orange', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
+# # ax.scatter(N_terms,time_flowers/1e-3, s=40,linewidth=1, alpha=0.25,facecolors='none', edgecolors='tab:orange',zorder=2)
+# # ax.plot(n_terms,0.69*n_terms**(1)-3, '--', color='tab:orange', linewidth=2,label='Conventional: $\mathcal{O}(N^1)$')
 # ax.set(xlabel='Number of Terms',ylabel='AEP Evaluation Time [ms]')
 # plt.show()
 # das
@@ -201,8 +203,8 @@ fig, ax = plt.subplots(1,1, figsize=(6.5,3))
 ax2 = ax.twinx()
 ax.scatter(time_flowers/1e-3,N_terms,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:blue', edgecolors='tab:blue',zorder=3,label='FLOWERS')
 ax2.scatter(time_park/1e-3,N_bins,s=5,linewidth=0.5, alpha=0.5, facecolors='tab:orange', edgecolors='tab:orange',zorder=2)
-ax.plot(0.7*(0.69*n_terms**(1)-3),n_terms, '--', color='tab:blue', linewidth=1.5)
-ax2.plot(0.7*(0.6*n_bins**(1)+112), n_bins, '--', color='tab:orange', linewidth=1.5)
+ax.plot(0.8*(0.69*n_terms**(1)-3),n_terms, '--', color='tab:blue', linewidth=1.5)
+ax2.plot(0.8*(0.6*n_bins**(1)+112), n_bins, '--', color='tab:orange', linewidth=1.5)
 # ax.plot(xrange,p[0]*xrange+p[1],'--',linewidth=2,color='tab:blue')
 # ax2.plot(xrange2,q[0]*xrange2+q[1],'--',linewidth=2,color='tab:orange')
 # ax2.plot(xrange1,r[0]*xrange1+r[1],'--',linewidth=2,color='tab:orange')
