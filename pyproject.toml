@@ -10,7 +10,10 @@ build-backend = "setuptools.build_meta"
 
 # https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
 [tool.setuptools]
-packages = ["ard"]
+packages = [
+  "ard",
+  "gpAEP",
+]
 
 [project]
 name = "Ard"
