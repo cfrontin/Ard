@@ -102,10 +102,29 @@ def create_setup_OM_problem(
             "offset_tcc_per_kW",
         ],
     )
-    model.add_subsystem(  # LandBOSSE component
-        "landbosse",
-        cost_wisdem.LandBOSSE(),
-    )
+    if modeling_options["offshore"]:
+        model.add_subsystem(  # Orbit component
+            "orbit",
+            cost_wisdem.Orbit(),
+        )
+        model.connect(  # effective primary spacing for BOS
+            "spacing_effective_primary", "orbit.plant_turbine_spacing"
+        )
+        model.connect(  # effective secondary spacing for BOS
+            "spacing_effective_secondary", "orbit.plant_row_spacing"
+        )
+    else:
+        model.add_subsystem(  # LandBOSSE component
+            "landbosse",
+            cost_wisdem.LandBOSSE(),
+        )
+        model.connect(  # effective primary spacing for BOS
+            "spacing_effective_primary", "landbosse.turbine_spacing_rotor_diameters"
+        )
+        model.connect(  # effective secondary spacing for BOS
+            "spacing_effective_secondary", "landbosse.row_spacing_rotor_diameters"
+        )
+
     model.add_subsystem(  # operational expenditures component
         "opex",
         cost_wisdem.OperatingExpenses(),
@@ -114,12 +133,6 @@ def create_setup_OM_problem(
             "machine_rating",
             "opex_per_kW",
         ],
-    )
-    model.connect(  # effective primary spacing for BOS
-        "spacing_effective_primary", "landbosse.turbine_spacing_rotor_diameters"
-    )
-    model.connect(  # effective secondary spacing for BOS
-        "spacing_effective_secondary", "landbosse.row_spacing_rotor_diameters"
     )
 
     model.add_subsystem(  # cost metrics component
@@ -134,7 +147,10 @@ def create_setup_OM_problem(
         ],
     )
     model.connect("AEP_farm", "financese.plant_aep_in")
-    model.connect("landbosse.bos_capex_kW", "financese.bos_per_kW")
+    if modeling_options["offshore"]:
+        model.connect("orbit.total_capex_kW", "financese.bos_per_kW")
+    else:
+        model.connect("landbosse.total_capex_kW", "financese.bos_per_kW")
 
     # build out the problem based on this model
     prob = om.Problem(model)

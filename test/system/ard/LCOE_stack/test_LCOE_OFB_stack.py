@@ -15,7 +15,7 @@ import ard.glue.prototype as glue
 import ard.cost.wisdem_wrap as cost_wisdem
 
 
-class TestLCOE_LB_stack:
+class TestLCOE_OFB_stack:
 
     def setup_method(self):
 
@@ -40,15 +40,17 @@ class TestLCOE_LB_stack:
             "..",
             "examples",
             "data",
-            "turbine_spec_IEA-3p4-130-RWT.yaml",
+            "turbine_spec_IEA-22-284-RWT.yaml",
         )  # toolset generalized turbine specification
         data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {
             "farm": {"N_turbines": 25},
+            "site_depth": 50.0,
             "turbine": data_turbine_spec,
-            "offshore": False,
+            "offshore": True,
+            "floating": False,
         }
 
         # create the OM problem
@@ -59,8 +61,8 @@ class TestLCOE_LB_stack:
 
     def test_model(self):
 
-        # setup the latent variables for LandBOSSE and FinanceSE
-        cost_wisdem.LandBOSSE_setup_latents(self.prob, self.modeling_options)
+        # setup the latent variables for Orbit and FinanceSE
+        cost_wisdem.Orbit_setup_latents(self.prob, self.modeling_options)
         cost_wisdem.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
         # set up the working/design variables
@@ -77,7 +79,7 @@ class TestLCOE_LB_stack:
             "AEP_val": float(self.prob.get_val("AEP_farm", units="GW*h")[0]),
             "CapEx_val": float(self.prob.get_val("tcc.tcc", units="MUSD")[0]),
             "BOS_val": float(
-                self.prob.get_val("landbosse.total_capex", units="MUSD")[0]
+                self.prob.get_val("orbit.installation_capex", units="MUSD")[0]
             ),
             "OpEx_val": float(self.prob.get_val("opex.opex", units="MUSD/yr")[0]),
             "LCOE_val": float(self.prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
@@ -92,7 +94,7 @@ class TestLCOE_LB_stack:
                 "test",
                 "system",
                 "LCOE_stack",
-                "test_LCOE_LB_stack_pyrite.npz",
+                "test_LCOE_OFB_stack_pyrite.npz",
             ),
             # rewrite=True,  # uncomment to write new pyrite file
             rtol_val=5e-3,
