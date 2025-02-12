@@ -72,6 +72,7 @@ class TestFLORISBatchPower:
 
     def test_setup(self):
         "make sure the modeling_options has what we need for farmaero"
+
         assert "case_title" in [k for k, _ in self.FLORIS.options.items()]
         assert "modeling_options" in [k for k, _ in self.FLORIS.options.items()]
 

@@ -76,13 +76,9 @@ class LayoutTemplate(om.ExplicitComponent):
             desc="effective spacing in y-dimension for BOS calculation",
         )
 
-    def setup_partials(self):
-        """Derivative setup for OM component."""
+    # omit setup partials for template class
 
-        # default complex step for the layout tools, since they're often algebraic
-        self.declare_partials("*", "*", method="cs")
-
-    def compute(self):
+    def compute(self, inputs, outputs):
         """
         Computation for the OM component.
 
@@ -149,13 +145,9 @@ class LanduseTemplate(om.ExplicitComponent):
             desc="fundamental area of the farm geometry",
         )
 
-    def setup_partials(self):
-        """Derivative setup for OM component."""
+    # omit setup partials for template class
 
-        # default complex step for the layout-landuse tools, since they're often algebraic
-        self.declare_partials("*", "*", method="cs")
-
-    def compute(self):
+    def compute(self, inputs, outputs):
         """
         Computation for the OM component.
 

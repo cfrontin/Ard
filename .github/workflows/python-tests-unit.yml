@@ -28,6 +28,20 @@ jobs:
         python -m pip install --upgrade pip
         pip install .[dev]
 
+    - name: Install PythonCDT & interarray
+      run: |
+        mkdir dependencies
+        cd dependencies
+        git clone https://github.com/mdealencar/interarray.git
+        git clone --recurse-submodules https://github.com/artem-ogre/PythonCDT.git
+        cd PythonCDT
+        pip install .
+        cd ../interarray
+        pip install -r requirements.txt
+        pip install highspy==1.9.0
+        pip install .
+        cd ../..
+
     - name: Install Ard
       run: |
         pip install .[dev]
@@ -42,4 +56,3 @@ jobs:
     #     file: ./coverage.xml
     #     flags: unittests
     #     name: codecov-umbrella
-

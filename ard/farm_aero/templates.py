@@ -162,7 +162,12 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
 
         For a template class this is not implemented and raises an error!
         """
-        super().compute(inputs, outputs)
+
+        #############################################
+        #                                           #
+        # IMPLEMENT THE AERODYNAMICS COMPONENT HERE #
+        #                                           #
+        #############################################
 
         raise NotImplementedError(
             "This is an abstract class for a derived class to implement!"

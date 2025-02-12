@@ -14,7 +14,7 @@ class TestFarmAeroTemplate:
     def setup_method(self):
         self.modeling_options = {
             "farm": {
-                "N_turbines": 25,
+                "N_turbines": 4,
             },
             "turbine": {
                 "geometry": {
@@ -33,7 +33,10 @@ class TestFarmAeroTemplate:
         self.prob.setup()
 
     def test_setup(self):
-        "make sure the modeling_options has what we need for farmaero"
+        """
+        make sure the modeling_options has what we need for farmaero
+        """
+
         assert "modeling_options" in [k for k, _ in self.fa_temp.options.items()]
 
         assert "farm" in self.fa_temp.options["modeling_options"].keys()
@@ -41,7 +44,7 @@ class TestFarmAeroTemplate:
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
-            # make sure that the outputs in the component match what we planned
+            # make sure that the inputs in the component match what we planned
             input_list = [k for k, v in self.fa_temp.list_inputs()]
             for var_to_check in [
                 "x_turbines",
@@ -53,7 +56,7 @@ class TestFarmAeroTemplate:
     def test_compute(self):
 
         # make sure that an attempt to compute on the un-specialized class fails
-        with pytest.raises(Exception):
+        with pytest.raises(NotImplementedError):
             x_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
             y_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
             yaw_turbines = np.zeros_like(x_turbines)
@@ -68,7 +71,7 @@ class TestBatchFarmPowerTemplate:
     def setup_method(self):
         self.modeling_options = {
             "farm": {
-                "N_turbines": 25,
+                "N_turbines": 4,
             },
             "turbine": {
                 "geometry": {
@@ -104,7 +107,7 @@ class TestBatchFarmPowerTemplate:
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
-            # make sure that the outputs in the component match what we planned
+            # make sure that the inputs in the component match what we planned
             input_list = [k for k, v in self.bfp_temp.list_inputs()]
             for var_to_check in [
                 "x_turbines",
@@ -125,7 +128,7 @@ class TestBatchFarmPowerTemplate:
     def test_compute(self):
 
         # make sure that an attempt to compute on the un-specialized class fails
-        with pytest.raises(Exception):
+        with pytest.raises(NotImplementedError):
             x_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
             y_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
             yaw_turbines = np.zeros_like(x_turbines)
@@ -140,7 +143,7 @@ class TestFarmAEPTemplate:
     def setup_method(self):
         self.modeling_options = {
             "farm": {
-                "N_turbines": 25,
+                "N_turbines": 4,
             },
             "turbine": {
                 "geometry": {
@@ -198,7 +201,7 @@ class TestFarmAEPTemplate:
     def test_compute(self):
 
         # make sure that an attempt to compute on the un-specialized class fails
-        with pytest.raises(Exception):
+        with pytest.raises(NotImplementedError):
             x_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
             y_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
             yaw_turbines = np.zeros_like(x_turbines)

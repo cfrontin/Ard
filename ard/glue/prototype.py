@@ -2,6 +2,7 @@ import openmdao.api as om
 
 import floris.wind_data
 
+import ard.layout.sunflower as sunflower
 import ard.layout.gridfarm as gridfarm
 import ard.farm_aero.floris as farmaero_floris
 import ard.cost.wisdem_wrap as cost_wisdem
@@ -12,6 +13,7 @@ def create_setup_OM_problem(
     wind_rose: floris.wind_data.WindRose = None,
     aero_backend: str = "FLORIS",
     layout_type: str = "gridfarm",
+    setup_glue=True,
 ):
     """
     A prototype to create and setup an Ard OpenMDAO problem.
@@ -31,6 +33,9 @@ def create_setup_OM_problem(
     layout_type : str, optional
         layout parametrization model by default (and at present exclusively)
         "gridfarm"
+    setup_glue : bool, optional (default True)
+        switch to setup at the end, or return without setup (if other components
+        should be added)
 
     Returns
     -------
@@ -44,7 +49,7 @@ def create_setup_OM_problem(
         requested
     """
 
-    if layout_type not in ["gridfarm"]:
+    if layout_type not in ["gridfarm", "sunflower"]:
         raise NotImplementedError(f"layout type {layout_type} is not implemented yet.")
     if aero_backend not in ["FLORIS"]:
         raise NotImplementedError(
@@ -56,16 +61,34 @@ def create_setup_OM_problem(
     # create the OpenMDAO model
     model = om.Group()
     group_layout2aep = om.Group()
-    group_layout2aep.add_subsystem(  # layout component
-        "layout",
-        gridfarm.GridFarmLayout(modeling_options=modeling_options),
-        promotes=["*"],
-    )
-    group_layout2aep.add_subsystem(  # landuse component
-        "landuse",
-        gridfarm.GridFarmLanduse(modeling_options=modeling_options),
-        promotes_inputs=["*"],
-    )
+
+    # first the layout
+    if layout_type == "gridfarm":
+        group_layout2aep.add_subsystem(  # layout component
+            "layout",
+            gridfarm.GridFarmLayout(modeling_options=modeling_options),
+            promotes=["*"],
+        )
+        layout_global_input_promotes = [
+            "angle_orientation",
+            "angle_skew",
+            "spacing_primary",
+            "spacing_secondary",
+        ]
+    elif layout_type == "sunflower":
+        group_layout2aep.add_subsystem(  # layout component
+            "layout",
+            sunflower.SunflowerFarmLayout(modeling_options=modeling_options),
+            promotes=["*"],
+        )
+        layout_global_input_promotes = ["spacing_target"]
+    else:
+        raise KeyError("you shouldn't be able to get here.")
+    layout_global_output_promotes = [
+        "spacing_effective_primary",
+        "spacing_effective_secondary",
+    ]  # all layouts have this
+
     group_layout2aep.add_subsystem(  # FLORIS AEP component
         "aepFLORIS",
         farmaero_floris.FLORISAEP(
@@ -76,22 +99,39 @@ def create_setup_OM_problem(
         # promotes=["AEP_farm"],
         promotes=["x_turbines", "y_turbines", "AEP_farm"],
     )
+    farmaero_global_output_promotes = ["AEP_farm"]
+
     group_layout2aep.approx_totals(
         method="fd", step=1e-3, form="central", step_calc="rel_avg"
     )
     model.add_subsystem(
         "layout2aep",
         group_layout2aep,
-        promotes=[
-            "angle_orientation",
-            "angle_skew",
-            "spacing_primary",
-            "spacing_secondary",
-            "spacing_effective_primary",
-            "spacing_effective_secondary",
-            "AEP_farm",
+        promotes_inputs=[
+            *layout_global_input_promotes,
+        ],
+        promotes_outputs=[
+            *layout_global_output_promotes,
+            *farmaero_global_output_promotes,
         ],
     )
+
+    if layout_type == "gridfarm":
+        model.add_subsystem(  # landuse component
+            "landuse",
+            gridfarm.GridFarmLanduse(modeling_options=modeling_options),
+            promotes_inputs=layout_global_input_promotes,
+        )
+    elif layout_type == "sunflower":
+        model.add_subsystem(  # landuse component
+            "landuse",
+            sunflower.SunflowerFarmLanduse(modeling_options=modeling_options),
+        )
+        model.connect("layout2aep.x_turbines", "landuse.x_turbines")
+        model.connect("layout2aep.y_turbines", "landuse.y_turbines")
+    else:
+        raise KeyError("you shouldn't be able to get here.")
+
     model.add_subsystem(  # turbine capital costs component
         "tcc",
         cost_wisdem.TurbineCapitalCosts(),
@@ -154,7 +194,8 @@ def create_setup_OM_problem(
 
     # build out the problem based on this model
     prob = om.Problem(model)
-    prob.setup()
+    if setup_glue:
+        prob.setup()
 
     # return the problem
     return prob

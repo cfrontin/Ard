@@ -19,3 +19,4 @@ for the unit tests and the following for the system tests:
 ```shell
 source test/run_local_test_system.sh
 ```
+These scripts will run coverage tests and, importantly, will filter out some cases in both testing and coverage analysis in the event optional dependencies are not installed.

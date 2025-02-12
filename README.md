@@ -36,7 +36,7 @@ conda activate ard-env
 conda install python=3.12 pip mamba -y
 ```
 
-From here, installation can be handled by `pip`. 
+From here, installation can be handled by `pip`.
 
 For a basic and static installation, type:
 ```shell
@@ -66,6 +66,20 @@ source test/run_local_test_system.sh
 For user information, in pre-release, we are using some co-developed changes to the `FLORIS` library.
 
 If the installation fails, please open a new issue [here](https://github.com/WISDEM/Ard/issues).
+
+### Optional installations
+
+#### interarray
+
+We currently have experimental support for [Mauricio Souza de Alancar's interarray package for collection system cable path-planning optimization](https://github.com/mdealencar/interarray).
+Installation for this package is not presently automated.
+To install, you must:
+
+1. install [PythonCDT for constrained Delaunay triangulation](https://github.com/artem-ogre/PythonCDT) following that package's README directions
+2. install interarray following that package's documentation
+3. install highspy at v1.9.0 for its discrete optimizer (`pip install highspy==1.9.0`)
+
+When `interarray` is installed, the testing suite and coverage reports will include its Ard integration, ignoring them otherwise.
 
 ## Current capabilities
 

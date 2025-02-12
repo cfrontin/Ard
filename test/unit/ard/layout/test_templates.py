@@ -12,7 +12,7 @@ class TestLayoutTemplate:
 
         self.modeling_options = {
             "farm": {
-                "N_turbines": 25,
+                "N_turbines": 4,
             },
         }
 
@@ -43,15 +43,11 @@ class TestLayoutTemplate:
     def test_compute(self):
 
         # make sure that an attempt to compute on the un-specialized class fails
-        with pytest.raises(Exception):
-            x_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
-            y_turbines = 7.0 * 130.0 * np.arange(-2, 2, 1)
-            self.prob.set_val("x_turbines", x_turbines)
-            self.prob.set_val("y_turbines", y_turbines)
+        with pytest.raises(NotImplementedError):
             self.prob.run_model()
 
 
-class TestGridFarmLanduse:
+class TestLanduseTemplate:
 
     def setup_method(self):
 
@@ -64,11 +60,6 @@ class TestGridFarmLanduse:
         }
 
         self.model = om.Group()
-        self.gf = self.model.add_subsystem(
-            "layout",
-            layout_templates.LayoutTemplate(modeling_options=self.modeling_options),
-            promotes=["*"],
-        )
         self.lu = self.model.add_subsystem(
             "landuse",
             layout_templates.LanduseTemplate(modeling_options=self.modeling_options),
@@ -104,5 +95,5 @@ class TestGridFarmLanduse:
     def test_compute(self):
 
         # make sure that an attempt to compute on the un-specialized class fails
-        with pytest.raises(Exception):
+        with pytest.raises(NotImplementedError):
             self.prob.run_model()

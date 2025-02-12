@@ -1,0 +1,5 @@
+[run]
+omit = 
+    ard/glue/prototype.py
+    ard/test_utils.py
+    
