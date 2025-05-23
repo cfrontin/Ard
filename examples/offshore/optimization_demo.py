@@ -155,7 +155,7 @@ model.connect("layout2aep.y_turbines", "optiwindnet_coll.y_turbines")
 
 model.add_subsystem(  # mooring system design
     "mooring_design",
-    ard.offshore.mooring_design.MooringDesign(
+    ard.offshore.mooring_design_constant_depth.ConstantDepthMooringDesign(
         modeling_options=modeling_options,
         wind_query=None,
     ),
