@@ -78,6 +78,41 @@ class DetailedMooringDesign(om.ExplicitComponent):
             self.N_wind_conditions = self.options["wind_query"].N_conditions
         # MANAGE ADDITIONAL LATENT VARIABLES HERE!!!!!
 
+        # BEGIN: VARIABLES TO BE INCORPORATED PROPERLY
+
+        class Placeholder: pass  # DEBUG!!!!!
+        self.temporary_variables = Placeholder()  # DEBUG!!!!!
+        self.temporary_variables.phi_mooring = np.zeros((self.N_turbines,))  # the mooring headings
+
+        self.temporary_variables.path_to_bathy_moorpy = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "offshore"
+            / "GulfOfMaine_bathymetry_100x99.txt"
+        )
+        self.temporary_variables.bathymetry_data = BathymetryGridData()
+        self.temporary_variables.bathymetry_data.load_moorpy_bathymetry(
+            self.temporary_variables.path_to_bathy_moorpy
+        )
+        self.temporary_variables.soil_data = None  # TODO
+        self.temporary_variables.radius_fairlead = 0.5  # m? idk, replace with a good value
+        self.temporary_variables.depth_fairlead = 5.0  # m? idk, replace with a good value
+        self.temporary_variables.type_anchor = "driven_pile"  # random choice
+        # load anchor geometry yaml file based on ard package location
+        self.temporary_variables.path_to_anchor_yaml = (
+            Path(ard.__file__).parent
+            / "examples"
+            / "data"
+            / "offshore"
+            / "geometry_anchor.yaml"
+        )
+        self.temporary_variables.id_mooring_system = [
+            f"m{v}:03d" for v in list(range(len(self.temporary_variables.phi_mooring)))
+        ]  # just borrow turbine IDs for now: 3-digit, zero padded integer prefixed by m
+
+        # END VARIABLES TO BE INCORPORATED PROPERLY
+
         # set up inputs and outputs for mooring system
         self.add_input(
             "phi_platform", np.zeros((self.N_turbines,)), units="deg"
@@ -121,36 +156,21 @@ class DetailedMooringDesign(om.ExplicitComponent):
         y_turbines = inputs["y_turbines"]
         # thrust_turbines = inputs["thrust_turbines"]  # future-proofing
 
-        # BEGIN: VARIABLES TO BE INCORPORATED
 
-        phi_mooring = np.zeros_like(inputs["phi_platform"])  # the mooring headings
+        # BEGIN: ALIASES FOR SOME USEFUL VARIABLES
 
-        path_to_bathy_moorpy = (
-            Path(ard.__file__).parents[1]
-            / "examples"
-            / "data"
-            / "offshore"
-            / "GulfOfMaine_bathymetry_100x99.txt"
-        )
-        bathymetry_data = BathymetryGridData()
-        bathymetry_data.load_moorpy_bathymetry(path_to_bathy_moorpy)
-        soil_data = None  # TODO
-        radius_fairlead = 0.5  # m? idk, replace with a good value
-        depth_fairlead = 5.0  # m? idk, replace with a good value
-        type_anchor = "driven_pile"  # random choice
-        # load anchor geometry yaml file based on ard package location
-        path_to_anchor_yaml = (
-            Path(ard.__file__).parent
-            / "examples"
-            / "data"
-            / "offshore"
-            / "geometry_anchor.yaml"
-        )
-        id_mooring_system = [
-            f"m{v}:03d" for v in list(range(len(phi_platform)))
-        ]  # just borrow turbine IDs for now: 3-digit, zero padded integer prefixed by m
+        phi_mooring = self.temporary_variables.phi_mooring
+        path_to_bathy_moorpy = self.temporary_variables.path_to_bathy_moorpy
+        bathymetry_data = self.temporary_variables.bathymetry_data
+        soil_data = self.temporary_variables.soil_data
+        radius_fairlead = self.temporary_variables.radius_fairlead
+        depth_fairlead = self.temporary_variables.depth_fairlead
+        type_anchor = self.temporary_variables.type_anchor
+        path_to_anchor_yaml = self.temporary_variables.path_to_anchor_yaml
+        id_mooring_system = self.temporary_variables.id_mooring_system
 
-        # END VARIABLES TO BE INCORPORATED
+        # END ALIASES FOR SOME USEFUL VARIABLES
+
 
         # BEGIN: REPLACE ME WITH OPERATING CODE
 
@@ -159,6 +179,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
         raise NotImplementedError("HELLO FRIENDS, IMPLEMENT HERE!")
 
         # END REPLACE ME WITH OPERATING CODE
+
 
         # replace the below with the final anchor locations...
         outputs["x_anchors"] = x_anchors
