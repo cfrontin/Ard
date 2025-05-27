@@ -1,86 +1,16 @@
+from pathlib import Path
+
 import numpy as np
 
 import openmdao.api as om
 
-import math
+import ard
+from ard.geographic.geomorphology import BathymetryGridData
 
-import ard.geographic
 
-
-def generate_anchor_points(
-    center: np.ndarray, length: float, rotation_deg: float, N: int
-) -> np.ndarray:
-    """Generates anchor points equally spaced around the platform
-
-    Args:
-        center (np.ndarray): x and y of platform in km
-        length (float): desired horizontal anchor length in km
-        rotation_deg (float): rotation in deg. counter-clockwise from east
-        N (int): number of anchors
-
-    Returns:
-        np.ndarray: array of size N by 2 containing the x and y positions of each anchor
+class DetailedMooringDesign(om.ExplicitComponent):
     """
-
-    cx, cy = center
-    angle_step = 360 / N
-    lines = np.zeros([N, 2])
-
-    for i in range(N):
-        angle_deg = rotation_deg + i * angle_step
-        angle_rad = math.radians(angle_deg)
-        x = cx + length * math.cos(angle_rad)
-        y = cy + length * math.sin(angle_rad)
-        lines[i, 0] = x
-        lines[i, 1] = y
-
-    return lines
-
-
-def simple_mooring_design(
-    phi_platform: np.ndarray,
-    x_turbines: np.ndarray,
-    y_turbines: np.ndarray,
-    length: float,
-    N_turbines: int,
-    N_anchors: int,
-) -> tuple[np.ndarray]:
-    """_summary_
-
-    Args:
-        phi_platform (np.ndarray): counterclockwise rotation from east in deg. for each platform
-        x_turbines (np.ndarray): list of platform/turbine easting in km
-        y_turbines (np.ndarray): list of platform/turbine northing in km
-        length (float): desired horizontal anchor length in km
-        N_turbines (int): number of wind turbines in the farm
-        N_anchors (int): number of anchors per turbine/platform
-
-    Returns:
-        tuple[np.ndarray]: x locations of anchors, y locations of anchors, each array of shape N_turbines by N_anchors
-    """
-
-    x_anchors = np.zeros([N_turbines, N_anchors])
-    y_anchors = np.zeros_like(x_anchors)
-
-    for i, (x, y) in enumerate(zip(x_turbines, y_turbines)):
-
-        center = (x, y)
-
-        anchors = generate_anchor_points(
-            center=center, length=length, rotation_deg=phi_platform[i], N=N_anchors
-        )
-
-        for j in range(N_anchors):
-            x_anchors[i, j] = anchors[j, 0]
-            y_anchors[i, j] = anchors[j, 1]
-
-    return x_anchors, y_anchors
-
-
-class ConstantDepthMooringDesign(om.ExplicitComponent):
-    """
-    A class to create a constant-depth simplified mooring design for a floating
-    offshore wind farm.
+    A class to create a detailed mooring design for a floating offshore wind farm.
 
     This is a class that should be used to generate a floating offshore wind
     farm's collective mooring system.
@@ -189,20 +119,45 @@ class ConstantDepthMooringDesign(om.ExplicitComponent):
         phi_platform = inputs["phi_platform"]
         x_turbines = inputs["x_turbines"]
         y_turbines = inputs["y_turbines"]
-        # thrust_turbines = inputs["thrust_turbines"]  #
+        # thrust_turbines = inputs["thrust_turbines"]  # future-proofing
 
-        # BEGIN: REPLACE ME
+        # BEGIN: VARIABLES TO BE INCORPORATED
 
-        x_anchors, y_anchors = simple_mooring_design(
-            phi_platform=phi_platform,
-            x_turbines=x_turbines,
-            y_turbines=y_turbines,
-            length=self.min_mooring_line_length_m * 1e-3,  # convert to km
-            N_turbines=self.N_turbines,
-            N_anchors=self.N_anchors,
+        phi_mooring = np.zeros_like(inputs["phi_platform"])  # the mooring headings
+
+        path_to_bathy_moorpy = (
+            Path(ard.__file__).parent
+            / "examples"
+            / "data"
+            / "offshore"
+            / "GulfOfMaine_bathymetry_100x99.txt"
         )
+        bathymetry_data = BathymetryGridData.load_moorpy_bathymetry(
+            path_to_bathy_moorpy
+        )
+        soil_data = None  # TODO
+        radius_fairlead = 0.5  # m? idk, replace with a good value
+        depth_fairlead = 5.0  # m? idk, replace with a good value
+        type_anchor = "driven_pile"  # random choice
+        # load anchor geometry yaml file based on ard package location
+        path_to_anchor_yaml = (
+            Path(ard.__file__).parent
+            / "examples"
+            / "data"
+            / "offshore"
+            / "geometry_anchor.yaml"
+        )
+        id_mooring_system = [
+            f"m{v}:03d" for v in list(range(len(phi_platform)))
+        ]  # just borrow turbine IDs for now: 3-digit, zero padded integer prefixed by m
 
-        # END REPLACE ME
+        # END VARIABLES TO BE INCORPORATED
+
+        # BEGIN: REPLACE ME WITH OPERATING CODE
+
+        raise NotImplementedError("HELLO FRIENDS, IMPLEMENT HERE!")
+
+        # END REPLACE ME WITH OPERATING CODE
 
         # replace the below with the final anchor locations...
         outputs["x_anchors"] = x_anchors
