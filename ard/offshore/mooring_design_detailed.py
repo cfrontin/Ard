@@ -126,15 +126,14 @@ class DetailedMooringDesign(om.ExplicitComponent):
         phi_mooring = np.zeros_like(inputs["phi_platform"])  # the mooring headings
 
         path_to_bathy_moorpy = (
-            Path(ard.__file__).parent
+            Path(ard.__file__).parents[1]
             / "examples"
             / "data"
             / "offshore"
             / "GulfOfMaine_bathymetry_100x99.txt"
         )
-        bathymetry_data = BathymetryGridData.load_moorpy_bathymetry(
-            path_to_bathy_moorpy
-        )
+        bathymetry_data = BathymetryGridData()
+        bathymetry_data.load_moorpy_bathymetry(path_to_bathy_moorpy)
         soil_data = None  # TODO
         radius_fairlead = 0.5  # m? idk, replace with a good value
         depth_fairlead = 5.0  # m? idk, replace with a good value
@@ -154,6 +153,8 @@ class DetailedMooringDesign(om.ExplicitComponent):
         # END VARIABLES TO BE INCORPORATED
 
         # BEGIN: REPLACE ME WITH OPERATING CODE
+
+        print("\n\nARRIVED AT COMPUTE FUNCTION\n\n")
 
         raise NotImplementedError("HELLO FRIENDS, IMPLEMENT HERE!")
 
