@@ -14,12 +14,7 @@ import ard.cost.wisdem_wrap as cost_wisdem
 
 # create the wind query
 wind_rose_wrg = floris.wind_data.WindRoseWRG(
-    Path(
-        Path(ard.__file__).parents[1],
-        "examples",
-        "data",
-        "wrg_example.wrg",
-    )
+    Path(ard.__file__).parents[1] / "examples" / "data" / "wrg_example.wrg"
 )
 wind_rose_wrg.set_wd_step(1.0)
 wind_rose_wrg.set_wind_speeds(np.arange(0, 30, 0.5)[1:])
@@ -27,11 +22,11 @@ wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
 wind_query = wq.WindQuery.from_FLORIS_WindData(wind_rose)
 
 # specify the configuration/specification files to use
-filename_turbine_spec = Path(
-    Path(ard.__file__).parents[1],
-    "examples",
-    "data",
-    "turbine_spec_IEA-3p4-130-RWT.yaml",
+filename_turbine_spec = (
+    Path(ard.__file__).parents[1]
+    / "examples"
+    / "data"
+    / "turbine_spec_IEA-3p4-130-RWT.yaml"
 )
 data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
 

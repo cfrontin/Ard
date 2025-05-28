@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import numpy as np
 import floris
@@ -46,8 +46,8 @@ class FLORISFarmComponent:
         self.fmodel.assign_hub_height_to_ref_height()
 
         self.case_title = self.options["case_title"]
-        self.dir_floris = os.path.join("case_files", self.case_title, "floris_inputs")
-        os.makedirs(self.dir_floris, exist_ok=True)
+        self.dir_floris = Path("case_files", self.case_title, "floris_inputs")
+        self.dir_floris.mkdir(parents=True, exist_ok=True)
 
     def compute(self, inputs):
         """
@@ -96,7 +96,7 @@ class FLORISFarmComponent:
         """
         if dir_output is None:
             dir_output = self.dir_floris
-        self.fmodel.core.to_file(os.path.join(dir_output, "batch.yaml"))
+        self.fmodel.core.to_file(Path(dir_output, "batch.yaml"))
 
 
 class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):

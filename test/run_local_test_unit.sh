@@ -1,8 +1,8 @@
 #!/bin/bash
-if python -c "import interarray" 2>/dev/null ; then
-  pytest --cov=ard,gpAEP --cov-report=html test/unit
+if python -c "import optiwindnet" 2>/dev/null ; then
+  pytest --cov=ard --cov-report=html test/unit
 else
-  pytest --cov=ard,gpAEP --cov-report=html test/unit --cov-config=.coveragerc_no_interarray
+  pytest --cov=ard --cov-report=html test/unit --cov-config=.coveragerc_no_optiwindnet
 fi
 
 rm -rf test/unit/layout/problem*_out

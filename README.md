@@ -69,17 +69,9 @@ If the installation fails, please open a new issue [here](https://github.com/WIS
 
 ### Optional installations
 
-#### interarray
+#### OptiWindNet
 
-We currently have experimental support for [Mauricio Souza de Alancar's interarray package for collection system cable path-planning optimization](https://github.com/mdealencar/interarray).
-Installation for this package is not presently automated.
-To install, you must:
-
-1. install [PythonCDT for constrained Delaunay triangulation](https://github.com/artem-ogre/PythonCDT) following that package's README directions
-2. install interarray following that package's documentation
-3. install highspy at v1.9.0 for its discrete optimizer (`pip install highspy==1.9.0`)
-
-When `interarray` is installed, the testing suite and coverage reports will include its Ard integration, ignoring them otherwise.
+We currently have experimental support for [Mauricio Souza de Alancar's OptiWindNet package for collection system cable path-planning optimization](https://gitlab.windenergy.dtu.dk/TOPFARM/OptiWindNet).
 
 ## Current capabilities
 

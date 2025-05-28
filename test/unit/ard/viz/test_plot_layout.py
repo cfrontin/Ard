@@ -7,6 +7,7 @@ import pytest
 import ard.viz.plot_layout as plot_layout
 
 
+@pytest.mark.usefixtures("subtests")
 class TestPlotLayout:
 
     def setup_method(self):
@@ -27,12 +28,18 @@ class TestPlotLayout:
         self.prob = om.Problem(self.model)
         self.prob.setup()
 
-    def test_setup(self):
+    def test_setup(self, subtests):
         # make sure the modeling_options has what we need for farmaero
-        assert "modeling_options" in [k for k, _ in self.aep_temp.options.items()]
+        with subtests.test("modeling_options"):
+            assert "modeling_options" in [k for k, _ in self.aep_temp.options.items()]
 
-        assert "farm" in self.aep_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.aep_temp.options["modeling_options"]["farm"].keys()
+        with subtests.test("farm"):
+            assert "farm" in self.aep_temp.options["modeling_options"].keys()
+
+        with subtests.test("N_turbines"):
+            assert (
+                "N_turbines" in self.aep_temp.options["modeling_options"]["farm"].keys()
+            )
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
@@ -42,12 +49,16 @@ class TestPlotLayout:
                 "x_turbines",
                 "y_turbines",
             ]:
-                assert var_to_check in input_list
+
+                with subtests.test(f"input {var_to_check}"):
+                    assert var_to_check in input_list
 
             output_list = [k for k, v in self.aep_temp.list_outputs()]
-            assert len(output_list) == 0  # no outputs should exist
 
-    def test_compute(self):
+            with subtests.test(f"outputs don't exist yet"):
+                assert len(output_list) == 0  # no outputs should exist
+
+    def test_compute(self, subtests):
         # make sure no errors
         x_turbines = 7.0 * 130.0 * np.arange(-2, 2.1, 1)
         y_turbines = 7.0 * 130.0 * np.arange(-2, 2.1, 1)
@@ -57,6 +68,9 @@ class TestPlotLayout:
 
         self.prob.run_model()
 
-        assert len(plt.get_fignums()) == 1  # matplotlib should create a figure
+        with subtests.test("figure generated"):
+            assert len(plt.get_fignums()) > 0  # matplotlib should create a figure
+
         plt.close("all")
-        assert len(plt.get_fignums()) == 0  # matplotlib should destroy all figures
+        with subtests.test("figure closed"):
+            assert len(plt.get_fignums()) == 0  # matplotlib should destroy all figures

@@ -22,10 +22,7 @@ def pyrite_validator(
         # this helper function can write a file to hold pyrite-standard data
 
         # write out a npz file that holds the variables we want to be able to check
-        np.savez(
-            filename_pyrite,
-            **validation_data,
-        )
+        np.savez(filename_pyrite, **validation_data)
         assert False
     else:
         # ... or it can check to make sure that an existing pyrite file matches the current data
@@ -39,13 +36,16 @@ def pyrite_validator(
             sum_isclose = np.sum(
                 np.isclose(np.array(v), validation_data[k], rtol=rtol_val)
             )
-            vd_size = np.array(validation_data[k]).size
+            vd_size = np.array(validation_data[k], dtype=np.float64).size
             # assert all of the values match
             validation_matches = sum_isclose == vd_size
+
             if not validation_matches:
                 print(f"for variable {k}:")
                 print(
                     f"\t{sum_isclose} values match of {vd_size} total validation values"
                 )
                 print(f"\tto a tolerance of {rtol_val:e}")
+                print(f"saved data for {k}: {v}")
+                print(f"computed data for {k}: {validation_data[k]}")
             assert validation_matches

@@ -24,7 +24,7 @@ authors = [
 ]
 description = "A package for multidisciplinary and/or multifidelity wind farm design"
 readme= "README.md"
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10, <3.14"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: Apache Software License",
@@ -44,12 +44,15 @@ dependencies = [
   "marmot-agents",
   "openmdao",
   "shapely",
+  "optiwindnet",
+  "highspy",
 ]
 [project.optional-dependencies]
 dev = [
   "black[jupyter]",
   "pytest",
   "pytest-cov",
+  "pytest-subtests",
 ]
 docs = [
   "pyxdsm",

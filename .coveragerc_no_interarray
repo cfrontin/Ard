@@ -2,5 +2,5 @@
 omit = 
     ard/glue/prototype.py
     ard/test_utils.py
-    ard/collection/interarray_wrap.py
+    ard/collection/optiwindnet_wrap.py
     

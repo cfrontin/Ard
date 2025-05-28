@@ -14,7 +14,7 @@ class CollectionTemplate(om.ExplicitComponent):
     Options
     -------
     modeling_options : dict
-        a modeling optinos dictionary
+        a modeling options dictionary
 
     Inputs
     ------

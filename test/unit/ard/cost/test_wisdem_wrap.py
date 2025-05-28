@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import numpy as np
@@ -17,15 +16,12 @@ class TestLandBOSSE:
     def setup_method(self):
 
         # specify the configuration/specification files to use
-        filename_turbine_spec = os.path.abspath(
-            os.path.join(
-                os.path.split(ard.__file__)[0],
-                "..",
-                "examples",
-                "data",
-                "turbine_spec_IEA-3p4-130-RWT.yaml",
-            )
-        )  # toolset generalized turbine specification
+        filename_turbine_spec = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "turbine_spec_IEA-3p4-130-RWT.yaml"
+        ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
         data_turbine = ard.utils.load_turbine_spec(filename_turbine_spec)
@@ -73,10 +69,7 @@ class TestLandBOSSE:
         self.prob.run_model()
 
         # use a file of pyrite-standard data to validate against
-        fn_pyrite = os.path.join(
-            os.path.split(__file__)[0],
-            "test_landbosse_wrap_baseline_farm.npz",
-        )
+        fn_pyrite = Path(__file__).parent / "test_landbosse_wrap_baseline_farm.npz"
         test_data = {
             "bos_capex_kW": self.prob.get_val("landbosse.bos_capex_kW", units="USD/kW"),
             "total_capex": self.prob.get_val("landbosse.total_capex", units="MUSD"),
@@ -95,15 +88,12 @@ class TestOrbit:
     def setup_method(self):
 
         # specify the configuration/specification files to use
-        filename_turbine_spec = os.path.abspath(
-            os.path.join(
-                os.path.split(ard.__file__)[0],
-                "..",
-                "examples",
-                "data",
-                "turbine_spec_IEA-22-284-RWT.yaml",
-            )
-        )  # toolset generalized turbine specification
+        filename_turbine_spec = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "turbine_spec_IEA-22-284-RWT.yaml"
+        ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
         data_turbine = ard.utils.load_turbine_spec(filename_turbine_spec)
@@ -154,11 +144,7 @@ class TestOrbit:
         self.prob.run_model()
 
         # use a file of pyrite-standard data to validate against
-        fn_pyrite = os.path.join(
-            os.path.split(__file__)[0],
-            "test_orbit_wrap_baseline_farm.npz",
-        )
-        print(fn_pyrite)
+        fn_pyrite = Path(__file__).parent / "test_orbit_wrap_baseline_farm.npz"
         test_data = {
             "bos_capex": self.prob.get_val("orbit.bos_capex", units="USD"),
             "total_capex": self.prob.get_val("orbit.total_capex", units="MUSD"),
