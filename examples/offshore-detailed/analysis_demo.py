@@ -59,6 +59,10 @@ modeling_options = {
             mip_rel_gap=0.005,  # TODO ???
         ),
     },
+    
+    "mooring_setup":{
+        "mooring_input_file": 'OntologySample200m.yaml'
+    }
 }
 
 # create the OpenMDAO model
