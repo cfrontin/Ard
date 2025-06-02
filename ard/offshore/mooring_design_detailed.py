@@ -10,7 +10,7 @@ from ard.geographic.geomorphology import BathymetryGridData
 from famodel import Project
 from famodel.platform.platform import Platform
 from famodel.helpers import getMoorings, getAnchors, adjustMooring
-
+import yaml 
 
 class DetailedMooringDesign(om.ExplicitComponent):
     """
@@ -123,7 +123,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
         else:
             FAM_ontology_file = None
             
-        FAM_inputs = {}
+        FAM_inputs = self.options['modeling_options']['mooring_setup']
         self.FAM = self.buildFAModel(ontology_file = FAM_ontology_file,**FAM_inputs) # famodel object
 
         # set up inputs and outputs for mooring system
@@ -217,14 +217,18 @@ class DetailedMooringDesign(om.ExplicitComponent):
                         
                 ### option to remove turbines?
         else:
+           
+            
             # pull out needed information
-            pf_coords = FAM_settings.get('pf_locs',[])
-            pf_headings = FAM_settings.get('pf_headings',[])
+            pf_coords = FAM_settings.get('pf_locs',np.zeros((self.N_turbines,2)))
+            pf_headings = FAM_settings.get('pf_headings',np.zeros(self.N_turbines))
             hydrostatics = FAM_settings.get('hydrostatics',None)
             RAFT_platform = FAM_settings.get('RAFT_platform',None)
             pf_rFair = FAM_settings.get('rFair',58)
             pf_zFair = FAM_settings.get('zFair',-14)
-            mooring_info = FAM_settings.get('mooring_info',{})
+            
+            with open(FAM_settings.get('mooring_info',{})) as file:
+                mooring_info = yaml.load(file, Loader=yaml.FullLoader)
             anchor_info = FAM_settings.get('anchor_info',{})
             site_conds = FAM_settings.get('site_conds',{})
             
@@ -234,10 +238,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
             FAM = Project(raft=False)
             
             # - - - - Site conditions - - - -
-            if 'bathymetry' in site_conds:
-                FAM.loadBathymetry(site_conds['bathymetry'])
-            if 'soil' in site_conds:
-                FAM.loadSoil(site_conds['soil'])
+            FAM.loadSite(site_conds)
             
             # - - - - Platforms - - - -
             for i in range(nt):
@@ -268,33 +269,46 @@ class DetailedMooringDesign(om.ExplicitComponent):
                 else:
                     moor_headings = np.radians(mooring_info['headings'])
      
-                
-                FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT', 
-                                rFair=rFair, zFair=zFair, moor_headings=moor_headings,
-                                hydrostatics=hydrostatics, RAFTDict=RAFT_platform)
-    
+                settings = {}
+                settings['mooring_headings'] = list(moor_headings)
+                if hydrostatics != None:
+                    FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT', 
+                                    rFair=rFair, zFair=zFair, moor_headings=moor_headings,
+                                    hydrostatics=hydrostatics, RAFTDict=RAFT_platform)
+                else:
+                    FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT', 
+                                    rFair=rFair, zFair=zFair, **settings)
             
             # - - - - Anchors - - - - 
-            nmoor_total = len(moor_headings)*len(pf_coords)
+
             lineAnch = None
-            if anchor_info:
-                lineAnch = anchor_info
-                atypes = anchor_info
-            elif 'anchor_types' in mooring_info and 'mooring_systems' in mooring_info:
-                lineAnch = mooring_info['anchor_types'][mySys['anchorType']]
-                atypes = mooring_info['anchor_types']
-            elif 'anchor_types' in mooring_info:
-                anchor_type_name = list(mooring_info['anchor_types'].keys())[0]
-                lineAnch = mooring_info['anchor_types'][anchor_type_name]
-                atypes = mooring_info['anchor_types']
-            
-            if lineAnch:
-                ad, mass = FAM.helpers.getAnchors(lineAnch, arrayAnchor={}, proj=FAM) # call method to create anchor dictionary
-            else:
-                ad=None # default
-                mass=0 # default
-            for i in range(nmoor_total):
-                FAM.addAnchor(id=i,dd=ad,mass=mass)
+            count = 0
+            for i in range(0, nt):  
+                for j in range(0, len(moor_headings)):
+                    if anchor_info:
+                        lineAnch = anchor_info
+                        atypes = anchor_info
+                    elif 'anchor_types' in mooring_info and 'mooring_systems' in mooring_info:
+                        lineAnch = mooring_info['anchor_types'][mySys[j]['anchorType']]
+                        atypes = mooring_info['anchor_types']
+                    elif 'anchor_types' in mooring_info:
+                        anchor_type_name = list(mooring_info['anchor_types'].keys())[0]
+                        lineAnch = mooring_info['anchor_types'][anchor_type_name]
+                        atypes = mooring_info['anchor_types']
+                    
+                    FAM.anchorTypes = {}
+                    for k, v in atypes.items():
+                        FAM.anchorTypes[k] = v
+                    
+                    if lineAnch:
+                        ad, mass = getAnchors(mySys[j]['anchorType'], arrayAnchor=lineAnch, proj=FAM) # call method to create anchor dictionary
+                    else:
+                        ad=None # default
+                        mass=0 # default
+                   
+                    
+                    FAM.addAnchor(id=count,dd=ad,mass=mass)
+                    count +=1
             
             # - - - - Moorings - - - - 
             # make mooring list based on available information 
@@ -307,18 +321,20 @@ class DetailedMooringDesign(om.ExplicitComponent):
                                        endB=FAM.platformList[i],
                                        heading=moor_headings[j]+FAM.platformList[i].phi,
                                        subsystem=mooring_info['subsystem'],
-                                       reposition=True, adjuster = mooringAdjuster)
+                                       reposition=True, adjuster = adjustMooring)
                         count += 1
     
                 
             else:
                 lineConfigs=mooring_info['mooring_line_configs']
                 connectorTypes = mooring_info.get('mooring_connector_types',{})
+                
+                FAM.lineTypes = {}
                 for k, v in mooring_info['mooring_line_types'].items():
                     # set up line types dictionary
                     FAM.lineTypes[k] = v
                 for i in range(nt):
-                    for j in range(mooring_info['nMoor']):
+                    for j in range(len(moor_headings)):
                         if 'mooring_systems' in mooring_info:
                             lcID = mySys[j]['MooringConfigID']
                         else:
@@ -327,14 +343,19 @@ class DetailedMooringDesign(om.ExplicitComponent):
                         m_config = getMoorings(lcID, 
                                                lineConfigs, 
                                                connectorTypes, 
-                                               pfID=FAM.platformList[i], 
+                                               pfID=FAM.platformList[i].id, 
                                                proj=FAM)
-                        FAM.addMooring(id=count, 
+                        moor = FAM.addMooring(id=count, 
                                        endA=FAM.anchorList[count], 
                                        endB=FAM.platformList[i], 
                                        heading=moor_headings[j]+FAM.platformList[i].phi, 
                                        dd=m_config, 
                                        reposition=True)
-                        count += 1
                         
+                        # attach ends
+                        moor.attachTo(FAM.anchorList[count], end='A')
+                        moor.attachTo(FAM.platformList[i], end='B')
+                        
+                        count += 1
+        FAM.getMoorPyArray()
         return(FAM)

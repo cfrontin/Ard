@@ -61,7 +61,27 @@ modeling_options = {
     },
     
     "mooring_setup":{
-        "mooring_input_file": 'OntologySample200m.yaml'
+        "site_conds": {
+            "general" : {
+                "water_depth" : 200
+            },
+            "bathymetry" : {
+                "file" : Path(ard.__file__).parents[1]
+                / "examples"
+                / "data"
+                / "offshore"
+                / "GulfOfMaine_bathymetry_100x99.txt"
+            }
+            
+        },
+        "mooring_info": (Path(ard.__file__).parents[1]
+        / "examples"
+        / "offshore-detailed"
+        / "mooring_ontology.yaml"
+    ) 
+        
+        
+        #"mooring_input_file": 'OntologySample200m.yaml'
     }
 }
 
