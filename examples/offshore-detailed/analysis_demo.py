@@ -15,6 +15,8 @@ import ard
 import ard.glue.prototype as glue
 import ard.layout.spacing
 
+from famodel.helpers import adjustMooring
+
 # layout type
 layout_type = "gridfarm"
 
@@ -77,11 +79,19 @@ modeling_options = {
         "mooring_info": (Path(ard.__file__).parents[1]
         / "examples"
         / "offshore-detailed"
-        / "mooring_ontology.yaml"
-    ) 
+        / "OntologySample200m.yaml"
+        ),
+        "adjuster_settings" : {
+            "adjuster" : adjustMooring,
+            "method" : "horizontal",
+            "i_line" : 1,
+        }
         
         
-        #"mooring_input_file": 'OntologySample200m.yaml'
+        
+        
+        # "mooring_input_file": 'OntologySample200m.yaml'
+
     }
 }
 
