@@ -135,11 +135,11 @@ array_mooring:
         # - [ rope_shared       ,  FOWT1,  FOWT2, 270,  270,  0]
 
 
-# Array cables 
-array_cables:   
-    keys:  [ AttachA,  AttachB,  DynCableA, DynCableB, headingA, headingB, cableType]
-    data:
-      - [ FOWT2, OSS1, suspended_1, None, 90, 90, None] # suspended cable, so only one dynamic cable configuration, no static cable
+# # Array cables 
+# array_cables:   
+#     keys:  [ AttachA,  AttachB,  DynCableA, DynCableB, headingA, headingB, cableType]
+#     data:
+#       - [ FOWT2, OSS1, suspended_1, None, 90, 90, None] # suspended cable, so only one dynamic cable configuration, no static cable
 
 
 # ----- Mooring system -----
@@ -386,27 +386,27 @@ dynamic_cable_configs:
             spacing: 18 # [m]
             V: 2
         
-cables:
-  - name : array_cable1      # descriptive cable name
-    type : static_cable_66   # cable section type ID
+# cables:
+#   - name : array_cable1      # descriptive cable name
+#     type : static_cable_66   # cable section type ID
   
-    endA: 
-        attachID: FOWT1            # FOWT/substation/junction ID
-        heading:  260                  # [deg] heading of attachment at end A
-        dynamicID: lazy_wave1  # ID of dynamic cable configuration at this end
+#     endA: 
+#         attachID: FOWT1            # FOWT/substation/junction ID
+#         heading:  260                  # [deg] heading of attachment at end A
+#         dynamicID: lazy_wave1  # ID of dynamic cable configuration at this end
     
-    endB:
-        attachID: FOWT2            # FOWT/substation/junction ID
-        heading:  280                   # [deg] heading of attachment at end B
-        dynamicID: lazy_wave1  # ID of dynamic cable configuration at this end
+#     endB:
+#         attachID: FOWT2            # FOWT/substation/junction ID
+#         heading:  280                   # [deg] heading of attachment at end B
+#         dynamicID: lazy_wave1  # ID of dynamic cable configuration at this end
     
-    routing_x_y_r:  # optional vertex points along the cable route. Nonzero radius wraps around a point at that radius.
-      - [-900, -1450, 20] 
-      - [-700, -1450, 20] 
+#     routing_x_y_r:  # optional vertex points along the cable route. Nonzero radius wraps around a point at that radius.
+#       - [-900, -1450, 20] 
+#       - [-700, -1450, 20] 
     
-    burial:  # optional definition of cable burial depth over its length
-        station: [0, 1]                # length along cable, normalized by first and last value
-        depth  : [0.1, 0.2]            # [m] burial depth
+#     burial:  # optional definition of cable burial depth over its length
+#         station: [0, 1]                # length along cable, normalized by first and last value
+#         depth  : [0.1, 0.2]            # [m] burial depth
         
 # Cable cross-sectional properties
 cable_types:

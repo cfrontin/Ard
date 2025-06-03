@@ -240,8 +240,8 @@ class DetailedMooringDesign(om.ExplicitComponent):
             # pull out needed information
             pf_coords = FAM_settings.get('pf_locs',np.zeros((self.N_turbines,2)))
             pf_headings = FAM_settings.get('pf_headings',np.zeros(self.N_turbines))
-            hydrostatics = FAM_settings.get('hydrostatics',None)
-            RAFT_platform = FAM_settings.get('RAFT_platform',None)
+            hydrostatics = FAM_settings.get('hydrostatics',{})
+            RAFT_platform = FAM_settings.get('RAFT_platform',{})
             pf_rFair = FAM_settings.get('rFair',58)
             pf_zFair = FAM_settings.get('zFair',-14)
             
@@ -288,13 +288,13 @@ class DetailedMooringDesign(om.ExplicitComponent):
      
                 settings = {}
                 settings['mooring_headings'] = list(moor_headings)
-                if hydrostatics != None:
-                    FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT', 
-                                    rFair=rFair, zFair=zFair, moor_headings=moor_headings,
-                                    hydrostatics=hydrostatics, RAFTDict=RAFT_platform)
-                else:
-                    FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT', 
-                                    rFair=rFair, zFair=zFair, **settings)
+                if hydrostatics:
+                    settings['hydrostatics'] = hydrostatics
+                elif RAFT_platform:
+                    settings['raft_platform_dict'] = RAFT_platform
+
+                FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT', 
+                                rFair=rFair, zFair=zFair, **settings)
             
             # - - - - Anchors - - - - 
 
