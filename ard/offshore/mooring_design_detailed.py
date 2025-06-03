@@ -84,9 +84,13 @@ class DetailedMooringDesign(om.ExplicitComponent):
 
         # BEGIN: VARIABLES TO BE INCORPORATED PROPERLY
 
-        class Placeholder: pass  # DEBUG!!!!!
+        class Placeholder:
+            pass  # DEBUG!!!!!
+
         self.temporary_variables = Placeholder()  # DEBUG!!!!!
-        self.temporary_variables.phi_mooring = np.zeros((self.N_turbines,))  # the mooring headings
+        self.temporary_variables.phi_mooring = np.zeros(
+            (self.N_turbines,)
+        )  # the mooring headings
 
         self.temporary_variables.path_to_bathy_moorpy = (
             Path(ard.__file__).parents[1]
@@ -100,8 +104,12 @@ class DetailedMooringDesign(om.ExplicitComponent):
             self.temporary_variables.path_to_bathy_moorpy
         )
         self.temporary_variables.soil_data = None  # TODO
-        self.temporary_variables.radius_fairlead = 0.5  # m? idk, replace with a good value
-        self.temporary_variables.depth_fairlead = 5.0  # m? idk, replace with a good value
+        self.temporary_variables.radius_fairlead = (
+            0.5  # m? idk, replace with a good value
+        )
+        self.temporary_variables.depth_fairlead = (
+            5.0  # m? idk, replace with a good value
+        )
         self.temporary_variables.type_anchor = "driven_pile"  # random choice
         # load anchor geometry yaml file based on ard package location
         self.temporary_variables.path_to_anchor_yaml = (
@@ -164,7 +172,6 @@ class DetailedMooringDesign(om.ExplicitComponent):
         y_turbines = inputs["y_turbines"]*1000
         # thrust_turbines = inputs["thrust_turbines"]  # future-proofing
 
-
         # BEGIN: ALIASES FOR SOME USEFUL VARIABLES
 
         phi_mooring = self.temporary_variables.phi_mooring
@@ -188,7 +195,14 @@ class DetailedMooringDesign(om.ExplicitComponent):
         #store anchor x and y positions (km) in lists 
         x_anchors = [float(self.FAM.anchorList[anch].r[0] / 1000) for anch in self.FAM.anchorList]
         y_anchors = [float(self.FAM.anchorList[anch].r[1] / 1000) for anch in self.FAM.anchorList ]
-            
+
+        # BEGIN: REPLACE ME WITH OPERATING CODE
+
+        print("\n\nARRIVED AT COMPUTE FUNCTION\n\n")
+
+        raise NotImplementedError("HELLO FRIENDS, IMPLEMENT HERE!")
+
+        # END REPLACE ME WITH OPERATING CODE
 
         # replace the below with the final anchor locations...
         outputs = {}
