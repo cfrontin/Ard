@@ -43,6 +43,7 @@ dependencies = [
   "jax",
   "optiwindnet",
   "highspy",
+  "pyyaml",
 ]
 [project.optional-dependencies]
 dev = [

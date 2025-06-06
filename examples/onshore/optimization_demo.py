@@ -180,10 +180,6 @@ def run_example():
         "optiwindnet_coll.total_length_cables",
         "landbosse.total_length_cables",
     )
-    model.connect(  # effective secondary spacing for BOS
-        "spacing_effective_secondary",
-        "landbosse.row_spacing_rotor_diameters",
-    )
 
     model.add_subsystem(  # operational expenditures component
         "opex",
@@ -238,6 +234,9 @@ def run_example():
         "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
         "coll_length": float(
             prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
+        ),
+        "turbine_spacing": float(
+            np.min(prob.get_val("spacing_constraint.turbine_spacing", units="m"))
         ),
     }
 
@@ -302,7 +301,7 @@ def run_example():
                 prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
             ),
             "turbine_spacing": float(
-                np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
+                np.min(prob.get_val("spacing_constraint.turbine_spacing", units="m"))
             ),
         }
 

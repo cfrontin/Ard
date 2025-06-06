@@ -27,7 +27,7 @@ def set_up_system(input_dict):
     return prob
 
 
-def set_up_system_recursive(input_dict, parent_group=None):
+def set_up_system_recursive(input_dict, system_name="top_level", parent_group=None, ):
     """
     Recursively sets up an OpenMDAO system based on the input dictionary.
 
@@ -46,44 +46,47 @@ def set_up_system_recursive(input_dict, parent_group=None):
     else:
         prob = None
 
-    # Iterate over groups in the input dictionary
-    for group_key, group_data in input_dict["groups"].items():
-        # Add the group to the parent group
+    # Add subsystems directly from the input dictionary
+    if hasattr(parent_group, "name"):
+        print(f"Adding {system_name} to {parent_group.name}")
+    else:
+        print(f"Adding {system_name}")
+    if "systems" in input_dict:# Recursively add nested subsystems
         group = parent_group.add_subsystem(
-            name=group_key,
+            name=system_name,
             subsys=om.Group(),
-            promotes=group_data.get("promotes", []),
+            promotes=input_dict.get("promotes", None),
+        )
+        for subsystem_key, subsystem_data in input_dict["systems"].items():
+            set_up_system_recursive(subsystem_data, parent_group=group, system_name=subsystem_key)
+
+    else:
+        subsystem_data = input_dict
+        module_name = subsystem_data["module"]
+        if "object" in subsystem_data:
+            object_name = subsystem_data["object"]
+        else:
+            raise ValueError(f"Subsystem {system_name} missing 'object' spec.")
+
+        # Dynamically import the module and get the subsystem class
+        Module = importlib.import_module(module_name)
+        SubSystem = getattr(Module, object_name)
+
+        # Extract kwargs for the subsystem if specified
+        subsystem_kwargs = subsystem_data.get("kwargs", {})
+
+        # Add the subsystem to the parent group with kwargs
+        parent_group.add_subsystem(
+            name=system_name,
+            subsys=SubSystem(**subsystem_kwargs),
+            promotes=subsystem_data.get("promotes", []),
         )
 
-        # Iterate over systems in the group
-        for subsystem_key, subsystem_data in group_data["systems"].items():
-            module_name = subsystem_data["name"]
-            object_name = subsystem_data["object"]
-
-            # Dynamically import the module and get the subsystem class
-            Module = importlib.import_module(f"ard.{module_name}")
-            SubSystem = getattr(Module, object_name)
-
-            # Extract kwargs for the subsystem if specified
-            subsystem_kwargs = subsystem_data.get("kwargs", {})
-
-            # Check if the subsystem has nested systems (i.e., is a group)
-            if "systems" in subsystem_data:
-                # Recursively add nested subsystems
-                set_up_system_recursive(subsystem_data, parent_group=group)
-            else:
-                # Add the subsystem to the group with kwargs
-                group.add_subsystem(
-                    name=subsystem_key,
-                    subsys=SubSystem(input_dict=input_dict, name=subsystem_key, **subsystem_kwargs),
-                    promotes=subsystem_data.get("promotes", []),
-                )
-
-        # Handle connections within the group
-        if "connections" in group_data:
-            for connection in group_data["connections"]:
-                src, tgt = connection  # Unpack the connection as [src, tgt]
-                group.connect(src, tgt)
+    # Handle connections within the parent group
+    if "connections" in input_dict:
+        for connection in input_dict["connections"]:
+            src, tgt = connection  # Unpack the connection as [src, tgt]
+            parent_group.connect(src, tgt)
 
     # Set up the problem if this is the top-level call
     if prob is not None:

@@ -1,8 +1,6 @@
 from pathlib import Path
 from os import PathLike
 
-from wisdem.inputs.validation import load_yaml
-
 import os
 import yaml
 
@@ -20,7 +18,6 @@ class Loader(yaml.SafeLoader):
 
         with open(filename, 'r') as f:
             return yaml.load(f, self.__class__)
-
 
 Loader.add_constructor('!include', Loader.include)
 

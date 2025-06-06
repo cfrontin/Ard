@@ -2,6 +2,10 @@ import numpy as np
 
 import openmdao.api as om
 
+from pathlib import Path
+
+import floris
+
 
 class FarmAeroTemplate(om.ExplicitComponent):
     """
@@ -235,8 +239,19 @@ class FarmAEPTemplate(FarmAeroTemplate):
         """Setup of OM component."""
         super().setup()
 
-        # unpack FLORIS wind data object
-        self.wind_rose = self.options["wind_rose"]
+        if isinstance(self.options["wind_rose"], dict):
+            # generate FLORIS wind data object from dictionary
+            wind_rose_wrg_file = Path(self.options["wind_rose"]["file"]).resolve()
+            wind_rose_wrg = floris.wind_data.WindRoseWRG(Path(wind_rose_wrg_file))
+            wind_rose_wrg.set_wd_step(self.options["wind_rose"]["wd_step"])
+            wind_rose_wrg.set_wind_speeds(np.array(self.options["wind_rose"]["wind_speeds"]))
+            self.wind_rose = wind_rose_wrg.get_wind_rose_at_point(*self.options["wind_rose"]["point"])
+        elif isinstance(self.options["wind_rose"], floris.wind_data.WindRose):
+            # unpack FLORIS wind data object
+            self.wind_rose = self.options["wind_rose"]
+        else:
+            raise(TypeError(f"wind rose was given as type {type(self.options["wind_rose"])}, but must \
+                            be one of [dict, floris.wind_data.WindRose]"))
         self.directions_wind, self.speeds_wind, self.TIs_wind, self.pmf_wind, _, _ = (
             self.wind_rose.unpack()
         )

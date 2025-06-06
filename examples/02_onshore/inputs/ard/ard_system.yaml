@@ -2,7 +2,7 @@ modeling_options: &modeling_options
   farm:
     N_turbines: 25
     N_substations: 1
-  turbine: !include turbine_spec_IEA-22-284-RWT.yaml
+  turbine: !include ../../../data/turbine_spec_IEA-22-284-RWT.yaml
   collection:
     max_turbines_per_string: 8
     solver_name: "appsi_highs"
@@ -10,84 +10,82 @@ modeling_options: &modeling_options
       time_limit: 60
       mip_rel_gap: 0.005
 
-groups:
-  top_level:
-    promotes: ["*"]
-    systems:
-      layout2aep:
-        type: group
-        promotes: ["*"]
-        systems:
-          layout:
-            type: component
-            name: ard.layout.gridfarm
-            object: GridFarmLayout
-            promotes: ["*"]
-            kwargs:
-              modeling_options: *modeling_options
-          aepPlaceholder:
-            type: component
-            name: ard.farm_aero.placeholder
-            object: PlaceholderAEP
-            promotes: ["x_turbines", "y_turbines", "AEP_farm"]
-            kwargs:
-              modeling_options: *modeling_options
-              wind_rose:
-                file: wrg_example.wrg
-                wd_step: 90.0
-                wind_speeds: [5.0, 10.0, 15.0, 20.0]
-      landuse:
-        type: component
-        name: ard.layout.gridfarm
-        object: GridFarmLanduse
-        promotes: ["*"]
-        kwargs:
-          modeling_options: *modeling_options
-      optiwindnet_coll:
-        type: component
-        name: ard.collection.optiwindnet_wrap
-        object: optiwindnetCollection
-        promotes: ["*"]
-        kwargs:
-          modeling_options: *modeling_options
-      spacing_constraint:
-        type: component
-        name: ard.layout.spacing
-        object: TurbineSpacing
-        promotes: ["*"]
-        kwargs:
-          modeling_options: *modeling_options
-      landbosse:
-        type: component
-        name: ard.cost.approximate_turbine_spacing
-        object: LandBOSSEWithSpacingApproximations
-        promotes: ["*"]
-        kwargs:
-          modeling_options: *modeling_options
-      opex:
-        type: component
-        name: ard.cost.wisdem_wrap
-        object: OperatingExpenses
-        promotes_inputs: ["turbine_number", "machine_rating", "opex_per_kW"]
-      financese:
-        type: component
-        name: ard.cost.wisdem_wrap
-        object: PlantFinance
-        promotes_inputs: [
-          "turbine_number",
-          "machine_rating",
-          "tcc_per_kW",
-          "offset_tcc_per_kW",
-          "opex_per_kW",
-        ]
-    connections:
-      - ["layout2aep.x_turbines", "landuse.x_turbines"]
-      - ["layout2aep.y_turbines", "landuse.y_turbines"]
-      - ["layout2aep.x_turbines", "optiwindnet_coll.x_turbines"]
-      - ["layout2aep.y_turbines", "optiwindnet_coll.y_turbines"]
-      - ["layout2aep.x_turbines", "spacing_constraint.x_turbines"]
-      - ["layout2aep.y_turbines", "spacing_constraint.y_turbines"]
-      - ["optiwindnet_coll.total_length_cables", "landbosse.total_length_cables"]
-      - ["layout2aep.spacing_effective_secondary", "landbosse.row_spacing_rotor_diameters"]
-      - ["AEP_farm", "financese.plant_aep_in"]
-      - ["landbosse.total_capex_kW", "financese.bos_per_kW"]
+plant:
+  type: group
+  systems:
+    layout2aep:
+      type: group
+      promotes: ["*"]
+      systems:
+        layout:
+          type: component
+          module: ard.layout.gridfarm
+          object: GridFarmLayout
+          promotes: ["*"]
+          kwargs:
+            modeling_options: *modeling_options
+        aepPlaceholder:
+          type: component
+          module: ard.farm_aero.placeholder
+          object: PlaceholderAEP
+          promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+          kwargs:
+            modeling_options: *modeling_options
+            wind_rose:
+              file: ../data/wrg_example.wrg
+              wd_step: 90.0
+              wind_speeds: [5.0, 10.0, 15.0, 20.0]
+              point: [0.0, 0.0]
+    landuse:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    optiwindnet_coll:
+      type: component
+      module: ard.collection.optiwindnet_wrap
+      object: optiwindnetCollection
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    spacing_constraint:
+      type: component
+      module: ard.layout.spacing
+      object: TurbineSpacing
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    landbosse:
+      type: component
+      module: ard.cost.approximate_turbine_spacing
+      object: LandBOSSEWithSpacingApproximations
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    opex:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: OperatingExpenses
+      promotes_inputs: ["turbine_number", "machine_rating", "opex_per_kW"]
+    financese:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: PlantFinance
+      promotes_inputs: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+        "opex_per_kW",
+      ]
+  connections:
+    # - ["layout2aep.x_turbines", "landuse.x_turbines"]
+    # - ["layout2aep.y_turbines", "landuse.y_turbines"]
+    # - ["layout2aep.x_turbines", "optiwindnet_coll.x_turbines"]
+    # - ["layout2aep.y_turbines", "optiwindnet_coll.y_turbines"]
+    # - ["layout2aep.x_turbines", "spacing_constraint.x_turbines"]
+    # - ["layout2aep.y_turbines", "spacing_constraint.y_turbines"]
+    - ["top_level.AEP_farm", "top_level.financese.plant_aep_in"]
+    - ["top_level.total_capex_kW", "top_level.financese.bos_per_kW"]
