@@ -17,26 +17,28 @@ def run_example():
     system_spec = load_yaml("./inputs/ard/ard_system.yaml")
 
     # set up system
-    prob = set_up_system_recursive(system_spec["plant"])
+    prob = set_up_system_recursive(system_spec["plant"], 
+                                   system_name="top_level", 
+                                   modeling_options=system_spec["modeling_options"])
 
     prob.setup()
 
     # Visualize model
-    # om.n2(prob)
+    om.n2(prob)
 
-    LandBOSSE_setup_latents(prob, system_spec["modeling_options"])
-    FinanceSE_setup_latents(prob, system_spec["modeling_options"])
+    # LandBOSSE_setup_latents(prob, system_spec["modeling_options"])
+    # FinanceSE_setup_latents(prob, system_spec["modeling_options"])
 
     # set up the working/design variables
-    prob.set_val("top_level.spacing_primary", 7.0)
-    prob.set_val("top_level.spacing_secondary", 7.0)
-    prob.set_val("top_level.angle_orientation", 0.0)
+    # prob.set_val("top_level.spacing_primary", 7.0)
+    # prob.set_val("top_level.spacing_secondary", 7.0)
+    # prob.set_val("top_level.angle_orientation", 0.0)
 
-    prob.set_val("top_level.optiwindnet_coll.x_substations", [100.0])
-    prob.set_val("top_level.optiwindnet_coll.y_substations", [100.0])
+    # prob.set_val("top_level.optiwindnet_coll.x_substations", [100.0])
+    # prob.set_val("top_level.optiwindnet_coll.y_substations", [100.0])
 
-    # run the model
-    prob.run_model()
+    # # run the model
+    # prob.run_model()
 
     # # collapse the test result data
     # test_data = {

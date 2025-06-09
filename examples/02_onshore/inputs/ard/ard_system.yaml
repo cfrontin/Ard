@@ -1,3 +1,11 @@
+driver:
+  optimizer:
+  design_variables:
+
+analysis:
+  
+
+
 modeling_options: &modeling_options
   farm:
     N_turbines: 25
@@ -88,4 +96,4 @@ plant:
     # - ["layout2aep.x_turbines", "spacing_constraint.x_turbines"]
     # - ["layout2aep.y_turbines", "spacing_constraint.y_turbines"]
     - ["top_level.AEP_farm", "top_level.financese.plant_aep_in"]
-    - ["top_level.total_capex_kW", "top_level.financese.bos_per_kW"]
+    - ["top_level.total_capex_kW", "top_level.financese.bos_per_kW"] # this connection does not make any sense
