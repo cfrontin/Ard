@@ -10,7 +10,7 @@ from ard.geographic.geomorphology import BathymetryGridData
 from famodel import Project
 from famodel.platform.platform import Platform
 from famodel.helpers import getMoorings, getAnchors, adjustMooring, configureAdjuster
-import yaml 
+import yaml
 
 class DetailedMooringDesign(om.ExplicitComponent):
     """
@@ -124,10 +124,10 @@ class DetailedMooringDesign(om.ExplicitComponent):
         ]  # just borrow turbine IDs for now: 3-digit, zero padded integer prefixed by m
 
         # END VARIABLES TO BE INCORPORATED PROPERLY
-        
+
         if 'mooring_setup' not in self.options['modeling_options']:
             raise ValueError('Mooring setup options not provided')
-            
+
         self.FAM = self.buildFAModel(**self.options['modeling_options']['mooring_setup']) # famodel object
 
         # set up inputs and outputs for mooring system
@@ -186,7 +186,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
         id_mooring_system = self.temporary_variables.id_mooring_system
 
         # END ALIASES FOR SOME USEFUL VARIABLES
-        
+
         # reposition FAModel using the x and y turbine postions, and turbine headings
         self.FAM.repositionArray(
             np.array([[x_turbines[i],y_turbines[i]] for i in range(len(x_turbines))]),
@@ -194,40 +194,39 @@ class DetailedMooringDesign(om.ExplicitComponent):
             anch_resize=False,
             return_costs=True,
         )
-        
-        #store anchor x and y positions (km) in lists 
+
+        #store anchor x and y positions (km) in lists
         x_anchors = [float(self.FAM.anchorList[anch].r[0] / 1000) for anch in self.FAM.anchorList]
         y_anchors = [float(self.FAM.anchorList[anch].r[1] / 1000) for anch in self.FAM.anchorList]
 
         # replace the below with the final anchor locations...
-        outputs = {}
         outputs["x_anchors"] = x_anchors
         outputs["y_anchors"] = y_anchors
 
     def buildFAModel(self, **FAM_settings):
-        
+
         # if ontology file is provided, build FAModel directly from this
         if 'mooring_input_file' in FAM_settings:
             # if isinstance(FAM_settings['mooring_input_file'],str):
             FAM = Project(file=FAM_settings['mooring_input_file'], raft=False)
             FAM.getMoorPyArray()
-            
+
             # check how FAM number of turbines compares to desired and adjust
             if len(FAM.platformList) < self.N_turbines:
-                
+
                 #add platforms to meet desired number of turbines
                 for i in range(len(FAM.platformList)+1, self.N_turbines):
                     FAM.duplicate(FAM.platformList['FOWT1'],r=[0,0,0])
-             
+
             # add adjuster settings
             if 'adjuster_settings' in FAM_settings:
                 adjust_settings = FAM_settings['adjuster_settings']
                 for moor in FAM.mooringList:
                     FAM.mooringList[moor] = configureAdjuster(FAM.mooringList[moor],
                                                               project=FAM,
-                                                              **adjust_settings) 
-                        
-                        
+                                                              **adjust_settings)
+
+
                 ### option to remove turbines?
         else:
 
@@ -243,7 +242,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
                 mooring_info = yaml.load(file, Loader=yaml.FullLoader)
             anchor_info = FAM_settings.get('anchor_info',{})
             site_conds = FAM_settings.get('site_conds',{})
-            
+
             # initialize FAModel project object
             FAM = Project(raft=False)
 
@@ -286,14 +285,14 @@ class DetailedMooringDesign(om.ExplicitComponent):
                 elif RAFT_platform:
                     settings['raft_platform_dict'] = RAFT_platform
 
-                FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT', 
+                FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT',
                                 rFair=rFair, zFair=zFair, **settings)
 
-            # - - - - Anchors - - - - 
+            # - - - - Anchors - - - -
 
             lineAnch = None
             count = 0
-            for i in range(self.N_turbines):  
+            for i in range(self.N_turbines):
                 for j in range(self.N_anchors):
                     if anchor_info:
                         lineAnch = anchor_info
@@ -319,7 +318,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
                     FAM.addAnchor(id=count,dd=ad,mass=mass)
                     count += 1
 
-            # - - - - Moorings - - - - 
+            # - - - - Moorings - - - -
             # make mooring list based on available information
             print(FAM_settings['adjuster_settings'])
             # if not 'adjuster_settings' in mooring_info:
@@ -352,20 +351,20 @@ class DetailedMooringDesign(om.ExplicitComponent):
                             lcID = mySys[j]['MooringConfigID']
                         else:
                             lcID = list(mooring_info['mooring_line_configs'].keys())[0]
-                        # create design dictionary of mooring line 
-                        m_config = getMoorings(lcID, 
-                                               lineConfigs, 
-                                               connectorTypes, 
-                                               pfID=FAM.platformList[i].id, 
+                        # create design dictionary of mooring line
+                        m_config = getMoorings(lcID,
+                                               lineConfigs,
+                                               connectorTypes,
+                                               pfID=FAM.platformList[i].id,
                                                proj=FAM)
 
                         # create and attach mooring object
-                        FAM.addMooring(id=count, 
-                                       endA=FAM.anchorList[count], 
-                                       endB=FAM.platformList[i], 
-                                       heading=moor_headings[j]+FAM.platformList[i].phi, 
-                                       dd=m_config, 
-                                       reposition=True, 
+                        FAM.addMooring(id=count,
+                                       endA=FAM.anchorList[count],
+                                       endB=FAM.platformList[i],
+                                       heading=moor_headings[j]+FAM.platformList[i].phi,
+                                       dd=m_config,
+                                       reposition=True,
                                        **FAM_settings['adjuster_settings'])
                         count += 1
 

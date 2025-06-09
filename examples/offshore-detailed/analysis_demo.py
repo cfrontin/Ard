@@ -61,38 +61,29 @@ modeling_options = {
             mip_rel_gap=0.005,  # TODO ???
         ),
     },
-    
-    "mooring_setup":{
+    "mooring_setup": {
         "site_conds": {
-            "general" : {
-                "water_depth" : 200
-            },
-            "bathymetry" : {
-                "file" : Path(ard.__file__).parents[1]
+            "general": {"water_depth": 200},
+            "bathymetry": {
+                "file": Path(ard.__file__).parents[1]
                 / "examples"
                 / "data"
                 / "offshore"
                 / "GulfOfMaine_bathymetry_100x99.txt"
-            }
-            
+            },
         },
-        "mooring_info": (Path(ard.__file__).parents[1]
-        / "examples"
-        / "offshore-detailed"
-        / "OntologySample200m.yaml"
+        "mooring_info": (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "offshore-detailed"
+            / "OntologySample200m.yaml"
         ),
-        "adjuster_settings" : {
-            "adjuster" : adjustMooring,
-            "method" : "horizontal",
-            "i_line" : 1,
-        }
-        
-        
-        
-        
-        # "mooring_input_file": 'OntologySample200m.yaml'
-
-    }
+        "adjuster_settings": {
+            "adjuster": adjustMooring,
+            "method": "horizontal",
+            "i_line": 1,
+        },
+    },
 }
 
 # create the OpenMDAO model
@@ -121,6 +112,7 @@ elif layout_type == "sunflower":
     layout_global_input_promotes = ["spacing_target"]
 else:
     raise KeyError("you shouldn't be able to get here.")
+
 layout_global_output_promotes = [
     "spacing_effective_primary",
     "spacing_effective_secondary",
@@ -304,11 +296,11 @@ prob.run_model()
 # collapse the test result data
 test_data = {
     "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
-    "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
-    "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
+    # "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
+    # "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
     # "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
-    "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
-    "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
+    # "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
+    # "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
     "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
     "coll_length": float(
         prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
