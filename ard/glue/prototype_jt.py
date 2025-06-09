@@ -1,5 +1,7 @@
 import importlib
 import openmdao.api as om 
+from ard.cost.wisdem_wrap import LandBOSSE, ORBIT, PlantFinance
+from ard.cost.wisdem_wrap import LandBOSSE_setup_latents, ORBIT_setup_latents, FinanceSE_setup_latents
 
 def set_up_system(input_dict):
 
@@ -27,7 +29,7 @@ def set_up_system(input_dict):
     return prob
 
 
-def set_up_system_recursive(input_dict, system_name="top_level", parent_group=None, ):
+def set_up_system_recursive(input_dict, system_name="top_level", parent_group=None, modeling_options={}):
     """
     Recursively sets up an OpenMDAO system based on the input dictionary.
 
@@ -58,7 +60,7 @@ def set_up_system_recursive(input_dict, system_name="top_level", parent_group=No
             promotes=input_dict.get("promotes", None),
         )
         for subsystem_key, subsystem_data in input_dict["systems"].items():
-            set_up_system_recursive(subsystem_data, parent_group=group, system_name=subsystem_key)
+            set_up_system_recursive(subsystem_data, parent_group=group, system_name=subsystem_key, modeling_options=modeling_options)
 
     else:
         subsystem_data = input_dict
@@ -82,11 +84,20 @@ def set_up_system_recursive(input_dict, system_name="top_level", parent_group=No
             promotes=subsystem_data.get("promotes", []),
         )
 
+        # Handle defaults for WISDEM wrappers
+        needs_latents = [ORBIT, PlantFinance] #, LandBOSSE]
+        latents_setters = [ORBIT_setup_latents, FinanceSE_setup_latents] #, LandBOSSE_setup_latents]
+        for obj_type, latent_setter in zip(needs_latents, latents_setters):
+            if isinstance(SubSystem, obj_type):
+                latent_setter(prob, modeling_options)
+
+
     # Handle connections within the parent group
     if "connections" in input_dict:
         for connection in input_dict["connections"]:
             src, tgt = connection  # Unpack the connection as [src, tgt]
             parent_group.connect(src, tgt)
+
 
     # Set up the problem if this is the top-level call
     if prob is not None:
