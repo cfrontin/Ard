@@ -317,7 +317,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
                         mass=0 # default
 
                     FAM.addAnchor(id=count,dd=ad,mass=mass)
-                    count +=
+                    count += 1
 
             # - - - - Moorings - - - - 
             # make mooring list based on available information
