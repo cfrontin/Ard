@@ -1,5 +1,5 @@
 import openmdao.api as om
-from ard.cost.wisdem_wrap import LandBOSSE
+from ard.cost.wisdem_wrap import LandBOSSE, LandBOSSEGroup
 
 
 class LandBOSSEWithSpacingApproximations(om.Group):
@@ -28,7 +28,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
         # Add the LandBOSSE component
         self.add_subsystem(
             "landbosse",
-            LandBOSSE(),
+            LandBOSSEGroup(modeling_options=self.options["modeling_options"]),
             promotes_inputs=[
                 "*",
                 (

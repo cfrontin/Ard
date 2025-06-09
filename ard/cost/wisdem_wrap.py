@@ -5,6 +5,60 @@ from wisdem.plant_financese.plant_finance import PlantFinance as PlantFinance_or
 from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_orig
 from wisdem.orbit.api.wisdem import Orbit as Orbit_orig
 
+class LandBOSSEGroup(LandBOSSE_orig):
+    """
+    Wrapper Group for WISDEM's LandBOSSE BOS calculators.
+
+    A thin wrapper of `wisdem.landbosse.landbosse_omdao.landbosse.LandBOSSE`
+    that traps warning messages that are recognized not to be issues.
+
+    See: https://github.com/WISDEM/LandBOSSE
+    """
+    def initialize(self):
+        self.options.declare("modeling_options")
+    
+    def setup(self):
+        """Setup of OM component."""
+        
+        modeling_options = self.options["modeling_options"]
+
+        self.add_subsystem('landbosse_component', 
+                           LandBOSSE_orig(), 
+                           promotes=["turbine_spacing_rotor_diameters",
+                           "row_spacing_rotor_diameters",
+                           "bos_capex_kW",
+                           "total_capex"])
+        
+        # self.list_vars(units=True, list_autoivcs=True)
+        # self.set_input_defaults("landbosse_component.num_turbines", 
+        #                         modeling_options["farm"]["N_turbines"],
+        #                         units=None,
+        #                         src_shape=None)
+        
+
+    def setup_partials(self):
+        """Derivative setup for OM component."""
+
+        # finite difference WISDEM tools for gradients
+        self.declare_partials(
+            [
+                "turbine_spacing_rotor_diameters",
+                "row_spacing_rotor_diameters",
+            ],
+            [
+                "bos_capex_kW",
+                "total_capex",
+            ],
+            method="fd",
+        )
+
+    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
+        """Computation for the OM component."""
+        warnings.filterwarnings("ignore", category=FutureWarning)
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        with warnings.catch_warnings():
+            return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
+
 
 class LandBOSSE(LandBOSSE_orig):
     """
@@ -15,13 +69,19 @@ class LandBOSSE(LandBOSSE_orig):
 
     See: https://github.com/WISDEM/LandBOSSE
     """
+    def initialize(self):
+        super().initialize()
+        self.options.declare("modeling_options")
 
     def setup(self):
         """Setup of OM component."""
+        modeling_options = self.options["modeling_options"]
         warnings.filterwarnings("ignore", category=FutureWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         with warnings.catch_warnings():
-            return super().setup()
+            super().setup()
+        self.set_val("num_turbines", modeling_options["farm"]["N_turbines"])
+        
 
     def setup_partials(self):
         """Derivative setup for OM component."""
@@ -223,84 +283,85 @@ def LandBOSSE_setup_latents(prob, modeling_options):
         for v in prob.model.list_vars(val=False, out_stream=None)
     }
 
-    # set latent/non-design inputs to LandBOSSE using values in modeling_options
+    def get_key(var):
+        return [key for key in comp2promotion_map if key.endswith(var)][0]
+    
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.num_turbines"],
-        modeling_options["farm"]["N_turbines"],
+    comp2promotion_map[get_key("num_turbines")],
+    modeling_options["farm"]["N_turbines"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.turbine_rating_MW"],
+        comp2promotion_map[get_key("turbine_rating_MW")],
         modeling_options["turbine"]["nameplate"]["power_rated"] * 1.0e3,
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.hub_height_meters"],
+        comp2promotion_map[get_key("hub_height_meters")],
         modeling_options["turbine"]["geometry"]["height_hub"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.wind_shear_exponent"],
+        comp2promotion_map[get_key("wind_shear_exponent")],
         modeling_options["turbine"]["costs"]["wind_shear_exponent"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.rotor_diameter_m"],
+        comp2promotion_map[get_key("rotor_diameter_m")],
         modeling_options["turbine"]["geometry"]["diameter_rotor"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.number_of_blades"],
+        comp2promotion_map[get_key("number_of_blades")],
         modeling_options["turbine"]["geometry"]["num_blades"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.rated_thrust_N"],
+        comp2promotion_map[get_key("rated_thrust_N")],
         modeling_options["turbine"]["costs"]["rated_thrust_N"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.gust_velocity_m_per_s"],
+        comp2promotion_map[get_key("gust_velocity_m_per_s")],
         modeling_options["turbine"]["costs"]["gust_velocity_m_per_s"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.blade_surface_area"],
+        comp2promotion_map[get_key("blade_surface_area")],
         modeling_options["turbine"]["costs"]["blade_surface_area"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.tower_mass"],
+        comp2promotion_map[get_key("tower_mass")],
         modeling_options["turbine"]["costs"]["tower_mass"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.nacelle_mass"],
+        comp2promotion_map[get_key("nacelle_mass")],
         modeling_options["turbine"]["costs"]["nacelle_mass"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.hub_mass"],
+        comp2promotion_map[get_key("hub_mass")],
         modeling_options["turbine"]["costs"]["hub_mass"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.blade_mass"],
+        comp2promotion_map[get_key("blade_mass")],
         modeling_options["turbine"]["costs"]["blade_mass"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.foundation_height"],
+        comp2promotion_map[get_key("foundation_height")],
         modeling_options["turbine"]["costs"]["foundation_height"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.commissioning_cost_kW"],
+        comp2promotion_map[get_key("commissioning_cost_kW")],
         modeling_options["turbine"]["costs"]["commissioning_cost_kW"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.decommissioning_cost_kW"],
+        comp2promotion_map[get_key("decommissioning_cost_kW")],
         modeling_options["turbine"]["costs"]["decommissioning_cost_kW"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.trench_len_to_substation_km"],
+        comp2promotion_map[get_key("trench_len_to_substation_km")],
         modeling_options["turbine"]["costs"]["trench_len_to_substation_km"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.distance_to_interconnect_mi"],
+        comp2promotion_map[get_key("distance_to_interconnect_mi")],
         modeling_options["turbine"]["costs"]["distance_to_interconnect_mi"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.interconnect_voltage_kV"],
+        comp2promotion_map[get_key("interconnect_voltage_kV")],
         modeling_options["turbine"]["costs"]["interconnect_voltage_kV"],
     )
-
 
 def ORBIT_setup_latents(prob, modeling_options):
     """
@@ -533,20 +594,23 @@ def FinanceSE_setup_latents(prob, modeling_options):
         for v in prob.model.list_vars(val=False, out_stream=None)
     }
 
+    def get_key(var):
+        return [key for key in comp2promotion_map if key.endswith(var)][0]
+    
     # inputs to PlantFinanceSE
     prob.set_val(
-        comp2promotion_map["financese.turbine_number"],
+        comp2promotion_map[get_key("turbine_number")],
         int(modeling_options["farm"]["N_turbines"]),
     )
     prob.set_val(
-        comp2promotion_map["financese.machine_rating"],
+        comp2promotion_map[get_key("machine_rating")],
         modeling_options["turbine"]["nameplate"]["power_rated"] * 1.0e3,
     )
     prob.set_val(
-        comp2promotion_map["financese.tcc_per_kW"],
+        comp2promotion_map[get_key("tcc_per_kW")],
         modeling_options["turbine"]["costs"]["tcc_per_kW"],
     )
     prob.set_val(
-        comp2promotion_map["financese.opex_per_kW"],
+        comp2promotion_map[get_key("opex_per_kW")],
         modeling_options["turbine"]["costs"]["opex_per_kW"],
     )

@@ -209,7 +209,7 @@ def run_example():
     prob = om.Problem(model)
     prob.setup()
 
-    # ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
+    ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
     ard.cost.wisdem_wrap.FinanceSE_setup_latents(prob, modeling_options)
 
     # set up the working/design variables
