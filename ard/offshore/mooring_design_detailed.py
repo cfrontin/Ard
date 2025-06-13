@@ -205,168 +205,144 @@ class DetailedMooringDesign(om.ExplicitComponent):
 
     def buildFAModel(self, **FAM_settings):
 
-        # if ontology file is provided, build FAModel directly from this
-        if 'mooring_input_file' in FAM_settings:
-            # if isinstance(FAM_settings['mooring_input_file'],str):
-            FAM = Project(file=FAM_settings['mooring_input_file'], raft=False)
-            FAM.getMoorPyArray()
 
-            # check how FAM number of turbines compares to desired and adjust
-            if len(FAM.platformList) < self.N_turbines:
+        # pull out needed information
+        pf_coords = FAM_settings.get('pf_locs',np.zeros((self.N_turbines,2)))
+        pf_headings = FAM_settings.get('pf_headings',np.zeros(self.N_turbines))
+        hydrostatics = FAM_settings.get('hydrostatics',{})
+        RAFT_platform = FAM_settings.get('RAFT_platform',{})
+        pf_rFair = FAM_settings.get('rFair',58)
+        pf_zFair = FAM_settings.get('zFair',-14)
 
-                #add platforms to meet desired number of turbines
-                for i in range(len(FAM.platformList)+1, self.N_turbines):
-                    FAM.duplicate(FAM.platformList['FOWT1'],r=[0,0,0])
+        with open(FAM_settings.get('mooring_info',{})) as file:
+            mooring_info = yaml.load(file, Loader=yaml.FullLoader)
+        anchor_info = FAM_settings.get('anchor_info',{})
+        site_conds = FAM_settings.get('site_conds',{})
 
-            # add adjuster settings
-            if 'adjuster_settings' in FAM_settings:
-                adjust_settings = FAM_settings['adjuster_settings']
-                for moor in FAM.mooringList:
-                    FAM.mooringList[moor] = configureAdjuster(FAM.mooringList[moor],
-                                                              project=FAM,
-                                                              **adjust_settings)
+        # initialize FAModel project object
+        FAM = Project(raft=False)
 
+        # - - - - Site conditions - - - -
+        FAM.loadSite(site_conds)
 
-                ### option to remove turbines?
-        else:
+        # - - - - Platforms - - - -
+        for i in range(self.N_turbines):
 
-            # pull out needed information
-            pf_coords = FAM_settings.get('pf_locs',np.zeros((self.N_turbines,2)))
-            pf_headings = FAM_settings.get('pf_headings',np.zeros(self.N_turbines))
-            hydrostatics = FAM_settings.get('hydrostatics',{})
-            RAFT_platform = FAM_settings.get('RAFT_platform',{})
-            pf_rFair = FAM_settings.get('rFair',58)
-            pf_zFair = FAM_settings.get('zFair',-14)
+            r = [pf_coords[i][0],pf_coords[i][1],0]
 
-            with open(FAM_settings.get('mooring_info',{})) as file:
-                mooring_info = yaml.load(file, Loader=yaml.FullLoader)
-            anchor_info = FAM_settings.get('anchor_info',{})
-            site_conds = FAM_settings.get('site_conds',{})
+            if isinstance(pf_rFair,list) or isinstance(pf_rFair,np.ndarray):
+                rFair = pf_rFair[i]
+            else:
+                rFair = pf_rFair
+            if isinstance(pf_zFair,list) or isinstance(pf_zFair,np.ndarray):
+                zFair = pf_zFair[i]
+            else:
+                zFair = pf_zFair
 
-            # initialize FAModel project object
-            FAM = Project(raft=False)
+            # determine mooring headings and where they are located (needed for platform)
+            if 'mooring_systems' in mooring_info:
+                if len(mooring_info['mooring_systems'])>1:
+                    raise Exception('Only one mooring system may be defined for the time being.')
+                for m_s in mooring_info['mooring_systems']:
+                    # pull out headings from mooring system
+                    # # sort the mooring lines in the mooring system by heading from 0 (North)
+                    mySys = [dict(zip(mooring_info['mooring_systems'][m_s]['keys'], row)) for row in mooring_info['mooring_systems'][m_s]['data']]
+                    # get mooring headings (need this for platform class)
+                    moor_headings = []
+                    for ii in range(0,len(mySys)):
+                        moor_headings.append(np.radians(mySys[ii]['heading']))
+            else:
+                moor_headings = np.radians(mooring_info['headings'])
 
-            # - - - - Site conditions - - - -
-            FAM.loadSite(site_conds)
+            settings = {}
+            settings['mooring_headings'] = list(moor_headings)
+            if hydrostatics:
+                settings['hydrostatics'] = hydrostatics
+            elif RAFT_platform:
+                settings['raft_platform_dict'] = RAFT_platform
 
-            # - - - - Platforms - - - -
-            for i in range(self.N_turbines):
+            FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT',
+                            rFair=rFair, zFair=zFair, **settings)
 
-                r = [pf_coords[i][0],pf_coords[i][1],0]
+        # - - - - Anchors - - - -
 
-                if isinstance(pf_rFair,list) or isinstance(pf_rFair,np.ndarray):
-                    rFair = pf_rFair[i]
+        lineAnch = None
+        count = 0
+        for i in range(self.N_turbines):
+            for j in range(self.N_anchors):
+                if anchor_info:
+                    lineAnch = anchor_info
+                    atypes = anchor_info
+                elif 'anchor_types' in mooring_info and 'mooring_systems' in mooring_info:
+                    lineAnch = mooring_info['anchor_types'][mySys[j]['anchorType']]
+                    atypes = mooring_info['anchor_types']
+                elif 'anchor_types' in mooring_info:
+                    anchor_type_name = list(mooring_info['anchor_types'].keys())[0]
+                    lineAnch = mooring_info['anchor_types'][anchor_type_name]
+                    atypes = mooring_info['anchor_types']
+
+                FAM.anchorTypes = {}
+                for k, v in atypes.items():
+                    FAM.anchorTypes[k] = v
+
+                if lineAnch:
+                    ad, mass = getAnchors(mySys[j]['anchorType'], arrayAnchor=lineAnch, proj=FAM) # call method to create anchor dictionary
                 else:
-                    rFair = pf_rFair
-                if isinstance(pf_zFair,list) or isinstance(pf_zFair,np.ndarray):
-                    zFair = pf_zFair[i]
-                else:
-                    zFair = pf_zFair
+                    ad=None # default
+                    mass=0 # default
 
-                # determine mooring headings and where they are located (needed for platform)
-                if 'mooring_systems' in mooring_info:
-                    if len(mooring_info['mooring_systems'])>1:
-                        raise Exception('Only one mooring system may be defined for the time being.')
-                    for m_s in mooring_info['mooring_systems']:
-                        # pull out headings from mooring system
-                        # # sort the mooring lines in the mooring system by heading from 0 (North)
-                        mySys = [dict(zip(mooring_info['mooring_systems'][m_s]['keys'], row)) for row in mooring_info['mooring_systems'][m_s]['data']]
-                        # get mooring headings (need this for platform class)
-                        moor_headings = []
-                        for ii in range(0,len(mySys)):
-                            moor_headings.append(np.radians(mySys[ii]['heading']))
-                else:
-                    moor_headings = np.radians(mooring_info['headings'])
+                FAM.addAnchor(id=count,dd=ad,mass=mass)
+                count += 1
 
-                settings = {}
-                settings['mooring_headings'] = list(moor_headings)
-                if hydrostatics:
-                    settings['hydrostatics'] = hydrostatics
-                elif RAFT_platform:
-                    settings['raft_platform_dict'] = RAFT_platform
+        # - - - - Moorings - - - -
+        # make mooring list based on available information
 
-                FAM.addPlatform(r=r, id=i, phi=pf_headings[i], entity='FOWT',
-                                rFair=rFair, zFair=zFair, **settings)
-
-            # - - - - Anchors - - - -
-
-            lineAnch = None
-            count = 0
+        count = 0
+        if 'subsystem' in mooring_info:
             for i in range(self.N_turbines):
                 for j in range(self.N_anchors):
-                    if anchor_info:
-                        lineAnch = anchor_info
-                        atypes = anchor_info
-                    elif 'anchor_types' in mooring_info and 'mooring_systems' in mooring_info:
-                        lineAnch = mooring_info['anchor_types'][mySys[j]['anchorType']]
-                        atypes = mooring_info['anchor_types']
-                    elif 'anchor_types' in mooring_info:
-                        anchor_type_name = list(mooring_info['anchor_types'].keys())[0]
-                        lineAnch = mooring_info['anchor_types'][anchor_type_name]
-                        atypes = mooring_info['anchor_types']
-
-                    FAM.anchorTypes = {}
-                    for k, v in atypes.items():
-                        FAM.anchorTypes[k] = v
-
-                    if lineAnch:
-                        ad, mass = getAnchors(mySys[j]['anchorType'], arrayAnchor=lineAnch, proj=FAM) # call method to create anchor dictionary
-                    else:
-                        ad=None # default
-                        mass=0 # default
-
-                    FAM.addAnchor(id=count,dd=ad,mass=mass)
+                    FAM.addMooring(id=count,
+                                   endA=FAM.anchorList[count],
+                                   endB=FAM.platformList[i],
+                                   heading=moor_headings[j]+FAM.platformList[i].phi,
+                                   subsystem=mooring_info['subsystem'],
+                                   reposition=True,
+                                   **FAM_settings['adjuster_settings'])
                     count += 1
 
-            # - - - - Moorings - - - -
-            # make mooring list based on available information
-            print(FAM_settings['adjuster_settings'])
-            # if not 'adjuster_settings' in mooring_info:
-            #     mooring_info['adjuster_settings'] = {}
-            count = 0
-            if 'subsystem' in mooring_info:
-                for i in range(self.N_turbines):
-                    for j in range(self.N_anchors):
-                        FAM.addMooring(id=count,
-                                       endA=FAM.anchorList[count],
-                                       endB=FAM.platformList[i],
-                                       heading=moor_headings[j]+FAM.platformList[i].phi,
-                                       subsystem=mooring_info['subsystem'],
-                                       reposition=True,
-                                       **FAM_settings['adjuster_settings'])
-                        count += 1
+        else:
+            lineConfigs=mooring_info['mooring_line_configs']
+            connectorTypes = mooring_info.get('mooring_connector_types',{})
 
-            else:
-                lineConfigs=mooring_info['mooring_line_configs']
-                connectorTypes = mooring_info.get('mooring_connector_types',{})
-
-                FAM.lineTypes = {}
+            FAM.lineTypes = {}
+            if 'mooring_line_types' in mooring_info:
                 for k, v in mooring_info['mooring_line_types'].items():
                     # set up line types dictionary
                     FAM.lineTypes[k] = v
 
-                for i in range(self.N_turbines):
-                    for j in range(self.N_anchors):
-                        if 'mooring_systems' in mooring_info:
-                            lcID = mySys[j]['MooringConfigID']
-                        else:
-                            lcID = list(mooring_info['mooring_line_configs'].keys())[0]
-                        # create design dictionary of mooring line
-                        m_config = getMoorings(lcID,
-                                               lineConfigs,
-                                               connectorTypes,
-                                               pfID=FAM.platformList[i].id,
-                                               proj=FAM)
+            for i in range(self.N_turbines):
+                for j in range(self.N_anchors):
+                    if 'mooring_systems' in mooring_info:
+                        lcID = mySys[j]['MooringConfigID']
+                    else:
+                        lcID = list(mooring_info['mooring_line_configs'].keys())[0]
+                    # create design dictionary of mooring line
+                    m_config = getMoorings(lcID,
+                                           lineConfigs,
+                                           connectorTypes,
+                                           pfID=FAM.platformList[i].id,
+                                           proj=FAM)
 
-                        # create and attach mooring object
-                        FAM.addMooring(id=count,
-                                       endA=FAM.anchorList[count],
-                                       endB=FAM.platformList[i],
-                                       heading=moor_headings[j]+FAM.platformList[i].phi,
-                                       dd=m_config,
-                                       reposition=True,
-                                       **FAM_settings['adjuster_settings'])
-                        count += 1
+                    # create and attach mooring object
+                    FAM.addMooring(id=count,
+                                   endA=FAM.anchorList[count],
+                                   endB=FAM.platformList[i],
+                                   heading=moor_headings[j]+FAM.platformList[i].phi,
+                                   dd=m_config,
+                                   reposition=True,
+                                   **FAM_settings['adjuster_settings'])
+                    count += 1
 
         FAM.getMoorPyArray()
+
         return(FAM)
