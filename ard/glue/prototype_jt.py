@@ -29,7 +29,7 @@ def set_up_system(input_dict):
     return prob
 
 
-def set_up_system_recursive(input_dict, system_name="top_level", parent_group=None, modeling_options={}):
+def set_up_system_recursive(input_dict, system_name="top_level", parent_group=None, modeling_options={}, _depth=0):
     """
     Recursively sets up an OpenMDAO system based on the input dictionary.
 
@@ -60,7 +60,7 @@ def set_up_system_recursive(input_dict, system_name="top_level", parent_group=No
             promotes=input_dict.get("promotes", None),
         )
         for subsystem_key, subsystem_data in input_dict["systems"].items():
-            set_up_system_recursive(subsystem_data, parent_group=group, system_name=subsystem_key, modeling_options=modeling_options)
+            set_up_system_recursive(subsystem_data, parent_group=group, system_name=subsystem_key, modeling_options=modeling_options, _depth=_depth+1)
 
     else:
         subsystem_data = input_dict
@@ -102,5 +102,11 @@ def set_up_system_recursive(input_dict, system_name="top_level", parent_group=No
     # Set up the problem if this is the top-level call
     if prob is not None:
         prob.setup()
+
+    if _depth == 0:
+        # # setup the latent variables for LandBOSSE/ORBIT and FinanceSE
+        ORBIT_setup_latents(prob, modeling_options)
+        # ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
+        FinanceSE_setup_latents(prob, modeling_options)
 
     return prob
