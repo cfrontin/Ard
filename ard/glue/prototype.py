@@ -143,9 +143,9 @@ def create_setup_OM_problem(
         ],
     )
     if modeling_options["offshore"]:
-        model.add_subsystem(  # Orbit component
+        model.add_subsystem(  # ORBIT component
             "orbit",
-            cost_wisdem.Orbit(),
+            cost_wisdem.ORBIT(),
         )
         model.connect(  # effective primary spacing for BOS
             "spacing_effective_primary", "orbit.plant_turbine_spacing"
@@ -156,7 +156,7 @@ def create_setup_OM_problem(
     else:
         model.add_subsystem(  # LandBOSSE component
             "landbosse",
-            cost_wisdem.LandBOSSE(),
+            cost_wisdem.LandBOSSEArdComp(),
         )
         model.connect(  # effective primary spacing for BOS
             "spacing_effective_primary", "landbosse.turbine_spacing_rotor_diameters"

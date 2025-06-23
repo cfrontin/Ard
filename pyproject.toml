@@ -24,7 +24,7 @@ authors = [
 ]
 description = "A package for multidisciplinary and/or multifidelity wind farm design"
 readme= "README.md"
-requires-python = ">=3.10, <3.14"
+requires-python = ">=3.10, <3.13"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: Apache Software License",
@@ -36,15 +36,15 @@ classifiers = [
   # "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-  "numpy",
-  # "floris>=4.3",
-  "floris @ git+https://github.com/nrel/floris.git@develop#egg=floris",
+  "numpy<2.3",
+  "floris>=4.3",
   "wisdem==3.18.1",
   "NLopt",
   "marmot-agents",
   "openmdao",
   "shapely",
-  "optiwindnet",
+  "jax",
+  "optiwindnet[test]==0.0.2",
   "highspy",
 ]
 [project.optional-dependencies]
