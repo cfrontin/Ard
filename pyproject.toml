@@ -41,7 +41,7 @@ dependencies = [
   "openmdao",
   "shapely",
   "jax",
-  "optiwindnet",
+  "optiwindnet[test]==0.0.2",
   "highspy",
   "moorpy @ git+https://github.com/NREL/MoorPy.git@dev",
   "famodel @ git+https://github.com/FloatingArrayDesign/FAModel.git@main",
