@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import optiwindnet.plotting
 from ard.utils.io import load_yaml
 from ard.glue.prototype_jt import set_up_system_recursive
-from ard.cost.wisdem_wrap import LandBOSSE_setup_latents, FinanceSE_setup_latents
 import openmdao.api as om
 
 
@@ -25,7 +24,7 @@ def run_example():
     )
 
     prob.setup()
-
+    import pdb; pdb.set_trace()
     # Visualize model
     om.n2(prob)
 

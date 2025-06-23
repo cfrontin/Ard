@@ -3,8 +3,6 @@ driver:
   design_variables:
 
 analysis:
-  
-
 
 modeling_options: &modeling_options
   farm:
@@ -67,7 +65,7 @@ plant:
         modeling_options: *modeling_options
     landbosse:
       type: component
-      module: ard.cost.approximate_turbine_spacing
+      module: ard.cost.wisdem_wrap
       object: LandBOSSEWithSpacingApproximations
       promotes: ["*"]
       kwargs:
