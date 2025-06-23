@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+
 class SpacingApproximations(om.ExplicitComponent):
     """
     OpenMDAO component to calculate approximations for turbine spacing based on the total length of cables

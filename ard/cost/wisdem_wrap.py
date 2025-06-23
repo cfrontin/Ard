@@ -7,6 +7,7 @@ from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_or
 from wisdem.orbit.api.wisdem import Orbit as Orbit_orig
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
+
 class LandBOSSEWithSpacingApproximations(om.Group):
     """
     OpenMDAO group that connects the SpacingApproximations component to the LandBOSSE component.
@@ -69,28 +70,32 @@ class LandBOSSEArdComp(LandBOSSE_orig):
 
     See: https://github.com/WISDEM/LandBOSSE
     """
+
     # def initialize(self):
     #     self.options.declare("modeling_options")
-    
+
     def setup(self):
         """Setup of OM component."""
-        
+
         # modeling_options = self.options["modeling_options"]
 
-        self.add_subsystem('landbosse_component', 
-                           LandBOSSE_orig(), 
-                           promotes=["turbine_spacing_rotor_diameters",
-                           "row_spacing_rotor_diameters",
-                           "bos_capex_kW",
-                           "total_capex_kW",
-                           "total_capex"])
-        
+        self.add_subsystem(
+            "landbosse_component",
+            LandBOSSE_orig(),
+            promotes=[
+                "turbine_spacing_rotor_diameters",
+                "row_spacing_rotor_diameters",
+                "bos_capex_kW",
+                "total_capex_kW",
+                "total_capex",
+            ],
+        )
+
         # self.list_vars(units=True, list_autoivcs=True)
-        # self.set_input_defaults("landbosse_component.num_turbines", 
+        # self.set_input_defaults("landbosse_component.num_turbines",
         #                         modeling_options["farm"]["N_turbines"],
         #                         units=None,
         #                         src_shape=None)
-        
 
     def setup_partials(self):
         """Derivative setup for OM component."""
@@ -126,6 +131,7 @@ class LandBOSSE(LandBOSSE_orig):
 
     See: https://github.com/WISDEM/LandBOSSE
     """
+
     def initialize(self):
         super().initialize()
         self.options.declare("modeling_options")
@@ -138,7 +144,6 @@ class LandBOSSE(LandBOSSE_orig):
         with warnings.catch_warnings():
             super().setup()
         self.set_val("num_turbines", modeling_options["farm"]["N_turbines"])
-        
 
     def setup_partials(self):
         """Derivative setup for OM component."""

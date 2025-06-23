@@ -11,15 +11,18 @@ from ard.glue.prototype_jt import set_up_system_recursive
 from ard.cost.wisdem_wrap import LandBOSSE_setup_latents, FinanceSE_setup_latents
 import openmdao.api as om
 
+
 def run_example():
-        
-    # load input    
+
+    # load input
     system_spec = load_yaml("./inputs/ard/ard_system.yaml")
 
     # set up system
-    prob = set_up_system_recursive(system_spec["plant"], 
-                                   system_name="top_level", 
-                                   modeling_options=system_spec["modeling_options"])
+    prob = set_up_system_recursive(
+        system_spec["plant"],
+        system_name="top_level",
+        modeling_options=system_spec["modeling_options"],
+    )
 
     prob.setup()
 
@@ -130,7 +133,6 @@ def run_example():
     # optiwindnet.plotting.gplot(prob.model.optiwindnet_coll.graph)
 
     # plt.show()
-
 
 
 if __name__ == "__main__":

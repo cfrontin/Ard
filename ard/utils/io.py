@@ -4,6 +4,7 @@ from os import PathLike
 import os
 import yaml
 
+
 class Loader(yaml.SafeLoader):
 
     def __init__(self, stream):
@@ -16,10 +17,12 @@ class Loader(yaml.SafeLoader):
 
         filename = os.path.join(self._root, self.construct_scalar(node))
 
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             return yaml.load(f, self.__class__)
 
-Loader.add_constructor('!include', Loader.include)
+
+Loader.add_constructor("!include", Loader.include)
+
 
 def load_yaml(filename, loader=Loader) -> dict:
     if isinstance(filename, dict):
@@ -27,19 +30,22 @@ def load_yaml(filename, loader=Loader) -> dict:
     with open(filename) as fid:
         return yaml.load(fid, loader)
 
+
 def check_create_folder(filepath):
     already_exists = True
     if not os.path.isdir(filepath):
-        os.makedirs(filepath,exist_ok=True)
+        os.makedirs(filepath, exist_ok=True)
         already_exists = False
     return already_exists
 
-def write_yaml(filename,data):
-    if not '.yaml' in filename:
-        filename = filename +'.yaml'
 
-    with open(filename, 'w+') as file:
-        yaml.dump(data, file,sort_keys=False,encoding = None,default_flow_style=False)
+def write_yaml(filename, data):
+    if not ".yaml" in filename:
+        filename = filename + ".yaml"
+
+    with open(filename, "w+") as file:
+        yaml.dump(data, file, sort_keys=False, encoding=None, default_flow_style=False)
+
 
 def load_turbine_spec(
     filename_turbine_spec: PathLike,
