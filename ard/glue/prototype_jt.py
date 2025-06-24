@@ -50,11 +50,11 @@ def set_up_system(input_dict):
 
 def set_up_system_recursive(
     input_dict: dict,
-    system_name: str="top_level",
+    system_name: str = "top_level",
     parent_group=None,
-    modeling_options: dict=None,
-    analysis_options: dict=None,
-    _depth: int=0,
+    modeling_options: dict = None,
+    analysis_options: dict = None,
+    _depth: int = 0,
 ):
     """
     Recursively sets up an OpenMDAO system based on the input dictionary.
@@ -142,12 +142,17 @@ def set_up_system_recursive(
 
             # set constraints
             if "constraints" in analysis_options:
-                for constraint_name, constraint_data in analysis_options["constraints"].items():
+                for constraint_name, constraint_data in analysis_options[
+                    "constraints"
+                ].items():
                     prob.model.add_constraint(constraint_name, **constraint_data)
 
             # set objective
             if "objective" in analysis_options:
-                prob.model.add_objective(analysis_options["objective"]["name"], **analysis_options["objective"]["options"])
+                prob.model.add_objective(
+                    analysis_options["objective"]["name"],
+                    **analysis_options["objective"]["options"],
+                )
 
             # Set up the recorder if specified in the input dictionary
             if "recorder" in analysis_options:
@@ -161,11 +166,20 @@ def set_up_system_recursive(
 
     if _depth == 0:
         # setup the latent variables for LandBOSSE/ORBIT and FinanceSE
-        if any("orbit" in var[0] for var in prob.model.list_vars(val=False, out_stream=None)):
+        if any(
+            "orbit" in var[0]
+            for var in prob.model.list_vars(val=False, out_stream=None)
+        ):
             ORBIT_setup_latents(prob, modeling_options)
-        if any("landbosse" in var[0] for var in prob.model.list_vars(val=False, out_stream=None)):
+        if any(
+            "landbosse" in var[0]
+            for var in prob.model.list_vars(val=False, out_stream=None)
+        ):
             LandBOSSE_setup_latents(prob, modeling_options)
-        if any("financese" in var[0] for var in prob.model.list_vars(val=False, out_stream=None)):
+        if any(
+            "financese" in var[0]
+            for var in prob.model.list_vars(val=False, out_stream=None)
+        ):
             FinanceSE_setup_latents(prob, modeling_options)
 
     return prob

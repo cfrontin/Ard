@@ -21,7 +21,7 @@ def run_example():
         system_spec["plant"],
         system_name="top_level",
         modeling_options=system_spec["modeling_options"],
-        analysis_options=system_spec["analysis_options"]
+        analysis_options=system_spec["analysis_options"],
     )
 
     # set up the working/design variables
@@ -62,7 +62,7 @@ def run_example():
 
     if optimize:
         # now set up an optimization driver
-        
+
         # run the optimization
         prob.run_driver()
         prob.cleanup()
@@ -93,10 +93,13 @@ def run_example():
 
         # plot convergence
         ## read cases
-        cr = om.CaseReader(prob.get_outputs_dir() / system_spec["analysis_options"]["recorder"]["filepath"])
+        cr = om.CaseReader(
+            prob.get_outputs_dir()
+            / system_spec["analysis_options"]["recorder"]["filepath"]
+        )
 
         # Extract the driver cases
-        cases = cr.get_cases('driver')
+        cases = cr.get_cases("driver")
 
         # Initialize lists to store iteration data
         iterations = []
@@ -105,14 +108,18 @@ def run_example():
         # Loop through the cases and extract iteration number and objective value
         for i, case in enumerate(cases):
             iterations.append(i)
-            objective_values.append(case.get_objectives()[system_spec["analysis_options"]["objective"]["name"]])
+            objective_values.append(
+                case.get_objectives()[
+                    system_spec["analysis_options"]["objective"]["name"]
+                ]
+            )
 
         # Plot the convergence
         plt.figure(figsize=(8, 6))
-        plt.plot(iterations, objective_values, marker='o', label='Objective (LCOE)')
-        plt.xlabel('Iteration')
-        plt.ylabel('Objective Value (Total Cable Length (m))')
-        plt.title('Convergence Plot')
+        plt.plot(iterations, objective_values, marker="o", label="Objective (LCOE)")
+        plt.xlabel("Iteration")
+        plt.ylabel("Objective Value (Total Cable Length (m))")
+        plt.title("Convergence Plot")
         plt.legend()
         plt.grid()
         plt.show()
