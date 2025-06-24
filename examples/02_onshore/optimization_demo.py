@@ -58,39 +58,6 @@ def run_example():
     pp.pprint(test_data)
     print("\n\n")
 
-    # RESULTS current:
-
-    # {'AEP_val': 738.0300000000001,
-    #  'BOS_val': 43.11521020118212,
-    #  'CapEx_val': 0.0,
-    #  'LCOE_val': 20.534416981814644,
-    #  'OpEx_val': 0.0,
-    #  'area_tight': 13.2496,
-    #  'coll_length': 21.89865877023397}
-
-    # RESULTS original:
-
-    # {'AEP_val': 738.0300000000001,
-    #  'BOS_val': 43.11521020118212,
-    #  'CapEx_val': 109.52499999999999,
-    #  'LCOE_val': 20.534416981814644,
-    #  'OpEx_val': 3.7070000000000007,
-    #  'area_tight': 13.2496,
-    #  'coll_length': 21.89865877023397,
-    #  'turbine_spacing': 0.91}
-
-    # RESULTS original (opt):
-
-    # {'AEP_val': 738.0300000000001,
-    #  'BOS_val': 42.79961619700176,
-    #  'CapEx_val': 109.52499999999999,
-    #  'LCOE_val': 20.50234572412386,
-    #  'OpEx_val': 3.7070000000000007,
-    #  'area_tight': 11.561725802729931,
-    #  'coll_length': 20.49436456231002,
-    #  'turbine_spacing': 851.9998683944751}
-
-
     optimize = True  # set to False to skip optimization
 
     if optimize:
@@ -98,16 +65,13 @@ def run_example():
         
         # run the optimization
         prob.run_driver()
-        import pdb; pdb.set_trace()
         prob.cleanup()
-        cr = om.CaseReader(prob.get_outputs_dir() / "cases.sql")
-        driver_cases = cr.list_cases('driver')
+
         # collapse the test result data
         test_data = {
             "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
             "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
             "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
-            # "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
             "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
             "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
             "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
@@ -126,6 +90,32 @@ def run_example():
         print("\n\nRESULTS (opt):\n")
         pp.pprint(test_data)
         print("\n\n")
+
+        # plot convergence
+        ## read cases
+        cr = om.CaseReader(prob.get_outputs_dir() / system_spec["analysis_options"]["recorder"]["filepath"])
+
+        # Extract the driver cases
+        cases = cr.get_cases('driver')
+
+        # Initialize lists to store iteration data
+        iterations = []
+        objective_values = []
+
+        # Loop through the cases and extract iteration number and objective value
+        for i, case in enumerate(cases):
+            iterations.append(i)
+            objective_values.append(case.get_objectives()[system_spec["analysis_options"]["objective"]["name"]])
+
+        # Plot the convergence
+        plt.figure(figsize=(8, 6))
+        plt.plot(iterations, objective_values, marker='o', label='Objective (LCOE)')
+        plt.xlabel('Iteration')
+        plt.ylabel('Objective Value (Total Cable Length (m))')
+        plt.title('Convergence Plot')
+        plt.legend()
+        plt.grid()
+        plt.show()
 
     optiwindnet.plotting.gplot(prob.model.optiwindnet_coll.graph)
 
