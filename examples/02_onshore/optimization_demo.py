@@ -23,42 +23,38 @@ def run_example():
         modeling_options=system_spec["modeling_options"],
     )
 
-    prob.setup()
-    import pdb; pdb.set_trace()
+    # prob.setup()
     # Visualize model
-    om.n2(prob)
-
-    # LandBOSSE_setup_latents(prob, system_spec["modeling_options"])
-    # FinanceSE_setup_latents(prob, system_spec["modeling_options"])
+    # om.n2(prob)
 
     # set up the working/design variables
-    # prob.set_val("top_level.spacing_primary", 7.0)
-    # prob.set_val("top_level.spacing_secondary", 7.0)
-    # prob.set_val("top_level.angle_orientation", 0.0)
+    # prob.set_val("top_level.financese.turbine_number", 7.0)
+    prob.set_val("top_level.spacing_primary", 7.0)
+    prob.set_val("top_level.spacing_secondary", 7.0)
+    prob.set_val("top_level.angle_orientation", 0.0)
 
-    # prob.set_val("top_level.optiwindnet_coll.x_substations", [100.0])
-    # prob.set_val("top_level.optiwindnet_coll.y_substations", [100.0])
+    prob.set_val("top_level.optiwindnet_coll.x_substations", [100.0])
+    prob.set_val("top_level.optiwindnet_coll.y_substations", [100.0])
 
-    # # run the model
-    # prob.run_model()
+    # run the model
+    prob.run_model()
 
-    # # collapse the test result data
-    # test_data = {
-    #     "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
-    #     "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
-    #     "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
-    #     # "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
-    #     "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
-    #     "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
-    #     "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
-    #     "coll_length": float(
-    #         prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
-    #     ),
-    # }
+    # collapse the test result data
+    test_data = {
+        "AEP_val": float(prob.get_val("top_level.AEP_farm", units="GW*h")[0]),
+        "CapEx_val": float(prob.get_val("top_level.tcc.tcc", units="MUSD")[0]),
+        "BOS_val": float(prob.get_val("top_level.landbosse.total_capex", units="MUSD")[0]),
+        "OpEx_val": float(prob.get_val("top_level.opex.opex", units="MUSD/yr")[0]),
+        "LCOE_val": float(prob.get_val("top_level.financese.lcoe", units="USD/MW/h")[0]),
+        "area_tight": float(prob.get_val("top_level.landuse.area_tight", units="km**2")[0]),
+        "coll_length": float(
+            prob.get_val("top_level.optiwindnet_coll.total_length_cables", units="km")[0]
+        ),
+    }
 
-    # print("\n\nRESULTS:\n")
-    # pp.pprint(test_data)
-    # print("\n\n")
+    print("\n\nRESULTS:\n")
+    pp.pprint(test_data)
+    print("\n\n")
 
     # optimize = True  # set to False to skip optimization
 

@@ -8,7 +8,7 @@ modeling_options: &modeling_options
   farm:
     N_turbines: 25
     N_substations: 1
-  turbine: !include ../../../data/turbine_spec_IEA-22-284-RWT.yaml
+  turbine: !include ../../../data/turbine_spec_IEA-3p4-130-RWT.yaml
   collection:
     max_turbines_per_string: 8
     solver_name: "appsi_highs"
@@ -63,6 +63,17 @@ plant:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
+    
+    tcc:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: TurbineCapitalCosts
+      promotes: [
+            "turbine_number",
+            "machine_rating",
+            "tcc_per_kW",
+            "offset_tcc_per_kW",
+      ] 
     landbosse:
       type: component
       module: ard.cost.wisdem_wrap

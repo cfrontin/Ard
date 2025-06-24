@@ -665,15 +665,18 @@ def set_values(prob, variable_map: dict) -> None:
         v[0].split(".")[-1]: v[-1]["prom_name"]
         for v in prob.model.list_vars(val=False, out_stream=None)
     }
-
+    
     # Iterate over the mapping and set values in the OpenMDAO problem
     for full_name in promotion_map:
+        
         prom_name = promotion_map[full_name]
         core_name = prom_name.split(".")[-1]
+        # if "turbine_number" in full_name:
+        #     import pdb; pdb.set_trace()
         if core_name in promotion_map:
             try:
                 prob.set_val(prom_name, variable_map[core_name])
             except:
                 print(
-                    f"{core_name} not provided in turbine input, using WISDEM default"
+                    f"{core_name} not provided in Ard input, using WISDEM default"
                 )
