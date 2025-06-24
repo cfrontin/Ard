@@ -95,35 +95,32 @@ def set_up_system_recursive(
 
     else:
         subsystem_data = input_dict
-        module_name = subsystem_data["module"]
-        if "object" in subsystem_data:
-            object_name = subsystem_data["object"]
-        else:
-            raise ValueError(f"Subsystem {system_name} missing 'object' spec.")
+
+        if "object" not in subsystem_data:
+            raise ValueError(f"Ard subsystem '{system_name}' missing 'object' spec.")
+        if "promotes" not in subsystem_data:
+            raise ValueError(f"Ard subsystem '{system_name}' missing 'promotes' spec.")
 
         # Dynamically import the module and get the subsystem class
-        Module = importlib.import_module(module_name)
-        SubSystem = getattr(Module, object_name)
-
-        # Extract kwargs for the subsystem if specified
-        subsystem_kwargs = subsystem_data.get("kwargs", {})
+        Module = importlib.import_module(subsystem_data["module"])
+        SubSystem = getattr(Module, subsystem_data["object"])
 
         # Add the subsystem to the parent group with kwargs
         parent_group.add_subsystem(
             name=system_name,
-            subsys=SubSystem(**subsystem_kwargs),
-            promotes=subsystem_data.get("promotes", []),
+            subsys=SubSystem(**subsystem_data.get("kwargs", {})),
+            promotes=subsystem_data["promotes"],
         )
 
         # Handle defaults for WISDEM wrappers
-        needs_latents = [ORBIT, PlantFinance]  # , LandBOSSE]
-        latents_setters = [
-            ORBIT_setup_latents,
-            FinanceSE_setup_latents,
-        ]  # , LandBOSSE_setup_latents]
-        for obj_type, latent_setter in zip(needs_latents, latents_setters):
-            if isinstance(SubSystem, obj_type):
-                latent_setter(prob, modeling_options)
+        # needs_latents = [ORBIT, PlantFinance]  # , LandBOSSE]
+        # latents_setters = [
+        #     ORBIT_setup_latents,
+        #     FinanceSE_setup_latents,
+        # ]  # , LandBOSSE_setup_latents]
+        # for obj_type, latent_setter in zip(needs_latents, latents_setters):
+        #     if isinstance(SubSystem, obj_type):
+        #         latent_setter(prob, modeling_options)
 
     # Handle connections within the parent group
     if "connections" in input_dict:
@@ -134,7 +131,6 @@ def set_up_system_recursive(
     # Set up the problem if this is the top-level call
     if prob is not None:
         prob.setup()
-
     if _depth == 0:
         # setup the latent variables for LandBOSSE/ORBIT and FinanceSE
         if any("orbit" in var[0] for var in prob.model.list_vars(val=False, out_stream=None)):

@@ -662,7 +662,7 @@ def set_values(prob, variable_map: dict) -> None:
 
     # Get a map from the component variables to the promotion variables
     promotion_map = {
-        v[0].split(".")[-1]: v[-1]["prom_name"]
+        v[0]: v[-1]["prom_name"]
         for v in prob.model.list_vars(val=False, out_stream=None)
     }
     
@@ -673,7 +673,7 @@ def set_values(prob, variable_map: dict) -> None:
         core_name = prom_name.split(".")[-1]
         # if "turbine_number" in full_name:
         #     import pdb; pdb.set_trace()
-        if core_name in promotion_map:
+        if core_name in variable_map:
             try:
                 prob.set_val(prom_name, variable_map[core_name])
             except:

@@ -24,8 +24,6 @@ def run_example():
     )
 
     # prob.setup()
-    # Visualize model
-    # om.n2(prob)
 
     # set up the working/design variables
     # prob.set_val("top_level.financese.turbine_number", 7.0)
@@ -38,6 +36,9 @@ def run_example():
 
     # run the model
     prob.run_model()
+
+    # Visualize model
+    # om.n2(prob)
 
     # collapse the test result data
     test_data = {
@@ -55,6 +56,39 @@ def run_example():
     print("\n\nRESULTS:\n")
     pp.pprint(test_data)
     print("\n\n")
+
+    # RESULTS current:
+
+    # {'AEP_val': 738.0300000000001,
+    #  'BOS_val': 43.11521020118212,
+    #  'CapEx_val': 0.0,
+    #  'LCOE_val': 20.534416981814644,
+    #  'OpEx_val': 0.0,
+    #  'area_tight': 13.2496,
+    #  'coll_length': 21.89865877023397}
+
+    # RESULTS original:
+
+    # {'AEP_val': 738.0300000000001,
+    #  'BOS_val': 43.11521020118212,
+    #  'CapEx_val': 109.52499999999999,
+    #  'LCOE_val': 20.534416981814644,
+    #  'OpEx_val': 3.7070000000000007,
+    #  'area_tight': 13.2496,
+    #  'coll_length': 21.89865877023397,
+    #  'turbine_spacing': 0.91}
+
+    # RESULTS original (opt):
+
+    # {'AEP_val': 738.0300000000001,
+    #  'BOS_val': 42.79961619700176,
+    #  'CapEx_val': 109.52499999999999,
+    #  'LCOE_val': 20.50234572412386,
+    #  'OpEx_val': 3.7070000000000007,
+    #  'area_tight': 11.561725802729931,
+    #  'coll_length': 20.49436456231002,
+    #  'turbine_spacing': 851.9998683944751}
+
 
     # optimize = True  # set to False to skip optimization
 

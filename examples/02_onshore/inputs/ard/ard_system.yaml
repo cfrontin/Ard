@@ -69,10 +69,10 @@ plant:
       module: ard.cost.wisdem_wrap
       object: TurbineCapitalCosts
       promotes: [
-            "turbine_number",
-            "machine_rating",
-            "tcc_per_kW",
-            "offset_tcc_per_kW",
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
       ] 
     landbosse:
       type: component
@@ -85,12 +85,16 @@ plant:
       type: component
       module: ard.cost.wisdem_wrap
       object: OperatingExpenses
-      promotes_inputs: ["turbine_number", "machine_rating", "opex_per_kW"]
+      promotes: [
+        "turbine_number", 
+        "machine_rating", 
+        "opex_per_kW"
+      ]
     financese:
       type: component
       module: ard.cost.wisdem_wrap
       object: PlantFinance
-      promotes_inputs: [
+      promotes: [
         "turbine_number",
         "machine_rating",
         "tcc_per_kW",
@@ -104,5 +108,6 @@ plant:
     # - ["layout2aep.y_turbines", "optiwindnet_coll.y_turbines"]
     # - ["layout2aep.x_turbines", "spacing_constraint.x_turbines"]
     # - ["layout2aep.y_turbines", "spacing_constraint.y_turbines"]
+    # - ["top_level.optiwindnet_coll.total_length_cables", "top_level.landbosse.total_length_cables"]
     - ["top_level.AEP_farm", "top_level.financese.plant_aep_in"]
     - ["top_level.total_capex_kW", "top_level.financese.bos_per_kW"] # this connection does not make any sense
