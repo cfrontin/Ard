@@ -49,11 +49,12 @@ def set_up_system(input_dict):
 
 
 def set_up_system_recursive(
-    input_dict,
-    system_name="top_level",
+    input_dict: dict,
+    system_name: str="top_level",
     parent_group=None,
-    modeling_options={},
-    _depth=0,
+    modeling_options: dict=None,
+    analysis_options: dict=None,
+    _depth: int=0,
 ):
     """
     Recursively sets up an OpenMDAO system based on the input dictionary.
@@ -78,18 +79,22 @@ def set_up_system_recursive(
         print(f"Adding {system_name} to {parent_group.name}")
     else:
         print(f"Adding {system_name}")
-    if "systems" in input_dict:  # Recursively add nested subsystems
-        group = parent_group.add_subsystem(
-            name=system_name,
-            subsys=om.Group(),
-            promotes=input_dict.get("promotes", None),
-        )
+    if "systems" in input_dict:  # Recursively add nested subsystems]
+        if _depth > 0:
+            group = parent_group.add_subsystem(
+                name=system_name,
+                subsys=om.Group(),
+                promotes=input_dict.get("promotes", None),
+            )
+        else:
+            group = parent_group
         for subsystem_key, subsystem_data in input_dict["systems"].items():
             set_up_system_recursive(
                 subsystem_data,
                 parent_group=group,
                 system_name=subsystem_key,
                 modeling_options=modeling_options,
+                analysis_options=None,
                 _depth=_depth + 1,
             )
 
@@ -112,16 +117,6 @@ def set_up_system_recursive(
             promotes=subsystem_data["promotes"],
         )
 
-        # Handle defaults for WISDEM wrappers
-        # needs_latents = [ORBIT, PlantFinance]  # , LandBOSSE]
-        # latents_setters = [
-        #     ORBIT_setup_latents,
-        #     FinanceSE_setup_latents,
-        # ]  # , LandBOSSE_setup_latents]
-        # for obj_type, latent_setter in zip(needs_latents, latents_setters):
-        #     if isinstance(SubSystem, obj_type):
-        #         latent_setter(prob, modeling_options)
-
     # Handle connections within the parent group
     if "connections" in input_dict:
         for connection in input_dict["connections"]:
@@ -130,7 +125,40 @@ def set_up_system_recursive(
 
     # Set up the problem if this is the top-level call
     if prob is not None:
+
+        if analysis_options:
+            # set up driver
+            if "driver" in analysis_options:
+                Driver = getattr(om, analysis_options["driver"]["name"])
+                prob.driver = Driver()
+                if "options" in analysis_options["driver"]:
+                    for option, value in analysis_options["driver"]["options"].items():
+                        prob.driver.options[option] = value
+
+                    # set design variables
+            if "design_variables" in analysis_options:
+                for var_name, var_data in analysis_options["design_variables"].items():
+                    prob.model.add_design_var(var_name, **var_data)
+
+            # set constraints
+            if "constraints" in analysis_options:
+                for constraint_name, constraint_data in analysis_options["constraints"].items():
+                    prob.model.add_constraint(constraint_name, **constraint_data)
+
+            # set objective
+            if "objective" in analysis_options:
+                prob.model.add_objective(analysis_options["objective"]["name"], **analysis_options["objective"]["options"])
+
+            # Set up the recorder if specified in the input dictionary
+            if "recorder" in analysis_options:
+                recorder_filepath = analysis_options["recorder"].get("filepath")
+                if recorder_filepath:
+                    recorder = om.SqliteRecorder(recorder_filepath)
+                    prob.add_recorder(recorder)
+                    prob.driver.add_recorder(recorder)
+
         prob.setup()
+
     if _depth == 0:
         # setup the latent variables for LandBOSSE/ORBIT and FinanceSE
         if any("orbit" in var[0] for var in prob.model.list_vars(val=False, out_stream=None)):

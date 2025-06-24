@@ -1,8 +1,31 @@
-driver:
-  optimizer:
+analysis_options:
+  driver: 
+    name: ScipyOptimizeDriver
+    options:
+      optimizer: "SLSQP"
   design_variables:
-
-analysis:
+    spacing_primary:
+      lower: 3.0
+      upper: 10.0
+    spacing_secondary:
+      lower: 3.0
+      upper: 10.0
+    angle_orientation:
+      lower: -180.0
+      upper: 180.0
+    angle_skew:
+      lower: -75.0
+      upper: 180.0
+  constraints:
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 552
+  objective: 
+    name: optiwindnet_coll.total_length_cables
+    options:
+      scaler: 1.0
+  recorder:
+    filepath: "cases.sql"
 
 modeling_options: &modeling_options
   farm:
@@ -109,5 +132,5 @@ plant:
     # - ["layout2aep.x_turbines", "spacing_constraint.x_turbines"]
     # - ["layout2aep.y_turbines", "spacing_constraint.y_turbines"]
     # - ["top_level.optiwindnet_coll.total_length_cables", "top_level.landbosse.total_length_cables"]
-    - ["top_level.AEP_farm", "top_level.financese.plant_aep_in"]
-    - ["top_level.total_capex_kW", "top_level.financese.bos_per_kW"] # this connection does not make any sense
+    - ["AEP_farm", "financese.plant_aep_in"]
+    - ["total_capex_kW", "financese.bos_per_kW"] # this connection does not make any sense
