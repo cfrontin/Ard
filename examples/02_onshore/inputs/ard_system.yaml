@@ -31,7 +31,7 @@ modeling_options: &modeling_options
   farm:
     N_turbines: 25
     N_substations: 1
-  turbine: !include ../../../data/turbine_spec_IEA-3p4-130-RWT.yaml
+  turbine: !include ../../data/turbine_spec_IEA-3p4-130-RWT.yaml
   collection:
     max_turbines_per_string: 8
     solver_name: "appsi_highs"

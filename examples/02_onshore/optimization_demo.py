@@ -12,7 +12,7 @@ import openmdao.api as om
 def run_example():
 
     # load input
-    system_spec = load_yaml("./inputs/ard/ard_system.yaml")
+    system_spec = load_yaml("./inputs/ard_system.yaml")
 
     # set up system
     prob = set_up_system_recursive(
