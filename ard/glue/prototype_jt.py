@@ -8,42 +8,12 @@ from ard.cost.wisdem_wrap import (
 )
 
 
-def set_up_system(input_dict):
+def set_up_ard_model(input_dict):
 
-    prob = om.Problem()
-
-    for group_key in input_dict["groups"].keys():
-
-        group = prob.model.add_subsystem(
-            name=group_key,
-            subsys=om.Group(),
-            promotes=input_dict["groups"][group_key]["promotes"],
-        )
-
-        for subsystem_key in input_dict["groups"][group_key]["systems"]:
-
-            module_name = input_dict["groups"][group_key]["systems"][subsystem_key][
-                "name"
-            ]
-            object_name = input_dict["groups"][group_key]["systems"][subsystem_key][
-                "object"
-            ]
-
-            Module = importlib.import_module(f"ard.{module_name}")
-            SubSystem = getattr(Module, object_name)
-
-            subsystem_type = input_dict["groups"][group_key]["systems"][subsystem_key][
-                "type"
-            ]
-
-            # subsystem_input_dict = input_dict[subsystem_type][subsystem_key]
-            group.add_subsystem(
-                name=subsystem_key,
-                subsys=SubSystem(input_dict=input_dict, name=subsystem_key),
-                promotes=input_dict[subsystem_type][subsystem_key]["promotes"],
-            )
-
-    prob.setup()
+    prob = set_up_system_recursive(input_dict=input_dict["plant"], 
+                                   modeling_options=input_dict["modeling_options"], 
+                                   analysis_options=input_dict["analysis_options"]
+                                   )
 
     return prob
 
@@ -71,6 +41,7 @@ def set_up_system_recursive(
     if parent_group is None:
         prob = om.Problem()
         parent_group = prob.model
+        # parent_group.name = "ard_model"
     else:
         prob = None
 
@@ -110,11 +81,17 @@ def set_up_system_recursive(
         Module = importlib.import_module(subsystem_data["module"])
         SubSystem = getattr(Module, subsystem_data["object"])
 
+       # Convert specific promotes to tuples
+        promotes = [
+            tuple(p) if isinstance(p, list) else p
+            for p in subsystem_data["promotes"]
+        ]
+
         # Add the subsystem to the parent group with kwargs
         parent_group.add_subsystem(
             name=system_name,
             subsys=SubSystem(**subsystem_data.get("kwargs", {})),
-            promotes=subsystem_data["promotes"],
+            promotes=promotes,
         )
 
     # Handle connections within the parent group

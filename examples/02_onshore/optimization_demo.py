@@ -5,22 +5,17 @@ import matplotlib.pyplot as plt
 
 import optiwindnet.plotting
 from ard.utils.io import load_yaml
-from ard.glue.prototype_jt import set_up_system_recursive
+from ard.glue.prototype_jt import set_up_ard_model
 import openmdao.api as om
 
 
 def run_example():
 
     # load input
-    system_spec = load_yaml("./inputs/ard_system.yaml")
+    input_dict = load_yaml("./inputs/ard_system.yaml")
 
     # set up system
-    prob = set_up_system_recursive(
-        system_spec["plant"],
-        system_name="top_level",
-        modeling_options=system_spec["modeling_options"],
-        analysis_options=system_spec["analysis_options"],
-    )
+    prob = set_up_ard_model(input_dict=input_dict)
 
     # set up the working/design variables
     prob.set_val("spacing_primary", 7.0)
@@ -93,7 +88,7 @@ def run_example():
         ## read cases
         cr = om.CaseReader(
             prob.get_outputs_dir()
-            / system_spec["analysis_options"]["recorder"]["filepath"]
+            / input_dict["analysis_options"]["recorder"]["filepath"]
         )
 
         # Extract the driver cases
@@ -108,7 +103,7 @@ def run_example():
             iterations.append(i)
             objective_values.append(
                 case.get_objectives()[
-                    system_spec["analysis_options"]["objective"]["name"]
+                    input_dict["analysis_options"]["objective"]["name"]
                 ]
             )
 

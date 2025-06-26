@@ -1,5 +1,5 @@
 analysis_options:
-  driver: 
+  driver:
     name: ScipyOptimizeDriver
     options:
       optimizer: "SLSQP"
@@ -20,7 +20,7 @@ analysis_options:
     spacing_constraint.turbine_spacing:
       units: "m"
       lower: 552
-  objective: 
+  objective:
     name: optiwindnet_coll.total_length_cables
     options:
       scaler: 1.0
@@ -38,6 +38,8 @@ modeling_options: &modeling_options
     solver_options:
       time_limit: 60
       mip_rel_gap: 0.005
+  offshore: false
+  floating: false
 
 plant:
   type: group
@@ -86,7 +88,6 @@ plant:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-    
     tcc:
       type: component
       module: ard.cost.wisdem_wrap
@@ -96,7 +97,7 @@ plant:
         "machine_rating",
         "tcc_per_kW",
         "offset_tcc_per_kW",
-      ] 
+      ]
     landbosse:
       type: component
       module: ard.cost.wisdem_wrap
@@ -109,7 +110,7 @@ plant:
       module: ard.cost.wisdem_wrap
       object: OperatingExpenses
       promotes: [
-        "turbine_number", 
+        "turbine_number",
         "machine_rating", 
         "opex_per_kW"
       ]
