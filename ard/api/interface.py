@@ -1,22 +1,30 @@
 import importlib
 import openmdao.api as om
-from ard.cost.wisdem_wrap import LandBOSSE, ORBIT, PlantFinance
+from ard.utils.io import load_yaml, replace_key_value
 from ard.cost.wisdem_wrap import (
     LandBOSSE_setup_latents,
     ORBIT_setup_latents,
     FinanceSE_setup_latents,
 )
-
+from ard import ASSET_DIR
 
 def set_up_ard_model(input_dict):
 
-    prob = set_up_system_recursive(input_dict=input_dict["plant"], 
-                                   modeling_options=input_dict["modeling_options"], 
-                                   analysis_options=input_dict["analysis_options"]
-                                   )
+    available_default_systems = ["onshore"]
+    if input_dict["system"] in available_default_systems:
+        system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
+        import pdb; pdb.set_trace()
+        input_dict["system"] = replace_key_value(system, "modeling_options", input_dict["modeling_options"])
+    else:
+        raise(ValueError(f"invalid default system '{input_dict["system"]}' specified. Must be one of {available_default_systems}"))
+
+    prob = set_up_system_recursive(
+        input_dict=input_dict["system"], 
+        modeling_options=input_dict["modeling_options"], 
+        analysis_options=input_dict["analysis_options"]
+    )
 
     return prob
-
 
 def set_up_system_recursive(
     input_dict: dict,

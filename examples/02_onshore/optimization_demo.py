@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 import optiwindnet.plotting
 from ard.utils.io import load_yaml
-from ard.glue.prototype_jt import set_up_ard_model
+from ard.api import set_up_ard_model
 import openmdao.api as om
 
 
@@ -51,10 +51,9 @@ def run_example():
     pp.pprint(test_data)
     print("\n\n")
 
-    optimize = True  # set to False to skip optimization
+    optimize = True # set to False to skip optimization
 
     if optimize:
-        # now set up an optimization driver
 
         # run the optimization
         prob.run_driver()

@@ -41,90 +41,85 @@ modeling_options: &modeling_options
   offshore: false
   floating: false
 
-plant:
-  type: group
-  systems:
-    layout2aep:
-      type: group
-      promotes: ["*"]
-      systems:
-        layout:
-          type: component
-          module: ard.layout.gridfarm
-          object: GridFarmLayout
-          promotes: ["*"]
-          kwargs:
-            modeling_options: *modeling_options
-        aepPlaceholder:
-          type: component
-          module: ard.farm_aero.placeholder
-          object: PlaceholderAEP
-          promotes: ["x_turbines", "y_turbines", "AEP_farm"]
-          kwargs:
-            modeling_options: *modeling_options
-            wind_rose:
-              file: ../data/wrg_example.wrg
-              wd_step: 90.0
-              wind_speeds: [5.0, 10.0, 15.0, 20.0]
-              point: [0.0, 0.0]
-    landuse:
-      type: component
-      module: ard.layout.gridfarm
-      object: GridFarmLanduse
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
-    optiwindnet_coll:
-      type: component
-      module: ard.collection.optiwindnet_wrap
-      object: optiwindnetCollection
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
-    spacing_constraint:
-      type: component
-      module: ard.layout.spacing
-      object: TurbineSpacing
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
-    tcc:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: TurbineCapitalCosts
-      promotes: [
-        "turbine_number",
-        "machine_rating",
-        "tcc_per_kW",
-        "offset_tcc_per_kW",
-      ]
-    landbosse:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: LandBOSSEWithSpacingApproximations
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
-    opex:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: OperatingExpenses
-      promotes: [
-        "turbine_number",
-        "machine_rating", 
-        "opex_per_kW"
-      ]
-    financese:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: PlantFinance
-      promotes: [
-        "turbine_number",
-        "machine_rating",
-        "tcc_per_kW",
-        "offset_tcc_per_kW",
-        "opex_per_kW",
-      ]
-  connections:
-    - ["AEP_farm", "financese.plant_aep_in"]
-    - ["total_capex_kW", "financese.bos_per_kW"] # this connection does not make any sense
+plant: "onshore"
+  # type: group
+  # systems:
+  #   layout2aep:
+  #     type: group
+  #     promotes: ["*"]
+  #     systems:
+  #       layout:
+  #         type: component
+  #         module: ard.layout.gridfarm
+  #         object: GridFarmLayout
+  #         promotes: ["*"]
+  #         kwargs:
+  #           modeling_options: *modeling_options
+  #       aepPlaceholder:
+  #         type: component
+  #         module: ard.farm_aero.placeholder
+  #         object: PlaceholderAEP
+  #         promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+  #         kwargs:
+  #           modeling_options: *modeling_options
+  #   landuse:
+  #     type: component
+  #     module: ard.layout.gridfarm
+  #     object: GridFarmLanduse
+  #     promotes: ["*"]
+  #     kwargs:
+  #       modeling_options: *modeling_options
+  #   optiwindnet_coll:
+  #     type: component
+  #     module: ard.collection.optiwindnet_wrap
+  #     object: optiwindnetCollection
+  #     promotes: ["*"]
+  #     kwargs:
+  #       modeling_options: *modeling_options
+  #   spacing_constraint:
+  #     type: component
+  #     module: ard.layout.spacing
+  #     object: TurbineSpacing
+  #     promotes: ["*"]
+  #     kwargs:
+  #       modeling_options: *modeling_options
+  #   tcc:
+  #     type: component
+  #     module: ard.cost.wisdem_wrap
+  #     object: TurbineCapitalCosts
+  #     promotes: [
+  #       "turbine_number",
+  #       "machine_rating",
+  #       "tcc_per_kW",
+  #       "offset_tcc_per_kW",
+  #     ]
+  #   landbosse:
+  #     type: component
+  #     module: ard.cost.wisdem_wrap
+  #     object: LandBOSSEWithSpacingApproximations
+  #     promotes: ["*"]
+  #     kwargs:
+  #       modeling_options: *modeling_options
+  #   opex:
+  #     type: component
+  #     module: ard.cost.wisdem_wrap
+  #     object: OperatingExpenses
+  #     promotes: [
+  #       "turbine_number",
+  #       "machine_rating", 
+  #       "opex_per_kW"
+  #     ]
+  #   financese:
+  #     type: component
+  #     module: ard.cost.wisdem_wrap
+  #     object: PlantFinance
+  #     promotes: [
+  #       "turbine_number",
+  #       "machine_rating",
+  #       "tcc_per_kW",
+  #       "offset_tcc_per_kW",
+  #       "opex_per_kW",
+  #     ]
+  # connections:
+  #   - ["AEP_farm", "financese.plant_aep_in"]
+  #   - ["total_capex_kW", "financese.bos_per_kW"] # this connection does not make any sense

@@ -73,3 +73,28 @@ def load_turbine_spec(
     turbine_spec["performance_data_ccblade"]["power_thrust_csv"] = filename_powercurve
 
     return turbine_spec
+
+def replace_key_value(target_dict: dict, target_key: str, new_value)->dict:
+    """
+    Recursively replace the value of a target key in a dictionary.
+
+    Parameters:
+    - target_dict (dict): The dictionary to process.
+    - target_key (str): The key whose value needs to be replaced.
+    - new_value: The new value to assign to the target key.
+
+    Returns:
+    - dict: The updated dictionary.
+    """
+    for key, value in target_dict.items():
+        if key == target_key:
+            target_dict[key] = new_value
+        elif isinstance(value, dict):
+            # Recurse into nested dictionaries
+            replace_key_value(value, target_key, new_value)
+        elif isinstance(value, list):
+            # Handle lists of dictionaries
+            for item in value:
+                if isinstance(item, dict):
+                    replace_key_value(item, target_key, new_value)
+    return target_dict

@@ -373,3 +373,30 @@ for idx in range(modeling_options["farm"]["N_turbines"]):
         ".w",
     )
 plt.show()
+
+
+
+# RESULTS:
+
+# {'AEP_val': 4818.0,
+#  'BOS_val': 2127.5924853696597,
+#  'CapEx_val': 768.4437570425,
+#  'LCOE_val': 57.63858824842508,
+#  'OpEx_val': 60.50000000000001,
+#  'area_tight': 63.234304,
+#  'coll_length': 47.761107521256534,
+#  'mooring_spacing': 1.1208759839268934}
+
+
+# RESULTS (opt):
+
+# {'AEP_val': 4818.0,
+#  'BOS_val': 2113.9686662769814,
+#  'CapEx_val': 768.4437570425,
+#  'LCOE_val': 57.42651136342073,
+#  'OpEx_val': 60.50000000000001,
+#  'area_tight': 11.614464,
+#  'coll_length': 20.49594468696311,
+#  'mooring_spacing': 0.0582385263254008,
+#  'turbine_spacing': 0.8519999999999998}
+
