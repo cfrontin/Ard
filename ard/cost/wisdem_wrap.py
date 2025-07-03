@@ -680,7 +680,5 @@ def set_values(prob, variable_map: dict) -> None:
                 prob.set_val(full_name, variable_map[core_name])
             except:
                 print(f"{core_name} not provided in Ard input, using WISDEM default")
-            if "turbine_rating" in full_name:
-                import pdb; pdb.set_trace()
 
 # ['financese.machine_rating', 'opex.machine_rating', 'orbit.orbit.turbine_rating', 'tcc.machine_rating']

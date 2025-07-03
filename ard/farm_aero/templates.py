@@ -188,6 +188,8 @@ class FarmAEPTemplate(FarmAeroTemplate):
     -------
     modeling_options : dict
         a modeling options dictionary (inherited from FarmAeroTemplate)
+    data_path: str
+        absolute path to data directory
 
     Inputs
     ------
@@ -222,14 +224,20 @@ class FarmAEPTemplate(FarmAeroTemplate):
     def initialize(self):
         """Initialization of OM component."""
         super().initialize()
+        self.options.declare("data_path", default=None)
 
     def setup(self):
         """Setup of OM component."""
         super().setup()
         wind_spec = self.options["modeling_options"]["wind_rose"]
+        data_path = str(self.options["data_path"])
+
+        if data_path is None:
+            data_path = ""
+            
         if isinstance(wind_spec, dict):
             # generate FLORIS wind data object from dictionary
-            wind_rose_wrg_file = Path(wind_spec["file"]).resolve()
+            wind_rose_wrg_file = Path(data_path+"/"+wind_spec["file"]).resolve()
             wind_rose_wrg = floris.wind_data.WindRoseWRG(Path(wind_rose_wrg_file))
             wind_rose_wrg.set_wd_step(wind_spec["wd_step"])
             wind_rose_wrg.set_wind_speeds(

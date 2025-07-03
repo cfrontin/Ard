@@ -11,7 +11,7 @@ import ard
 import ard.utils.test_utils
 import ard.utils.io
 import ard.wind_query as wq
-import ard.glue.prototype as glue
+import ard.api.prototype as glue
 import ard.cost.wisdem_wrap as cost_wisdem
 
 
@@ -40,6 +40,7 @@ class TestLCOE_OFL_stack:
         # set up the modeling options
         self.modeling_options = {
             "farm": {"N_turbines": 25},
+            "wind_rose": wind_rose,
             "site_depth": 50.0,
             "turbine": data_turbine_spec,
             "offshore": True,
@@ -49,10 +50,9 @@ class TestLCOE_OFL_stack:
         # create the OM problem
         self.prob = glue.create_setup_OM_problem(
             modeling_options=self.modeling_options,
-            wind_rose=wind_rose,
         )
 
-    def test_model(self):
+    def test_model(self, subtests):
 
         # setup the latent variables for ORBIT and FinanceSE
         cost_wisdem.ORBIT_setup_latents(self.prob, self.modeling_options)
@@ -79,17 +79,21 @@ class TestLCOE_OFL_stack:
         }
 
         # check the data against a pyrite file
-        ard.utils.test_utils.pyrite_validator(
+        pyrite_data = ard.utils.test_utils.pyrite_validator(
             test_data,
             Path(ard.__file__).parents[1]
             / "test"
             / "system"
             / "ard"
-            / "LCOE_stack"
+            / "api"
             / "test_LCOE_OFL_stack_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file
-            rtol_val=5e-3,
+            # rtol_val=5e-3,
+            load_only=True,
         )
 
-
+        # Validate each key-value pair using subtests
+        for key, value in test_data.items():
+            with subtests.test(key=key):
+                assert np.isclose(value, pyrite_data[key], rtol=5e-3)
 #

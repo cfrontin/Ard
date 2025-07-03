@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import numpy as np
-
+import pytest
 import floris
 import openmdao.api as om
 
@@ -11,9 +11,8 @@ import ard
 import ard.utils.test_utils
 import ard.utils.io
 import ard.wind_query as wq
-import ard.glue.prototype as glue
+import ard.api.prototype as glue
 import ard.cost.wisdem_wrap as cost_wisdem
-
 
 class TestLCOE_LB_stack:
 
@@ -26,7 +25,6 @@ class TestLCOE_LB_stack:
         wind_rose_wrg.set_wd_step(90.0)
         wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
         wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
-        wind_query = wq.WindQuery.from_FLORIS_WindData(wind_rose)
 
         # specify the configuration/specification files to use
         filename_turbine_spec = (
@@ -40,6 +38,7 @@ class TestLCOE_LB_stack:
         # set up the modeling options
         self.modeling_options = {
             "farm": {"N_turbines": 25},
+            "wind_rose": wind_rose,
             "turbine": data_turbine_spec,
             "offshore": False,
         }
@@ -47,10 +46,9 @@ class TestLCOE_LB_stack:
         # create the OM problem
         self.prob = glue.create_setup_OM_problem(
             modeling_options=self.modeling_options,
-            wind_rose=wind_rose,
         )
 
-    def test_model(self):
+    def test_model(self, subtests):
 
         # setup the latent variables for LandBOSSE and FinanceSE
         cost_wisdem.LandBOSSE_setup_latents(self.prob, self.modeling_options)
@@ -77,17 +75,26 @@ class TestLCOE_LB_stack:
         }
 
         # check the data against a pyrite file
-        ard.utils.test_utils.pyrite_validator(
+        pyrite_data = ard.utils.test_utils.pyrite_validator(
             test_data,
             Path(ard.__file__).parents[1]
             / "test"
             / "system"
             / "ard"
-            / "LCOE_stack"
+            / "api"
             / "test_LCOE_LB_stack_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file
             rtol_val=5e-3,
+            load_only=True
         )
+
+        # Validate each key-value pair using subtests
+        for key, value in test_data.items():
+            with subtests.test(key=key):
+                assert np.isclose(value, pyrite_data[key], rtol=5e-3), (
+                    f"Mismatch for {key}: "
+                    f"expected {pyrite_data[key]}, got {value}"
+                )
 
 
 #

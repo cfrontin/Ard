@@ -7,17 +7,36 @@ from ard.cost.wisdem_wrap import (
     FinanceSE_setup_latents,
 )
 from ard import ASSET_DIR
+from typing import Union
 
-def set_up_ard_model(input_dict):
+def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str=None):
 
+    # load dictionary if string is given
+    if isinstance(input_dict, str):
+        input_dict, root_data_path = load_yaml(input_dict, return_path=True)
+    
+    # load default system if requested and available
     available_default_systems = ["onshore"]
-    if input_dict["system"] in available_default_systems:
-        system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
-        import pdb; pdb.set_trace()
-        input_dict["system"] = replace_key_value(system, "modeling_options", input_dict["modeling_options"])
-    else:
-        raise(ValueError(f"invalid default system '{input_dict["system"]}' specified. Must be one of {available_default_systems}"))
+    if isinstance(input_dict["system"], str):
+        if input_dict["system"] in available_default_systems:
+            system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
 
+            input_dict["system"] = replace_key_value(
+                target_dict=system, 
+                target_key="modeling_options", 
+                new_value=input_dict["modeling_options"])
+        else:
+            raise(ValueError(f"invalid default system '{input_dict["system"]}' specified. Must be one of {available_default_systems}"))
+
+    # replace empty data_path specs
+    input_dict["system"] = replace_key_value(
+            target_dict=input_dict["system"], 
+            target_key="data_path", 
+            new_value=root_data_path, 
+            replace_none_only=True
+        )
+
+    # set up the openmdao problem
     prob = set_up_system_recursive(
         input_dict=input_dict["system"], 
         modeling_options=input_dict["modeling_options"], 

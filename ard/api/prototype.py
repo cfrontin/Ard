@@ -10,7 +10,6 @@ import ard.cost.wisdem_wrap as cost_wisdem
 
 def create_setup_OM_problem(
     modeling_options,
-    wind_rose: floris.wind_data.WindRose = None,
     aero_backend: str = "FLORIS",
     layout_type: str = "gridfarm",
     setup_glue=True,
@@ -55,8 +54,8 @@ def create_setup_OM_problem(
         raise NotImplementedError(
             f"aerodynamic backend {aero_backend} is not implemented yet."
         )
-    if wind_rose is None:
-        raise NotImplementedError("this wind rose configuration is not implemented.")
+    # if wind_rose is None:
+    #     raise NotImplementedError("this wind rose configuration is not implemented.")
 
     # create the OpenMDAO model
     model = om.Group()
@@ -93,7 +92,7 @@ def create_setup_OM_problem(
         "aepFLORIS",
         farmaero_floris.FLORISAEP(
             modeling_options=modeling_options,
-            wind_rose=wind_rose,
+            # wind_rose=wind_rose,
             case_title="letsgo",
         ),
         # promotes=["AEP_farm"],

@@ -49,6 +49,7 @@ class TestFLORISBatchPower:
             "farm": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
+            "wind_rose": wind_query,
             "turbine": data_turbine_spec,
         }
 
@@ -58,7 +59,6 @@ class TestFLORISBatchPower:
             "batchFLORIS",
             farmaero_floris.FLORISBatchPower(
                 modeling_options=modeling_options,
-                wind_query=wind_query,
                 case_title="letsgo",
             ),
         )
@@ -158,6 +158,7 @@ class TestFLORISAEP:
             "farm": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
+            "wind_rose": wind_rose,
             "turbine": data_turbine_spec,
         }
 
@@ -167,7 +168,6 @@ class TestFLORISAEP:
             "aepFLORIS",
             farmaero_floris.FLORISAEP(
                 modeling_options=modeling_options,
-                wind_rose=wind_rose,
                 case_title="letsgo",
             ),
         )

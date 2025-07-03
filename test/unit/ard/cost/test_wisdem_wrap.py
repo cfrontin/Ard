@@ -8,7 +8,7 @@ import ard.utils.io
 import ard.utils.test_utils
 import ard.layout.gridfarm as gridfarm
 import ard.cost.wisdem_wrap as wcost
-import ard.glue.prototype as glue
+import ard.api.prototype as glue
 
 
 class TestLandBOSSE:

@@ -18,6 +18,7 @@ systems:
         promotes: ["x_turbines", "y_turbines", "AEP_farm"]
         kwargs:
           modeling_options:
+          data_path:
   landuse:
     type: component
     module: ard.layout.gridfarm

@@ -24,11 +24,14 @@ class Loader(yaml.SafeLoader):
 Loader.add_constructor("!include", Loader.include)
 
 
-def load_yaml(filename, loader=Loader) -> dict:
+def load_yaml(filename, loader=Loader, return_path=False) -> dict:
     if isinstance(filename, dict):
         return filename  # filename already yaml dict
     with open(filename) as fid:
-        return yaml.load(fid, loader)
+        if return_path:
+            return yaml.load(fid, loader), Path(filename).parent.absolute()
+        else:
+            return yaml.load(fid, loader)
 
 
 def check_create_folder(filepath):
@@ -74,7 +77,7 @@ def load_turbine_spec(
 
     return turbine_spec
 
-def replace_key_value(target_dict: dict, target_key: str, new_value)->dict:
+def replace_key_value(target_dict: dict, target_key: str, new_value, replace_none_only=True)->dict:
     """
     Recursively replace the value of a target key in a dictionary.
 
@@ -82,19 +85,22 @@ def replace_key_value(target_dict: dict, target_key: str, new_value)->dict:
     - target_dict (dict): The dictionary to process.
     - target_key (str): The key whose value needs to be replaced.
     - new_value: The new value to assign to the target key.
+    - replace_none_only (bool): if True, only 'None' values will be replaced.
 
     Returns:
     - dict: The updated dictionary.
     """
     for key, value in target_dict.items():
         if key == target_key:
+            if (value != None) and (replace_none_only):
+                continue
             target_dict[key] = new_value
         elif isinstance(value, dict):
             # Recurse into nested dictionaries
-            replace_key_value(value, target_key, new_value)
+            replace_key_value(value, target_key, new_value, replace_none_only=replace_none_only)
         elif isinstance(value, list):
             # Handle lists of dictionaries
             for item in value:
                 if isinstance(item, dict):
-                    replace_key_value(item, target_key, new_value)
+                    replace_key_value(item, target_key, new_value, replace_none_only=replace_none_only)
     return target_dict
