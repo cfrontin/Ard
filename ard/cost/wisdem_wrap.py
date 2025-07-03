@@ -35,7 +35,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
         # Add the LandBOSSE component
         self.add_subsystem(
             "landbosse",
-            LandBOSSEArdComp(),
+            LandBOSSE(),
             promotes_inputs=[
                 "*",
                 (
@@ -62,65 +62,65 @@ class LandBOSSEWithSpacingApproximations(om.Group):
         )
 
 
-class LandBOSSEArdComp(LandBOSSE_orig):
-    """
-    Wrapper Group for WISDEM's LandBOSSE BOS calculators.
+# class LandBOSSEArdComp(LandBOSSE_orig):
+#     """
+#     Wrapper Group for WISDEM's LandBOSSE BOS calculators.
 
-    A thin wrapper of `wisdem.landbosse.landbosse_omdao.landbosse.LandBOSSE`
-    that traps warning messages that are recognized not to be issues.
+#     A thin wrapper of `wisdem.landbosse.landbosse_omdao.landbosse.LandBOSSE`
+#     that traps warning messages that are recognized not to be issues.
 
-    See: https://github.com/WISDEM/LandBOSSE
-    """
+#     See: https://github.com/WISDEM/LandBOSSE
+#     """
 
-    # def initialize(self):
-    #     self.options.declare("modeling_options")
+#     # def initialize(self):
+#     #     self.options.declare("modeling_options")
 
-    def setup(self):
-        """Setup of OM component."""
+#     def setup(self):
+#         """Setup of OM component."""
 
-        # modeling_options = self.options["modeling_options"]
+#         # modeling_options = self.options["modeling_options"]
 
-        self.add_subsystem(
-            "landbosse_component",
-            LandBOSSE_orig(),
-            promotes=[
-                "turbine_spacing_rotor_diameters",
-                "row_spacing_rotor_diameters",
-                "bos_capex_kW",
-                "total_capex_kW",
-                "total_capex",
-            ],
-        )
+#         self.add_subsystem(
+#             "landbosse_component",
+#             LandBOSSE_orig(),
+#             promotes=[
+#                 "turbine_spacing_rotor_diameters",
+#                 "row_spacing_rotor_diameters",
+#                 "bos_capex_kW",
+#                 "total_capex_kW",
+#                 "total_capex",
+#             ],
+#         )
 
-        # self.list_vars(units=True, list_autoivcs=True)
-        # self.set_input_defaults("landbosse_component.num_turbines",
-        #                         modeling_options["farm"]["N_turbines"],
-        #                         units=None,
-        #                         src_shape=None)
+#         # self.list_vars(units=True, list_autoivcs=True)
+#         # self.set_input_defaults("landbosse_component.num_turbines",
+#         #                         modeling_options["farm"]["N_turbines"],
+#         #                         units=None,
+#         #                         src_shape=None)
 
-    def setup_partials(self):
-        """Derivative setup for OM component."""
+#     def setup_partials(self):
+#         """Derivative setup for OM component."""
 
-        # finite difference WISDEM tools for gradients
-        self.declare_partials(
-            [
-                "turbine_spacing_rotor_diameters",
-                "row_spacing_rotor_diameters",
-            ],
-            [
-                "bos_capex_kW",
-                "total_capex_kW",
-                "total_capex",
-            ],
-            method="fd",
-        )
+#         # finite difference WISDEM tools for gradients
+#         self.declare_partials(
+#             [
+#                 "turbine_spacing_rotor_diameters",
+#                 "row_spacing_rotor_diameters",
+#             ],
+#             [
+#                 "bos_capex_kW",
+#                 "total_capex_kW",
+#                 "total_capex",
+#             ],
+#             method="fd",
+#         )
 
-    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        """Computation for the OM component."""
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        with warnings.catch_warnings():
-            return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
+#     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
+#         """Computation for the OM component."""
+#         warnings.filterwarnings("ignore", category=FutureWarning)
+#         warnings.filterwarnings("ignore", category=DeprecationWarning)
+#         with warnings.catch_warnings():
+#             return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
 
 
 class LandBOSSE(LandBOSSE_orig):
@@ -139,12 +139,12 @@ class LandBOSSE(LandBOSSE_orig):
 
     def setup(self):
         """Setup of OM component."""
-        modeling_options = self.options["modeling_options"]
         warnings.filterwarnings("ignore", category=FutureWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         with warnings.catch_warnings():
             super().setup()
-        self.set_val("num_turbines", modeling_options["farm"]["N_turbines"])
+        # modeling_options = self.options["modeling_options"]
+        # self.set_val("num_turbines", modeling_options["farm"]["N_turbines"])
 
     def setup_partials(self):
         """Derivative setup for OM component."""
@@ -157,7 +157,7 @@ class LandBOSSE(LandBOSSE_orig):
             ],
             [
                 "bos_capex_kW",
-                "total_capex_kW",
+                "total_capex",
             ],
             method="fd",
         )
@@ -484,7 +484,7 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
 
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
-        "turbine_rating": modeling_options["turbine"]["nameplate"]["power_rated"]*1E-3,
+        "turbine_rating": modeling_options["turbine"]["nameplate"]["power_rated"],#*1E-3,
         "site_depth": modeling_options["site_depth"],
         "number_of_turbines": modeling_options["farm"]["N_turbines"],
         "number_of_blades": modeling_options["turbine"]["geometry"]["num_blades"],

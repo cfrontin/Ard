@@ -155,7 +155,7 @@ def create_setup_OM_problem(
     else:
         model.add_subsystem(  # LandBOSSE component
             "landbosse",
-            cost_wisdem.LandBOSSEArdComp(),
+            cost_wisdem.LandBOSSE(),
         )
         model.connect(  # effective primary spacing for BOS
             "spacing_effective_primary", "landbosse.turbine_spacing_rotor_diameters"
