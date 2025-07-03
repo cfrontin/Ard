@@ -593,7 +593,7 @@ def set_values(prob, variable_map: dict) -> None:
     None
     """
 
-    # Get a map from the component variables to the promotion variables
+    # # Get a map from the component variables to the promotion variables
     promotion_map = {
         v[0].split(".")[-1]: v[-1]["prom_name"]
         for v in prob.model.list_vars(val=False, out_stream=None)

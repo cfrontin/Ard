@@ -1,4 +1,7 @@
 type: group
+connections:
+  - ["AEP_farm", "financese.plant_aep_in"]
+  - ["total_capex_kW", "financese.bos_per_kW"]
 systems:
   layout2aep:
     type: group
@@ -77,6 +80,3 @@ systems:
       "offset_tcc_per_kW",
       "opex_per_kW",
     ]
-connections:
-  - ["AEP_farm", "financese.plant_aep_in"]
-  - ["total_capex_kW", "financese.bos_per_kW"] # this connection does not make any sense

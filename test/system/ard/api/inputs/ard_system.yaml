@@ -11,6 +11,8 @@ modeling_options:
     point: [0.0, 0.0]
   turbine: !include ../../../../data/turbine_spec_IEA-3p4-130-RWT.yaml
   collection:
+    substation_x: 100.0
+    substation_y: 100.0
     max_turbines_per_string: 8
     solver_name: "appsi_highs"
     solver_options:

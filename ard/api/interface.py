@@ -16,7 +16,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str=None):
         input_dict, root_data_path = load_yaml(input_dict, return_path=True)
     
     # load default system if requested and available
-    available_default_systems = ["onshore"]
+    available_default_systems = ["onshore", "onshore_no_cable_design"]
     if isinstance(input_dict["system"], str):
         if input_dict["system"] in available_default_systems:
             system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
