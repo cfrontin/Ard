@@ -29,7 +29,7 @@ def run_example():
     prob.run_model()
 
     # Visualize model
-    om.n2(prob)
+    # om.n2(prob)
 
     # collapse the test result data
     test_data = {

@@ -595,22 +595,40 @@ def set_values(prob, variable_map: dict) -> None:
 
     # Get a map from the component variables to the promotion variables
     promotion_map = {
-        v[0]: v[-1]["prom_name"]
+        v[0].split(".")[-1]: v[-1]["prom_name"]
         for v in prob.model.list_vars(val=False, out_stream=None)
     }
 
     # Iterate over the mapping and set values in the OpenMDAO problem
     for full_name in promotion_map:
-
         prom_name = promotion_map[full_name]
         core_name = prom_name.split(".")[-1]
-        # if "turbine_number" in full_name:
-        #     import pdb; pdb.set_trace()
-        if core_name in variable_map:
-            print(core_name)
+        if core_name in promotion_map:
             try:
-                prob.set_val(full_name, variable_map[core_name])
+                prob.set_val(prom_name, variable_map[core_name])
             except:
-                print(f"{core_name} not provided in Ard input, using WISDEM default")
+                print(
+                    f"{core_name} not provided in turbine input, using WISDEM default"
+                )
+
+    # # Get a map from the component variables to the promotion variables
+    # promotion_map = {
+    #     v[0]: v[-1]["prom_name"]
+    #     for v in prob.model.list_vars(val=False, out_stream=None)
+    # }
+
+    # # Iterate over the mapping and set values in the OpenMDAO problem
+    # for full_name in promotion_map:
+
+    #     prom_name = promotion_map[full_name]
+    #     core_name = prom_name.split(".")[-1]
+    #     # if "turbine_number" in full_name:
+    #     #     import pdb; pdb.set_trace()
+    #     if core_name in variable_map:
+    #         print(core_name)
+    #         try:
+    #             prob.set_val(full_name, variable_map[core_name])
+    #         except:
+    #             print(f"{core_name} not provided in Ard input, using WISDEM default")
 
 # ['financese.machine_rating', 'opex.machine_rating', 'orbit.orbit.turbine_rating', 'tcc.machine_rating']
