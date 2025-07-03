@@ -43,7 +43,7 @@ class TestLandBOSSE:
         )
         self.landbosse = self.model.add_subsystem(
             "landbosse",
-            wcost.LandBOSSEArdComponent(),
+            wcost.LandBOSSEArdComp(),
         )
         self.model.connect(  # effective primary spacing for BOS
             "spacing_effective_primary", "landbosse.turbine_spacing_rotor_diameters"

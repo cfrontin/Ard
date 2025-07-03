@@ -208,7 +208,7 @@ if modeling_options["offshore"]:
 else:
     model.add_subsystem(  # LandBOSSE component
         "landbosse",
-        ard.cost.wisdem_wrap.LandBOSSE(),
+        ard.cost.wisdem_wrap.LandBOSSEArdComp(),
     )
     model.connect(  # effective primary spacing for BOS
         "spacing_effective_primary",

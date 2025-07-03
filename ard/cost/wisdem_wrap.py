@@ -35,7 +35,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
         # Add the LandBOSSE component
         self.add_subsystem(
             "landbosse",
-            LandBOSSEArdComponent(),
+            LandBOSSEArdComp(),
             promotes_inputs=[
                 "*",
                 (
@@ -61,7 +61,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
             "internal_row_spacing_rotor_diameters",
         )
 
-class LandBOSSEArdComponent(LandBOSSE_orig):
+class LandBOSSEArdComp(LandBOSSE_orig):
     """
     Wrapper for WISDEM's LandBOSSE BOS calculators.
 
@@ -71,15 +71,12 @@ class LandBOSSEArdComponent(LandBOSSE_orig):
     See: https://github.com/WISDEM/LandBOSSE
     """
 
-    def initialize(self):
-        super().initialize()
-
     def setup(self):
         """Setup of OM component."""
         warnings.filterwarnings("ignore", category=FutureWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         with warnings.catch_warnings():
-            super().setup()
+            return super().setup()
 
     def setup_partials(self):
         """Derivative setup for OM component."""
