@@ -135,7 +135,7 @@ class LandBOSSE(LandBOSSE_orig):
 
     def initialize(self):
         super().initialize()
-        self.options.declare("modeling_options")
+        # self.options.declare("modeling_options")
 
     def setup(self):
         """Setup of OM component."""
