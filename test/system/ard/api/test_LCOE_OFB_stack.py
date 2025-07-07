@@ -39,7 +39,12 @@ class TestLCOE_OFB_stack:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {"N_turbines": 25},
+            "farm": {"N_turbines": 25,
+                "spacing_primary": 7.0,
+                "spacing_secondary": 7.0,
+                "angle_orientation": 0.0,
+                "angle_skew": 0.0,
+                },
             "wind_rose": wind_rose,
             "site_depth": 50.0,
             "turbine": data_turbine_spec,

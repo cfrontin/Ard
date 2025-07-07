@@ -50,6 +50,8 @@ class TestOptiWindNetCollection:
             "farm": {
                 "N_turbines": self.N_turbines,
                 "N_substations": self.N_substations,
+                "x_substations": 500,
+                "y_substations": 500,
             },
             "turbine": data_turbine_spec,
             "collection": {

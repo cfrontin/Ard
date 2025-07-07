@@ -52,6 +52,8 @@ class TestoptiwindnetLayout:
             "farm": {
                 "N_turbines": 25,
                 "N_substations": 1,
+                "x_substations": 0.0, # reset in test
+                "y_substations": 0.0, # reset in test
             },
             "wind_rose": wind_rose,
             "turbine": data_turbine_spec,
@@ -83,6 +85,7 @@ class TestoptiwindnetLayout:
             farmaero_floris.FLORISAEP(
                 modeling_options=self.modeling_options,
                 case_title="letsgo",
+                data_path="",
             ),
             # promotes=["AEP_farm"],
             promotes=["x_turbines", "y_turbines", "AEP_farm"],

@@ -4,7 +4,7 @@ import numpy as np
 import openmdao.api as om
 
 import floris
-
+import pytest
 import ard.utils.io
 import ard.utils.test_utils
 import ard.wind_query as wq
@@ -60,6 +60,7 @@ class TestFLORISBatchPower:
             farmaero_floris.FLORISBatchPower(
                 modeling_options=modeling_options,
                 case_title="letsgo",
+                data_path="",
             ),
         )
 
@@ -169,6 +170,7 @@ class TestFLORISAEP:
             farmaero_floris.FLORISAEP(
                 modeling_options=modeling_options,
                 case_title="letsgo",
+                data_path="",
             ),
         )
 
@@ -202,7 +204,7 @@ class TestFLORISAEP:
         ]:
             assert var_to_check in output_list
 
-    def test_compute_pyrite(self):
+    def test_compute_pyrite(self, subtests):
 
         x_turbines = 7.0 * 130.0 * np.arange(-2, 2.1, 1)
         y_turbines = 7.0 * 130.0 * np.arange(-2, 2.1, 1)
@@ -224,9 +226,14 @@ class TestFLORISAEP:
             ),
         }
         # validate data against pyrite file
-        ard.utils.test_utils.pyrite_validator(
+        pyrite_data = ard.utils.test_utils.pyrite_validator(
             test_data,
             Path(__file__).parent / "test_floris_aep_pyrite.npz",
             rtol_val=5e-3,
-            # rewrite=True,  # uncomment to write new pyrite file
+            # rewrite=True,  # uncomment to write new pyrite file,
+            load_only=True,
         )
+
+        for key in test_data:
+            with subtests.test(key):
+                assert np.allclose(test_data[key], pyrite_data[key], rtol=5E-3)

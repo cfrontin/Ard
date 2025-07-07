@@ -14,14 +14,23 @@ systems:
         promotes: ["*"]
         kwargs:
           modeling_options:
-      aepPlaceholder:
+      aepFLORIS:
         type: component
-        module: ard.farm_aero.placeholder
-        object: PlaceholderAEP
+        module: ard.farm_aero.floris
+        object: FLORISAEP
         promotes: ["x_turbines", "y_turbines", "AEP_farm"]
         kwargs:
           modeling_options:
           data_path:
+          case_title: "default"
+      # aepPlaceholder:
+      #   type: component
+      #   module: ard.farm_aero.placeholder
+      #   object: PlaceholderAEP
+      #   promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+      #   kwargs:
+      #     modeling_options:
+      #     data_path:
   landuse:
     type: component
     module: ard.layout.gridfarm

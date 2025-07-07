@@ -17,6 +17,6 @@ class TestSetUpArdModel:
         
         with pytest.raises(
             ValueError, 
-            match=f"invalid default system 'test' specified. Must be one of \\['onshore'\\]"
+            match=f"invalid default system 'test' specified. Must be one of \\['onshore', 'onshore_no_cable_design'\\]"
             ):
             set_up_ard_model(input_dict)

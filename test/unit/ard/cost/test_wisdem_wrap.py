@@ -29,7 +29,11 @@ class TestLandBOSSE:
         # set up the modeling options
         self.modeling_options = {
             "farm": {
-                "N_turbines": 25,
+                "N_turbines": 25, 
+                "spacing_primary": 0.0, # reset in test_setup
+                "spacing_secondary": 0.0, # reset in test_setup
+                "angle_orientation": 0.0, # reset in test_setup
+                "angle_skew": 0.0, # reset in test_setup
             },
             "turbine": data_turbine,
         }
@@ -102,6 +106,10 @@ class TestORBIT:
         self.modeling_options = {
             "farm": {
                 "N_turbines": 25,
+                "spacing_primary": 0.0, # reset in test
+                "spacing_secondary": 0.0, # reset in test
+                "angle_orientation": 0.0, # reset in test
+                "angle_skew": 0.0, # reset in test
             },
             "site_depth": 50.0,
             "turbine": data_turbine,

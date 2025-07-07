@@ -39,6 +39,7 @@ class FarmAeroTemplate(om.ExplicitComponent):
     def initialize(self):
         """Initialization of OM component."""
         self.options.declare("modeling_options")
+        self.options.declare("data_path")
 
     def setup(self):
         """Setup of OM component."""

@@ -20,34 +20,39 @@ class TestLCOE_LB_stack:
     def setup_method(self):
 
         # create the wind query
-        wind_rose_wrg = floris.wind_data.WindRoseWRG(
-            Path(ard.__file__).parents[1] / "examples" / "data" / "wrg_example.wrg"
-        )
+        wind_path = Path(__file__).parent / "inputs" / "wrg_example.wrg"
+        
+        wind_rose_wrg = floris.wind_data.WindRoseWRG(wind_path)
         wind_rose_wrg.set_wd_step(90.0)
         wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
         wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
 
         # specify the configuration/specification files to use
         filename_turbine_spec = (
-            Path(ard.__file__).parents[1]
-            / "examples"
-            / "data"
+            Path(__file__).parent
+            / "inputs"
             / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
         data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {"N_turbines": 25},
+            "farm": {
+                "N_turbines": 25,
+                "spacing_primary": 7.0,
+                "spacing_secondary": 7.0,
+                "angle_orientation": 0.0,
+                "angle_skew": 0.0,
+                },
             "wind_rose": wind_rose,
             "turbine": data_turbine_spec,
             "offshore": False,
         }
 
-        # approach 1 to create the OM problem
-        self.prob1 = glue.create_setup_OM_problem(
-            modeling_options=self.modeling_options,
-        )
+        # # approach 1 to create the OM problem
+        # self.prob1 = glue.create_setup_OM_problem(
+        #     modeling_options=self.modeling_options,
+        # )
 
         # # approach 2 to create the OM problem
         input_dict = {
@@ -72,10 +77,6 @@ class TestLCOE_LB_stack:
         cost_wisdem.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
         # set up the working/design variables
-        self.prob.set_val("spacing_primary", 7.0)
-        self.prob.set_val("spacing_secondary", 7.0)
-        self.prob.set_val("angle_orientation", 0.0)
-        self.prob.set_val("angle_skew", 0.0)
 
         # run the model
         self.prob.run_model()

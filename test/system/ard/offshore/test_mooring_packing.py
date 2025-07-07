@@ -31,6 +31,13 @@ class TestMooringPacking:
             "farm": {
                 "N_turbines": 4,
                 "N_substations": 1,
+                "spacing_primary": 7.0,
+                "spacing_secondary": 7.0,
+                "angle_orientation": 0.0,
+                "angle_skew": 0.0,
+                "phi_platform": 0.0,
+                "x_substations": 500,
+                "y_substations": 500,
             },
             "turbine": data_turbine_spec,
             "offshore": True,
@@ -131,15 +138,6 @@ class TestMooringPacking:
 
         # setup the problem
         self.prob.setup()
-
-        # set up the variables
-        self.prob.set_val("spacing_primary", 7.0)
-        self.prob.set_val("spacing_secondary", 7.0)
-        self.prob.set_val("angle_orientation", 0.0)
-        self.prob.set_val("angle_skew", 0.0)
-        self.prob.set_val("phi_platform", 0.0)
-        self.prob.set_val("optiwindnet_coll.x_substations", [500.0])
-        self.prob.set_val("optiwindnet_coll.y_substations", [500.0])
 
         # run the model
         self.prob.run_model()
