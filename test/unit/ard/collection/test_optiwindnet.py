@@ -50,8 +50,8 @@ class TestOptiWindNetCollection:
             "farm": {
                 "N_turbines": self.N_turbines,
                 "N_substations": self.N_substations,
-                "x_substations": 500,
-                "y_substations": 500,
+                "x_substations": self.farm_spec["x_substations"],
+                "y_substations": self.farm_spec["y_substations"],
             },
             "turbine": data_turbine_spec,
             "collection": {
@@ -261,6 +261,8 @@ class TestOptiWindNetCollection:
         modeling_options = copy.deepcopy(self.modeling_options)
         modeling_options["farm"]["N_turbines"] = 5
         modeling_options["farm"]["N_substations"] = 1
+        modeling_options["farm"]["x_substations"] = [0.0]
+        modeling_options["farm"]["y_substations"] = [0.0]
 
         # create the OpenMDAO model
         model = om.Group()
@@ -324,6 +326,8 @@ class TestOptiWindNetCollection:
         modeling_options = copy.deepcopy(self.modeling_options)
         modeling_options["farm"]["N_turbines"] = 5
         modeling_options["farm"]["N_substations"] = 1
+        modeling_options["farm"]["x_substations"] = [5.0] # overridden by set_val
+        modeling_options["farm"]["y_substations"] = [5.0] # overridden by set_val
 
         # create the OpenMDAO model
         model = om.Group()

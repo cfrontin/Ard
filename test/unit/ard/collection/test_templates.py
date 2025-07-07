@@ -13,8 +13,8 @@ class TestCollectionTemplate:
             "farm": {
                 "N_turbines": 4,
                 "N_substations": 2,
-                "x_substations": 0.0, # reset in test
-                "y_substations": 0.0, # reset in test
+                "x_substations": [0.0, 0.0], # reset in test
+                "y_substations": [0.0, 0.0], # reset in test
             },
         }
 
