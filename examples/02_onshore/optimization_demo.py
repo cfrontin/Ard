@@ -15,7 +15,7 @@ def run_example():
     input_dict = load_yaml("./inputs/ard_system.yaml")
 
     # set up system
-    prob = set_up_ard_model(input_dict=input_dict)
+    prob = set_up_ard_model(input_dict=input_dict, root_data_path="inputs")
 
     # set up the working/design variables
     prob.set_val("spacing_primary", 7.0)
