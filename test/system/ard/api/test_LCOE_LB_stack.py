@@ -22,7 +22,7 @@ class TestLCOE_LB_stack:
     def setup_method(self):
 
         # create the wind query
-        wind_path = Path(__file__).parent / "inputs" / "wrg_example.wrg"
+        wind_path = Path(__file__).parent / "inputs_onshore" / "wrg_example.wrg"
 
         wind_rose_wrg = floris.wind_data.WindRoseWRG(wind_path)
         wind_rose_wrg.set_wd_step(90.0)
@@ -31,7 +31,7 @@ class TestLCOE_LB_stack:
 
         # specify the configuration/specification files to use
         filename_turbine_spec = (
-            Path(__file__).parent / "inputs" / "turbine_spec_IEA-3p4-130-RWT.yaml"
+            Path(__file__).parent / "inputs_onshore" / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
         data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
