@@ -31,7 +31,9 @@ class TestLCOE_LB_stack:
 
         # specify the configuration/specification files to use
         filename_turbine_spec = (
-            Path(__file__).parent / "inputs_onshore" / "turbine_spec_IEA-3p4-130-RWT.yaml"
+            Path(__file__).parent
+            / "inputs_onshore"
+            / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
         data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 

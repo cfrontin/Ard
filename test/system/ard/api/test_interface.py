@@ -3,6 +3,7 @@ from pathlib import Path
 from ard.api import set_up_ard_model, replace_key_value, set_up_system_recursive
 import numpy as np
 
+
 @pytest.mark.usefixtures("subtests")
 class TestSetUpArdModelOnshore:
     def setup_method(self):
@@ -29,9 +30,9 @@ class TestSetUpArdModelOnshore:
                 0
             ] == pytest.approx(391.511636)
         with subtests.test("BOS capex (landbosse.total_capex)"):
-            assert self.prob.get_val("total_capex", units="MUSD")[
-                0
-            ] == pytest.approx(41.57835529481917)
+            assert self.prob.get_val("total_capex", units="MUSD")[0] == pytest.approx(
+                41.57835529481917
+            )
         with subtests.test("opex.opex"):
             assert self.prob.get_val("opex.opex", units="MUSD/yr")[0] == pytest.approx(
                 3.707
