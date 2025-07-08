@@ -17,14 +17,6 @@ def run_example():
     # set up system
     prob = set_up_ard_model(input_dict=input_dict, root_data_path="inputs")
 
-    # set up the working/design variables
-    prob.set_val("spacing_primary", 7.0)
-    prob.set_val("spacing_secondary", 7.0)
-    prob.set_val("angle_orientation", 0.0)
-
-    prob.set_val("optiwindnet_coll.x_substations", [100.0])
-    prob.set_val("optiwindnet_coll.y_substations", [100.0])
-
     # run the model
     prob.run_model()
 
