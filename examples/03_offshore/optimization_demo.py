@@ -9,6 +9,7 @@ import optiwindnet.plotting
 from ard.utils.io import load_yaml
 from ard.api import set_up_ard_model
 
+
 def run_example():
 
     # load input
@@ -16,7 +17,8 @@ def run_example():
 
     # set up system
     prob = set_up_ard_model(
-        input_dict=input_dict, root_data_path="inputs",
+        input_dict=input_dict,
+        root_data_path="inputs",
     )
 
     # run the model
@@ -116,6 +118,7 @@ def run_example():
     optiwindnet.plotting.gplot(prob.model.collection.graph)
 
     plt.show()
+
 
 if __name__ == "__main__":
 
