@@ -86,7 +86,7 @@ def set_up_system_recursive(
         prob = None
 
     # Add subsystems directly from the input dictionary
-    if hasattr(parent_group, "name"):
+    if hasattr(parent_group, "name") and (parent_group.name != ""):
         print(f"Adding {system_name} to {parent_group.name}")
     else:
         print(f"Adding {system_name}")
@@ -108,6 +108,10 @@ def set_up_system_recursive(
                 analysis_options=None,
                 _depth=_depth + 1,
             )
+        if "approx_totals" in input_dict:
+            print(input_dict["approx_totals"])
+            # import pdb; pdb.set_trace()
+            group.approx_totals(**input_dict["approx_totals"])
 
     else:
         subsystem_data = input_dict

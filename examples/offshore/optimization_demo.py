@@ -12,7 +12,7 @@ from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
 
 import optiwindnet.plotting
 import ard
-import ard.glue.prototype as glue
+import ard.api.prototype_temp as glue
 import ard.layout.spacing
 
 # layout type
@@ -41,8 +41,20 @@ modeling_options = {
     "farm": {
         "N_turbines": 25,
         "N_substations": 1,
+        "spacing_primary": 7.0,
+        "spacing_secondary": 7.0,
+        "angle_orientation": 0.0,
+        "angle_skew": 0.0,
+        "x_substations": 0.1,
+        "y_substations": 0.1,
     },
     "turbine": data_turbine_spec,
+    "wind_rose": {
+        "file": "wrg_example.wrg",
+        "wd_step": 90.0,
+        "wind_speeds": [5.0, 10.0, 15.0, 20.0],
+        "point": [0.0, 0.0],
+    },
     "offshore": True,
     "floating": True,
     "platform": {
@@ -92,25 +104,25 @@ layout_global_output_promotes = [
     "spacing_effective_secondary",
 ]  # all layouts have this
 
-group_layout2aep.add_subsystem(  # FLORIS AEP component
-    "aepPlaceholder",
-    ard.farm_aero.placeholder.PlaceholderAEP(
-        modeling_options=modeling_options,
-        wind_rose=wind_rose,
-    ),
-    # promotes=["AEP_farm"],
-    promotes=["x_turbines", "y_turbines", "AEP_farm"],
-)
 # group_layout2aep.add_subsystem(  # FLORIS AEP component
-#     "aepFLORIS",
-#     ard.farm_aero.floris.FLORISAEP(
+#     "aepPlaceholder",
+#     ard.farm_aero.placeholder.PlaceholderAEP(
 #         modeling_options=modeling_options,
 #         wind_rose=wind_rose,
-#         case_title="letsgo",
 #     ),
 #     # promotes=["AEP_farm"],
 #     promotes=["x_turbines", "y_turbines", "AEP_farm"],
 # )
+group_layout2aep.add_subsystem(  # FLORIS AEP component
+    "aepFLORIS",
+    ard.farm_aero.floris.FLORISAEP(
+        modeling_options=modeling_options,
+        case_title="letsgo",
+        data_path="inputs",
+    ),
+    # promotes=["AEP_farm"],
+    promotes=["x_turbines", "y_turbines", "AEP_farm"],
+)
 farmaero_global_output_promotes = ["AEP_farm"]
 
 group_layout2aep.approx_totals(
@@ -255,17 +267,11 @@ ard.cost.wisdem_wrap.ORBIT_setup_latents(prob, modeling_options)
 # ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
 ard.cost.wisdem_wrap.FinanceSE_setup_latents(prob, modeling_options)
 
-# set up the working/design variables
-prob.set_val("spacing_primary", 7.0)
-prob.set_val("spacing_secondary", 7.0)
-prob.set_val("angle_orientation", 0.0)
-prob.set_val("angle_skew", 0.0)
-
-prob.set_val("optiwindnet_coll.x_substations", [100.0])
-prob.set_val("optiwindnet_coll.y_substations", [100.0])
-
 # run the model
 prob.run_model()
+
+# # visualize model
+# om.n2(prob, "auld")
 
 # collapse the test result data
 test_data = {
@@ -282,6 +288,10 @@ test_data = {
     "mooring_spacing": float(
         np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
     ),
+    "turbine_spacing": float(
+        np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
+    ),
+
 }
 
 print("\n\nRESULTS:\n")
@@ -324,15 +334,6 @@ if optimize:
     ard.cost.wisdem_wrap.ORBIT_setup_latents(prob, modeling_options)
     # ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
     ard.cost.wisdem_wrap.FinanceSE_setup_latents(prob, modeling_options)
-
-    # set up the working/design variables initial conditions
-    prob.set_val("spacing_primary", 7.0)
-    prob.set_val("spacing_secondary", 7.0)
-    prob.set_val("angle_orientation", 0.0)
-    prob.set_val("angle_skew", 0.0)
-
-    prob.set_val("optiwindnet_coll.x_substations", [100.0])
-    prob.set_val("optiwindnet_coll.y_substations", [100.0])
 
     # run the optimization
     prob.run_driver()
