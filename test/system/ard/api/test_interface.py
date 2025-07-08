@@ -3,7 +3,7 @@ from pathlib import Path
 from ard.api import set_up_ard_model, replace_key_value, set_up_system_recursive
 import numpy as np
 
-
+@pytest.mark.usefixtures("subtests")
 class TestSetUpArdModelOnshore:
     def setup_method(self):
 
@@ -16,7 +16,6 @@ class TestSetUpArdModelOnshore:
         self.prob.run_model()
 
     def test_onshore_default_system_aep(self, subtests):
-
         with subtests.test("AEP_farm"):
             assert self.prob.get_val("AEP_farm", units="GW*h")[0] == pytest.approx(
                 340.823649
