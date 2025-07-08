@@ -9,47 +9,54 @@ from ard.cost.wisdem_wrap import (
 from ard import ASSET_DIR
 from typing import Union
 
-def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str=None):
+
+def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
 
     # load dictionary if string is given
     if isinstance(input_dict, str):
         input_dict, root_data_path = load_yaml(input_dict, return_path=True)
-    
+
     # load default system if requested and available
     available_default_systems = [
-        "onshore", 
-        "onshore_no_cable_design", 
-        "offshore_monopile_no_cable_design", 
-        "offshore_floating_no_cable_design"
-        ]
-    
+        "onshore",
+        "onshore_no_cable_design",
+        "offshore_monopile_no_cable_design",
+        "offshore_floating_no_cable_design",
+    ]
+
     if isinstance(input_dict["system"], str):
         if input_dict["system"] in available_default_systems:
             system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
 
             input_dict["system"] = replace_key_value(
-                target_dict=system, 
-                target_key="modeling_options", 
-                new_value=input_dict["modeling_options"])
+                target_dict=system,
+                target_key="modeling_options",
+                new_value=input_dict["modeling_options"],
+            )
         else:
-            raise(ValueError(f"invalid default system '{input_dict["system"]}' specified. Must be one of {available_default_systems}"))
+            raise (
+                ValueError(
+                    f"invalid default system '{input_dict["system"]}' specified. Must be one of {available_default_systems}"
+                )
+            )
 
     # replace empty data_path specs
     input_dict["system"] = replace_key_value(
-            target_dict=input_dict["system"], 
-            target_key="data_path", 
-            new_value=root_data_path, 
-            replace_none_only=True
-        )
+        target_dict=input_dict["system"],
+        target_key="data_path",
+        new_value=root_data_path,
+        replace_none_only=True,
+    )
 
     # set up the openmdao problem
     prob = set_up_system_recursive(
-        input_dict=input_dict["system"], 
-        modeling_options=input_dict["modeling_options"], 
-        analysis_options=input_dict["analysis_options"]
+        input_dict=input_dict["system"],
+        modeling_options=input_dict["modeling_options"],
+        analysis_options=input_dict["analysis_options"],
     )
 
     return prob
+
 
 def set_up_system_recursive(
     input_dict: dict,
@@ -114,10 +121,9 @@ def set_up_system_recursive(
         Module = importlib.import_module(subsystem_data["module"])
         SubSystem = getattr(Module, subsystem_data["object"])
 
-       # Convert specific promotes to tuples
+        # Convert specific promotes to tuples
         promotes = [
-            tuple(p) if isinstance(p, list) else p
-            for p in subsystem_data["promotes"]
+            tuple(p) if isinstance(p, list) else p for p in subsystem_data["promotes"]
         ]
 
         # Add the subsystem to the parent group with kwargs

@@ -326,8 +326,8 @@ class TestOptiWindNetCollection:
         modeling_options = copy.deepcopy(self.modeling_options)
         modeling_options["farm"]["N_turbines"] = 5
         modeling_options["farm"]["N_substations"] = 1
-        modeling_options["farm"]["x_substations"] = [5.0] # overridden by set_val
-        modeling_options["farm"]["y_substations"] = [5.0] # overridden by set_val
+        modeling_options["farm"]["x_substations"] = [5.0]  # overridden by set_val
+        modeling_options["farm"]["y_substations"] = [5.0]  # overridden by set_val
 
         # create the OpenMDAO model
         model = om.Group()

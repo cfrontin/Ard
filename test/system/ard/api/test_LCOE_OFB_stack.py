@@ -11,6 +11,7 @@ import ard
 import ard.utils.test_utils
 import ard.utils.io
 import ard.wind_query as wq
+
 # import ard.api.prototype as glue
 from ard.api.interface import set_up_ard_model
 import ard.cost.wisdem_wrap as cost_wisdem
@@ -40,12 +41,13 @@ class TestLCOE_OFB_stack:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {"N_turbines": 25,
+            "farm": {
+                "N_turbines": 25,
                 "spacing_primary": 7.0,
                 "spacing_secondary": 7.0,
                 "angle_orientation": 0.0,
                 "angle_skew": 0.0,
-                },
+            },
             "wind_rose": wind_rose,
             "site_depth": 50.0,
             "turbine": data_turbine_spec,
@@ -62,7 +64,7 @@ class TestLCOE_OFB_stack:
         input_dict = {
             "system": "offshore_monopile_no_cable_design",
             "modeling_options": self.modeling_options,
-            "analysis_options": {}
+            "analysis_options": {},
         }
 
         self.prob = set_up_ard_model(input_dict=input_dict)
@@ -111,8 +113,7 @@ class TestLCOE_OFB_stack:
         for key, value in test_data.items():
             with subtests.test(key=key):
                 assert np.isclose(value, pyrite_data[key], rtol=5e-3), (
-                    f"Mismatch for {key}: "
-                    f"expected {pyrite_data[key]}, got {value}"
+                    f"Mismatch for {key}: " f"expected {pyrite_data[key]}, got {value}"
                 )
 
 

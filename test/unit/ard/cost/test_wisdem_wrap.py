@@ -28,11 +28,11 @@ class TestLandBOSSE:
         # set up the modeling options
         self.modeling_options = {
             "farm": {
-                "N_turbines": 25, 
-                "spacing_primary": 0.0, # reset in test_setup
-                "spacing_secondary": 0.0, # reset in test_setup
-                "angle_orientation": 0.0, # reset in test_setup
-                "angle_skew": 0.0, # reset in test_setup
+                "N_turbines": 25,
+                "spacing_primary": 0.0,  # reset in test_setup
+                "spacing_secondary": 0.0,  # reset in test_setup
+                "angle_orientation": 0.0,  # reset in test_setup
+                "angle_skew": 0.0,  # reset in test_setup
             },
             "turbine": data_turbine,
         }
@@ -105,10 +105,10 @@ class TestORBIT:
         self.modeling_options = {
             "farm": {
                 "N_turbines": 25,
-                "spacing_primary": 0.0, # reset in test
-                "spacing_secondary": 0.0, # reset in test
-                "angle_orientation": 0.0, # reset in test
-                "angle_skew": 0.0, # reset in test
+                "spacing_primary": 0.0,  # reset in test
+                "spacing_secondary": 0.0,  # reset in test
+                "angle_orientation": 0.0,  # reset in test
+                "angle_skew": 0.0,  # reset in test
             },
             "site_depth": 50.0,
             "turbine": data_turbine,
@@ -169,8 +169,7 @@ class TestORBIT:
         for key, value in test_data.items():
             with subtests.test(key=key):
                 assert np.isclose(value, pyrite_data[key], rtol=5e-3), (
-                    f"Mismatch for {key}: "
-                    f"expected {pyrite_data[key]}, got {value}"
+                    f"Mismatch for {key}: " f"expected {pyrite_data[key]}, got {value}"
                 )
 
 

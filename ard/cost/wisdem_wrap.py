@@ -61,6 +61,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
             "internal_row_spacing_rotor_diameters",
         )
 
+
 class LandBOSSEArdComp(LandBOSSE_orig):
     """
     Wrapper for WISDEM's LandBOSSE BOS calculators.
@@ -416,7 +417,9 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
 
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
-        "turbine_rating": modeling_options["turbine"]["nameplate"]["power_rated"],#*1E-3,
+        "turbine_rating": modeling_options["turbine"]["nameplate"][
+            "power_rated"
+        ],  # *1E-3,
         "site_depth": modeling_options["site_depth"],
         "number_of_turbines": modeling_options["farm"]["N_turbines"],
         "number_of_blades": modeling_options["turbine"]["geometry"]["num_blades"],
@@ -630,5 +633,6 @@ def set_values(prob, variable_map: dict) -> None:
     #             prob.set_val(full_name, variable_map[core_name])
     #         except:
     #             print(f"{core_name} not provided in Ard input, using WISDEM default")
+
 
 # ['financese.machine_rating', 'opex.machine_rating', 'orbit.orbit.turbine_rating', 'tcc.machine_rating']

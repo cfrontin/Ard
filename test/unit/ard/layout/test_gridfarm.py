@@ -13,10 +13,10 @@ class TestGridFarm:
         self.modeling_options = {
             "farm": {
                 "N_turbines": 25,
-                "spacing_primary": 0.0, # reset in test_setup
-                "spacing_secondary": 0.0, # reset in test_setup
-                "angle_orientation": 0.0, # reset in test_setup
-                "angle_skew": 0.0, # reset in test_setup
+                "spacing_primary": 0.0,  # reset in test_setup
+                "spacing_secondary": 0.0,  # reset in test_setup
+                "angle_orientation": 0.0,  # reset in test_setup
+                "angle_skew": 0.0,  # reset in test_setup
             },
             "turbine": {
                 "geometry": {
@@ -200,10 +200,10 @@ class TestGridFarmLanduse:
         self.modeling_options = {
             "farm": {
                 "N_turbines": self.N_turbines,
-                "spacing_primary": 0.0, # reset in test_setup
-                "spacing_secondary": 0.0, # reset in test_setup
-                "angle_orientation": 0.0, # reset in test_setup
-                "angle_skew": 0.0, # reset in test_setup
+                "spacing_primary": 0.0,  # reset in test_setup
+                "spacing_secondary": 0.0,  # reset in test_setup
+                "angle_orientation": 0.0,  # reset in test_setup
+                "angle_skew": 0.0,  # reset in test_setup
             },
             "turbine": {
                 "geometry": {

@@ -11,9 +11,11 @@ import ard
 import ard.utils.test_utils
 import ard.utils.io
 import ard.wind_query as wq
+
 # import ard.api.prototype as glue
 import ard.api.interface as glue2
 import ard.cost.wisdem_wrap as cost_wisdem
+
 
 class TestLCOE_LB_stack:
 
@@ -21,7 +23,7 @@ class TestLCOE_LB_stack:
 
         # create the wind query
         wind_path = Path(__file__).parent / "inputs" / "wrg_example.wrg"
-        
+
         wind_rose_wrg = floris.wind_data.WindRoseWRG(wind_path)
         wind_rose_wrg.set_wd_step(90.0)
         wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
@@ -29,9 +31,7 @@ class TestLCOE_LB_stack:
 
         # specify the configuration/specification files to use
         filename_turbine_spec = (
-            Path(__file__).parent
-            / "inputs"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
+            Path(__file__).parent / "inputs" / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
         data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
@@ -43,7 +43,7 @@ class TestLCOE_LB_stack:
                 "spacing_secondary": 7.0,
                 "angle_orientation": 0.0,
                 "angle_skew": 0.0,
-                },
+            },
             "wind_rose": wind_rose,
             "turbine": data_turbine_spec,
             "offshore": False,
@@ -58,7 +58,7 @@ class TestLCOE_LB_stack:
         input_dict = {
             "system": "onshore_no_cable_design",
             "modeling_options": self.modeling_options,
-            "analysis_options": {}
+            "analysis_options": {},
         }
 
         self.prob = glue2.set_up_ard_model(input_dict=input_dict)
@@ -68,7 +68,6 @@ class TestLCOE_LB_stack:
         # om.n2(self.prob, outfile="prob1_n2.html")
         # print("Approach 2 :")
         # om.n2(self.prob2, outfile="prob2_n2.html")
-
 
     def test_model(self, subtests):
 
@@ -103,15 +102,14 @@ class TestLCOE_LB_stack:
             / "test_LCOE_LB_stack_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file
             rtol_val=5e-3,
-            load_only=True
+            load_only=True,
         )
 
         # Validate each key-value pair using subtests
         for key, value in test_data.items():
             with subtests.test(key=key):
                 assert np.isclose(value, pyrite_data[key], rtol=5e-3), (
-                    f"Mismatch for {key}: "
-                    f"expected {pyrite_data[key]}, got {value}"
+                    f"Mismatch for {key}: " f"expected {pyrite_data[key]}, got {value}"
                 )
 
 

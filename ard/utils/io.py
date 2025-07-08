@@ -77,7 +77,10 @@ def load_turbine_spec(
 
     return turbine_spec
 
-def replace_key_value(target_dict: dict, target_key: str, new_value, replace_none_only=True)->dict:
+
+def replace_key_value(
+    target_dict: dict, target_key: str, new_value, replace_none_only=True
+) -> dict:
     """
     Recursively replace the value of a target key in a dictionary.
 
@@ -97,10 +100,14 @@ def replace_key_value(target_dict: dict, target_key: str, new_value, replace_non
             target_dict[key] = new_value
         elif isinstance(value, dict):
             # Recurse into nested dictionaries
-            replace_key_value(value, target_key, new_value, replace_none_only=replace_none_only)
+            replace_key_value(
+                value, target_key, new_value, replace_none_only=replace_none_only
+            )
         elif isinstance(value, list):
             # Handle lists of dictionaries
             for item in value:
                 if isinstance(item, dict):
-                    replace_key_value(item, target_key, new_value, replace_none_only=replace_none_only)
+                    replace_key_value(
+                        item, target_key, new_value, replace_none_only=replace_none_only
+                    )
     return target_dict

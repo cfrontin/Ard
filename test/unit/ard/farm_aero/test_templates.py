@@ -69,13 +69,13 @@ class TestFarmAeroTemplate:
 class TestBatchFarmPowerTemplate:
 
     def setup_method(self):
-        
+
         self.wq = wq.WindQuery(
             np.array([0.0, 180.0, 360.0]),
             np.array([1.0, 10.0, 30.0]),
             0.06,
         )
-        
+
         self.modeling_options = {
             "farm": {
                 "N_turbines": 4,

@@ -3,6 +3,7 @@ import numpy as np
 import ard.layout.spacing
 import openmdao.api as om
 
+
 @pytest.mark.usefixtures("subtests")
 class TestTurbineSpacingFunctions:
     def setup_method(self):

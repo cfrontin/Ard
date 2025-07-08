@@ -51,7 +51,7 @@ def run_example():
     pp.pprint(test_data)
     print("\n\n")
 
-    optimize = True # set to False to skip optimization
+    optimize = True  # set to False to skip optimization
 
     if optimize:
 

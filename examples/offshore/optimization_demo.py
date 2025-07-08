@@ -375,7 +375,6 @@ for idx in range(modeling_options["farm"]["N_turbines"]):
 plt.show()
 
 
-
 # RESULTS:
 
 # {'AEP_val': 4818.0,
@@ -399,4 +398,3 @@ plt.show()
 #  'coll_length': 20.49594468696311,
 #  'mooring_spacing': 0.0582385263254008,
 #  'turbine_spacing': 0.8519999999999998}
-

@@ -11,7 +11,7 @@ def pyrite_validator(
     filename_pyrite: PathLike,
     rewrite: bool = False,
     rtol_val: float = 1e-6,
-    load_only: bool=False,
+    load_only: bool = False,
 ):
     """
     TO DO!!!
@@ -34,7 +34,7 @@ def pyrite_validator(
 
         if load_only:
             return pyrite_data
-        
+
         # for each of the variables in the pyrite-standard data file
         all_validation_matches = True
         for k, v in pyrite_data.items():
