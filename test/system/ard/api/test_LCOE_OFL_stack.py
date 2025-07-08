@@ -11,9 +11,9 @@ import ard
 import ard.utils.test_utils
 import ard.utils.io
 import ard.wind_query as wq
-import ard.api.prototype as glue
+# import ard.api.prototype as glue
 import ard.cost.wisdem_wrap as cost_wisdem
-
+from ard.api import set_up_ard_model
 
 class TestLCOE_OFL_stack:
 
@@ -53,9 +53,17 @@ class TestLCOE_OFL_stack:
         }
 
         # create the OM problem
-        self.prob = glue.create_setup_OM_problem(
-            modeling_options=self.modeling_options,
-        )
+        # self.prob = glue.create_setup_OM_problem(
+        #     modeling_options=self.modeling_options,
+        # )
+
+        input_dict = {
+            "system": "offshore_monopile_no_cable_design",
+            "modeling_options": self.modeling_options,
+            "analysis_options": {}
+        }
+
+        self.prob = set_up_ard_model(input_dict=input_dict)
 
     def test_model(self, subtests):
 

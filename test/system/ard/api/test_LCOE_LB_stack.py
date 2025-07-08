@@ -11,7 +11,7 @@ import ard
 import ard.utils.test_utils
 import ard.utils.io
 import ard.wind_query as wq
-import ard.api.prototype as glue
+# import ard.api.prototype as glue
 import ard.api.interface as glue2
 import ard.cost.wisdem_wrap as cost_wisdem
 
