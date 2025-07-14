@@ -24,7 +24,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
     input_dict : Union[str, dict]
         A dictionary or a path to a YAML file containing the configuration for the Ard model.
         The dictionary or YAML file must include:
-        
+
         - "system" : str or dict
             The name of the default system to use (e.g., "onshore") or a custom system specification.
         - "modeling_options" : dict
