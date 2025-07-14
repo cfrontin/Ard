@@ -294,7 +294,6 @@ test_data = {
     "turbine_spacing": float(
         np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
     ),
-
 }
 
 print("\n\nRESULTS:\n")
