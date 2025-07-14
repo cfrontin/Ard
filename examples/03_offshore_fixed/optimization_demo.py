@@ -109,7 +109,7 @@ def run_example():
         plt.show()
 
     optiwindnet.plotting.gplot(prob.model.collection.graph)
-    
+
     plt.show()
 
 
@@ -118,7 +118,6 @@ if __name__ == "__main__":
     run_example()
 
 # RESULTS:
-
 
 
 # {'AEP_val': 4818.0,
@@ -152,7 +151,6 @@ if __name__ == "__main__":
 #  'coll_length': 20.49594468696311,
 #  'mooring_spacing': 0.0582385263254008,
 #  'turbine_spacing': 0.8519999999999998}
-
 
 
 ## 20250714
