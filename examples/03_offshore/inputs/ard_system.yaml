@@ -35,7 +35,7 @@ system:
       type: group
       approx_totals:
         method: "fd"
-        step: 0.001
+        step: 1.0e-3
         form: "central"
         step_calc: "rel_avg"
       promotes: ["*"]
@@ -155,6 +155,9 @@ analysis_options:
     angle_skew:
       lower: -75.0
       upper: 75.0
+    phi_platform:
+      lower: -30.0
+      upper: 30.0
   constraints:
     mooring_constraint.mooring_spacing:
       units: "m"

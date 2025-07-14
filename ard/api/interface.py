@@ -111,6 +111,7 @@ def set_up_system_recursive(
         if "approx_totals" in input_dict:
             print(input_dict["approx_totals"])
             # import pdb; pdb.set_trace()
+            print(f"\tActivating approximate totals on {system_name}")
             group.approx_totals(**input_dict["approx_totals"])
 
     else:

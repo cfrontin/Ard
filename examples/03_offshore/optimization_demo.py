@@ -24,8 +24,8 @@ def run_example():
     # run the model
     prob.run_model()
 
-    # visualize model
-    om.n2(prob, "new")
+    # # visualize model
+    # om.n2(prob, "new")
 
     # collapse the test result data
     test_data = {
@@ -60,6 +60,10 @@ def run_example():
 
         # collapse the test result data
         test_data = {
+            "spacing_primary": float(prob.get_val("spacing_primary")[0]),
+            "spacing_secondary": float(prob.get_val("spacing_secondary")[0]),
+            "angle_orientation": float(prob.get_val("angle_orientation")[0]),
+            "angle_skew": float(prob.get_val("angle_skew")[0]),
             "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
             "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
             "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
@@ -68,6 +72,9 @@ def run_example():
             "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
             "coll_length": float(
                 prob.get_val("collection.total_length_cables", units="km")[0]
+            ),
+            "mooring_spacing": float(
+                np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
             ),
             "turbine_spacing": float(
                 np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))

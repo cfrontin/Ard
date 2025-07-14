@@ -126,7 +126,7 @@ group_layout2aep.add_subsystem(  # FLORIS AEP component
 farmaero_global_output_promotes = ["AEP_farm"]
 
 group_layout2aep.approx_totals(
-    method="fd", step=1e-3, form="central", step_calc="rel_avg"
+    method="fd", step=0.001, form="central", step_calc="rel_avg"
 )
 model.add_subsystem(
     "layout2aep",
@@ -339,6 +339,10 @@ if optimize:
 
     # collapse the test result data
     test_data = {
+        "spacing_primary": float(prob.get_val("spacing_primary")[0]),
+        "spacing_secondary": float(prob.get_val("spacing_secondary")[0]),
+        "angle_orientation": float(prob.get_val("angle_orientation")[0]),
+        "angle_skew": float(prob.get_val("angle_skew")[0]),
         "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
         "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
         "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
