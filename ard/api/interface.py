@@ -24,6 +24,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
     input_dict : Union[str, dict]
         A dictionary or a path to a YAML file containing the configuration for the Ard model.
         The dictionary or YAML file must include:
+        
         - "system" : str or dict
             The name of the default system to use (e.g., "onshore") or a custom system specification.
         - "modeling_options" : dict
@@ -31,6 +32,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         - "analysis_options" : dict
             A dictionary defining the analysis options, including driver settings, design variables,
             constraints, objectives, and recorder configuration.
+
     root_data_path : str, optional
         The root path for resolving relative paths in the system configuration. Defaults to None.
 
@@ -52,6 +54,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
       respective components are present in the model.
 
     """
+
     # load dictionary if string is given
     if isinstance(input_dict, str):
         input_dict, root_data_path = load_yaml(input_dict, return_path=True)
