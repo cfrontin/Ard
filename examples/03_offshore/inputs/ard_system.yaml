@@ -155,6 +155,9 @@ analysis_options:
     angle_skew:
       lower: -75.0
       upper: 75.0
+    phi_platform:
+      lower: -30.0
+      upper: 30.0
   constraints:
     mooring_constraint.mooring_spacing:
       units: "m"
