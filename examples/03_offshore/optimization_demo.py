@@ -23,9 +23,20 @@ def run_example():
 
     # run the model
     prob.run_model()
+    # prob.check_totals(compact_print=True)
+
+    # from openmdao.utils.assert_utils import assert_check_partials
+    # data = prob.check_partials(out_stream=None)
+    # # print(data)
+    # try:
+    #     assert_check_partials(data, atol=1.e-4, rtol=1.e-4)
+    # except ValueError as err:
+    #     print(str(err))
+    # derivs = prob.compute_totals()
+    # print(derivs)
 
     # visualize model
-    om.n2(prob, "new")
+    # om.n2(prob, "new")
 
     # collapse the test result data
     test_data = {
@@ -57,6 +68,8 @@ def run_example():
         # run the optimization
         prob.run_driver()
         prob.cleanup()
+
+        prob.check_totals(compact_print=True, show_only_incorrect=True)
 
         # collapse the test result data
         test_data = {
@@ -123,3 +136,29 @@ def run_example():
 if __name__ == "__main__":
 
     run_example()
+
+
+    # From original example
+    # RESULTS:
+
+    # {'AEP_val': 1829.9943042213636,
+    # 'BOS_val': 1480.8820669699667,
+    # 'CapEx_val': 768.4437570425,
+    # 'LCOE_val': 125.24598370182147,
+    # 'OpEx_val': 60.50000000000001,
+    # 'area_tight': 63.234304,
+    # 'coll_length': 47.712041428901635,
+    # 'mooring_spacing': 1.1208759839268934,
+    # 'turbine_spacing': 1.988}
+
+    # RESULTS (opt):
+
+    # {'AEP_val': 1352.3936934826072,
+    # 'BOS_val': 1462.2481922190418,
+    # 'CapEx_val': 768.4437570425,
+    # 'LCOE_val': 168.4434771416252,
+    # 'OpEx_val': 60.50000000000001,
+    # 'area_tight': 11.614494860282038,
+    # 'coll_length': 20.44806043630272,
+    # 'mooring_spacing': 0.05293381617270535,
+    # 'turbine_spacing': 0.8520003054963851}

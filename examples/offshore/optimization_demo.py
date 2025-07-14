@@ -270,6 +270,9 @@ ard.cost.wisdem_wrap.FinanceSE_setup_latents(prob, modeling_options)
 # run the model
 prob.run_model()
 
+# derivs = prob.compute_totals()
+# print(derivs)
+
 # # visualize model
 # om.n2(prob, "auld")
 
@@ -335,8 +338,18 @@ if optimize:
     # ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
     ard.cost.wisdem_wrap.FinanceSE_setup_latents(prob, modeling_options)
 
+    prob.run_model()
+    # prob.check_totals(compact_print=True)
+    # from openmdao.utils.assert_utils import assert_check_partials
+    # data = prob.check_partials(out_stream=None)
+    # # print(data)
+    # try:
+    #     assert_check_partials(data, atol=1.e-4, rtol=1.e-4)
+    # except ValueError as err:
+    #     print(str(err))
     # run the optimization
     prob.run_driver()
+    prob.check_totals(compact_print=True, show_only_incorrect=True)
 
     # collapse the test result data
     test_data = {

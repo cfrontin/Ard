@@ -35,7 +35,7 @@ system:
       type: group
       approx_totals:
         method: "fd"
-        step: 0.001
+        step: 1.0E-3
         form: "central"
         step_calc: "rel_avg"
       promotes: ["*"]
