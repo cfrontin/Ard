@@ -47,10 +47,14 @@ class TestSetUpArdModelOffshoreMonopile:
     def setup_method(self):
 
         input_dict_path = str(
-            Path(__file__).parent.absolute() / "inputs_offshore_monopile" / "ard_system.yaml"
+            Path(__file__).parent.absolute()
+            / "inputs_offshore_monopile"
+            / "ard_system.yaml"
         )
 
-        self.prob = set_up_ard_model(input_dict=input_dict_path, root_data_path="inputs_offshore_monopile")
+        self.prob = set_up_ard_model(
+            input_dict=input_dict_path, root_data_path="inputs_offshore_monopile"
+        )
 
         self.prob.run_model()
 
@@ -82,10 +86,14 @@ class TestSetUpArdModelOffshoreFloating:
     def setup_method(self):
 
         input_dict_path = str(
-            Path(__file__).parent.absolute() / "inputs_offshore_floating" / "ard_system.yaml"
+            Path(__file__).parent.absolute()
+            / "inputs_offshore_floating"
+            / "ard_system.yaml"
         )
 
-        self.prob = set_up_ard_model(input_dict=input_dict_path, root_data_path="inputs_offshore_floating")
+        self.prob = set_up_ard_model(
+            input_dict=input_dict_path, root_data_path="inputs_offshore_floating"
+        )
 
         self.prob.run_model()
 
