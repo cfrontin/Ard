@@ -1,0 +1,164 @@
+modeling_options: &modeling_options
+  farm:
+    N_turbines: 25
+    N_substations: 1
+  wind_rose:
+    file: ../data/wrg_example.wrg
+    wd_step: 90.0
+    wind_speeds: [5.0, 10.0, 15.0, 20.0]
+    point: [0.0, 0.0]
+  turbine: !include ../../data/turbine_spec_IEA-22-284-RWT.yaml
+  offshore: true
+  floating: true
+  platform:
+    N_anchors: 3
+    min_mooring_line_length_m: 500.0
+    N_anchor_dimensions: 2
+  site_depth: 50.0
+  collection:
+    max_turbines_per_string: 8
+    solver_name: "appsi_highs"
+    solver_options:
+      time_limit: 60
+      mip_rel_gap: 0.005
+
+analysis_options:
+  driver:
+    name: "ScipyOptimizeDriver"
+    options:
+      optimizer: "SLSQP"
+  design_variables:
+    spacing_primary:
+      lower: 3.0
+      upper: 10.0
+    spacing_secondary:
+      lower: 3.0
+      upper: 10.0
+    angle_orientation:
+      lower: -180.0
+      upper: 180.0
+    angle_skew:
+      lower: -75.0
+      upper: 75.0
+    phi_platform:
+      lower: -30.0
+      upper: 30.0
+  constraints:
+    mooring_constraint.mooring_spacing:
+      units: "m"
+      lower: 50.0
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 852.0  # 284.0 * 3.0
+  objective:
+    name: "optiwindnet_coll.total_length_cables"
+    options: {}
+  recorder:
+    filepath: "opt_results.sql"
+
+system_spec:
+  type: group
+  systems:
+    layout2aep:
+      type: group
+      promotes: ["*"]
+      systems:
+        layout:
+          type: component
+          module: ard.layout.gridfarm
+          object: GridFarmLayout
+          promotes: ["*"]
+          kwargs:
+            modeling_options: *modeling_options
+        aepPlaceholder:
+          type: component
+          module: ard.farm_aero.placeholder
+          object: PlaceholderAEP
+          promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+          kwargs:
+            modeling_options: *modeling_options
+    landuse:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    optiwindnet_coll:
+      type: component
+      module: ard.collection.optiwindnet_wrap
+      object: optiwindnetCollection
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    mooring_design:
+      type: component
+      module: ard.offshore.mooring_design_constant_depth
+      object: ConstantDepthMooringDesign
+      promotes: ["phi_platform"]
+      kwargs:
+        modeling_options: *modeling_options
+    mooring_constraint:
+      type: component
+      module: ard.offshore.mooring_constraint
+      object: MooringConstraint
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    spacing_constraint:
+      type: component
+      module: ard.layout.spacing
+      object: TurbineSpacing
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    tcc:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: TurbineCapitalCosts
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+      ]
+    orbit:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: ORBIT
+      promotes: ["*"]
+      kwargs:
+        floating: true
+    opex:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: OperatingExpenses
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "opex_per_kW",
+      ]
+    financese:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: PlantFinance
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+        "opex_per_kW",
+      ]
+  connections:
+    - ["layout2aep.x_turbines", "landuse.x_turbines"]
+    - ["layout2aep.y_turbines", "landuse.y_turbines"]
+    - ["layout2aep.x_turbines", "optiwindnet_coll.x_turbines"]
+    - ["layout2aep.y_turbines", "optiwindnet_coll.y_turbines"]
+    - ["layout2aep.x_turbines", "mooring_design.x_turbines"]
+    - ["layout2aep.y_turbines", "mooring_design.y_turbines"]
+    - ["mooring_design.x_anchors", "mooring_constraint.x_anchors"]
+    - ["mooring_design.y_anchors", "mooring_constraint.y_anchors"]
+    - ["layout2aep.x_turbines", "spacing_constraint.x_turbines"]
+    - ["layout2aep.y_turbines", "spacing_constraint.y_turbines"]
+    - ["AEP_farm", "financese.plant_aep_in"]
+    - ["orbit.total_capex_kW", "financese.bos_per_kW"]
