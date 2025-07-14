@@ -37,7 +37,7 @@ class CollectionTemplate(om.ExplicitComponent):
         the total length of cables to collect energy generated
 
     Discrete Outputs
-    -------
+    ----------------
     length_cables : np.ndarray
         a (variable-length) 1D numpy array that holds the lengths of each of the cables necessary
         to collect energy generated, with length `N_turbines`

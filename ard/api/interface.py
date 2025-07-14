@@ -11,7 +11,47 @@ from typing import Union
 
 
 def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
+    """
+    Set up an OpenMDAO model for Ard based on the provided input dictionary or YAML file.
 
+    This function initializes and configures an OpenMDAO problem using a system
+    specification, modeling options, and analysis options. It supports default
+    system configurations (e.g., "onshore", "offshore_floating") and allows for
+    recursive setup of subsystems and connections.
+
+    Parameters
+    ----------
+    input_dict : Union[str, dict]
+        A dictionary or a path to a YAML file containing the configuration for the Ard model.
+        The dictionary or YAML file must include:
+        - "system" : str or dict
+            The name of the default system to use (e.g., "onshore") or a custom system specification.
+        - "modeling_options" : dict
+            A dictionary defining the modeling options for the system (e.g., turbine specs, farm layout).
+        - "analysis_options" : dict
+            A dictionary defining the analysis options, including driver settings, design variables,
+            constraints, objectives, and recorder configuration.
+    root_data_path : str, optional
+        The root path for resolving relative paths in the system configuration. Defaults to None.
+
+    Returns
+    -------
+    om.Problem
+        An OpenMDAO problem instance with the defined system hierarchy, modeling options,
+        and analysis options.
+
+    Raises
+    ------
+    ValueError
+        If an invalid default system is specified or if required keys are missing in the input dictionary.
+
+    Notes
+    -----
+    - The function uses `set_up_system_recursive` to recursively build the system hierarchy.
+    - Latent variables for LandBOSSE, ORBIT, and FinanceSE are automatically set up if their
+      respective components are present in the model.
+
+    """
     # load dictionary if string is given
     if isinstance(input_dict, str):
         input_dict, root_data_path = load_yaml(input_dict, return_path=True)
