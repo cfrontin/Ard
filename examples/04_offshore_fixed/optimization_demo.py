@@ -15,18 +15,7 @@ def run_example():
     input_dict = load_yaml("./inputs/ard_system.yaml")
 
     # set up system
-    prob = set_up_ard_model(input_dict=input_dict)
-
-    # set up the working/design variables
-    prob.set_val("spacing_primary", 7.0)
-    prob.set_val("spacing_secondary", 7.0)
-    prob.set_val("angle_orientation", 0.0)
-    prob.set_val("angle_skew", 0.0)
-
-    prob.set_val("optiwindnet_coll.x_substations", [100.0])
-    prob.set_val("optiwindnet_coll.y_substations", [100.0])
-
-    print(prob.get_val("orbit.orbit.turbine_rating"))
+    prob = set_up_ard_model(input_dict=input_dict, root_data_path="inputs")
 
     # run the model
     prob.run_model()
@@ -43,13 +32,10 @@ def run_example():
         "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
         "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
         "coll_length": float(
-            prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
+            prob.get_val("collection.total_length_cables", units="km")[0]
         ),
         "turbine_spacing": float(
             np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
-        ),
-        "mooring_spacing": float(
-            np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
         ),
     }
 
@@ -74,13 +60,10 @@ def run_example():
             "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
             "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
             "coll_length": float(
-                prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
+                prob.get_val("collection.total_length_cables", units="km")[0]
             ),
             "turbine_spacing": float(
                 np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
-            ),
-            "mooring_spacing": float(
-                np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
             ),
         }
 
@@ -125,13 +108,8 @@ def run_example():
         plt.grid()
         plt.show()
 
-    optiwindnet.plotting.gplot(prob.model.optiwindnet_coll.graph)
-    for idx in range(input_dict["modeling_options"]["farm"]["N_turbines"]):
-        plt.plot(
-            prob.get_val("mooring_design.x_anchors", units="m")[idx, :],
-            prob.get_val("mooring_design.y_anchors", units="m")[idx, :],
-            ".w",
-        )
+    optiwindnet.plotting.gplot(prob.model.collection.graph)
+    
     plt.show()
 
 
@@ -140,6 +118,8 @@ if __name__ == "__main__":
     run_example()
 
 # RESULTS:
+
+
 
 # {'AEP_val': 4818.0,
 #  'BOS_val': 2127.5924853696597,
@@ -172,3 +152,27 @@ if __name__ == "__main__":
 #  'coll_length': 20.49594468696311,
 #  'mooring_spacing': 0.0582385263254008,
 #  'turbine_spacing': 0.8519999999999998}
+
+
+
+## 20250714
+# RESULTS:
+
+# {'AEP_val': 4818.0,
+#  'BOS_val': 1431.448205129097,
+#  'CapEx_val': 768.4437570425,
+#  'LCOE_val': 46.80197118365915,
+#  'OpEx_val': 60.50000000000001,
+#  'area_tight': 63.234304,
+#  'coll_length': 47.712041428901635}
+
+# RESULTS (opt):
+
+# {'AEP_val': 4818.0,
+#  'BOS_val': 1412.8143111685533,
+#  'CapEx_val': 768.4437570425,
+#  'LCOE_val': 46.51190434118493,
+#  'OpEx_val': 60.50000000000001,
+#  'area_tight': 11.614464,
+#  'coll_length': 20.507898644867613,
+#  'turbine_spacing': 0.8519999999999999}
