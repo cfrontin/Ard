@@ -60,10 +60,15 @@ class TestoptiwindnetLayout:
             "offshore": False,
             "collection": {
                 "max_turbines_per_string": 8,
-                "solver_name": "appsi_highs",
+                "model_options": dict(
+                    topology="branched",
+                    feeder_route="segmented",
+                    feeder_limit="unlimited",
+                ),
+                "solver_name": "highs",
                 "solver_options": dict(
                     time_limit=60,
-                    mip_rel_gap=0.005,  # TODO ???
+                    mip_gap=0.005,  # TODO ???
                 ),
             },
         }
@@ -92,7 +97,7 @@ class TestoptiwindnetLayout:
         )
         self.model.add_subsystem(
             "optiwindnet_coll",
-            inter.optiwindnetCollection(modeling_options=self.modeling_options),
+            inter.OptiwindnetCollection(modeling_options=self.modeling_options),
             promotes=["x_turbines", "y_turbines"],
         )
 
@@ -124,8 +129,8 @@ class TestoptiwindnetLayout:
 
         # collect optiwindnet data to validate
         validation_data = {
-            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables")
-            / 1.0e3,
+            "terse_links": self.prob.get_val("optiwindnet_coll.terse_links"),
+            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables"),
             "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
             "total_length_cables": self.prob.get_val(
                 "optiwindnet_coll.total_length_cables"
@@ -138,7 +143,7 @@ class TestoptiwindnetLayout:
                 validation_data,
                 Path(__file__).parent / "test_optiwindnet_pyrite.npz",
                 rtol_val=5e-3,
-                # rewrite=True,  # uncomment to write new pyrite file
+                #  rewrite=True,  # uncomment to write new pyrite file
             )
 
         # os_name = platform.system()

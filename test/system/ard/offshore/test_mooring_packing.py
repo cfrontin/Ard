@@ -50,10 +50,15 @@ class TestMooringPacking:
             "site_depth": 50.0,
             "collection": {
                 "max_turbines_per_string": 8,
-                "solver_name": "appsi_highs",
+                "solver_name": "highs",
                 "solver_options": dict(
                     time_limit=60,
-                    mip_rel_gap=0.005,  # TODO ???
+                    mip_gap=0.005,  # TODO ???
+                ),
+                "model_options": dict(
+                    topology="branched",
+                    feeder_route="segmented",
+                    feeder_limit="unlimited",
                 ),
             },
         }
@@ -75,7 +80,7 @@ class TestMooringPacking:
 
         model.add_subsystem(
             "optiwindnet_coll",
-            ard.collection.optiwindnetCollection(
+            ard.collection.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
             promotes=["x_turbines", "y_turbines"],
