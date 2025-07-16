@@ -49,7 +49,7 @@ class TestLCOE_LB_stack:
             "turbine": data_turbine_spec,
             "offshore": False,
         }
-        
+
         input_dict = {
             "system": "onshore_no_cable_design",
             "modeling_options": self.modeling_options,
