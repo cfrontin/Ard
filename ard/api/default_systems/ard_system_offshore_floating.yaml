@@ -2,12 +2,12 @@ type: group
 systems:
   layout2aep:
     type: group
+    promotes: ["*"]
     approx_totals:
       method: "fd"
       step: 1.0E-3
       form: "central"
       step_calc: "rel_avg"
-    promotes: ["*"]
     systems:
       layout:
         type: component

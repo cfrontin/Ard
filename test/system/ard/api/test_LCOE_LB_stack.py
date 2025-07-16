@@ -12,8 +12,7 @@ import ard.utils.test_utils
 import ard.utils.io
 import ard.wind_query as wq
 
-# import ard.api.prototype as glue
-import ard.api.interface as glue2
+import ard.api.interface as glue
 import ard.cost.wisdem_wrap as cost_wisdem
 
 
@@ -50,26 +49,14 @@ class TestLCOE_LB_stack:
             "turbine": data_turbine_spec,
             "offshore": False,
         }
-
-        # # approach 1 to create the OM problem
-        # self.prob1 = glue.create_setup_OM_problem(
-        #     modeling_options=self.modeling_options,
-        # )
-
-        # # approach 2 to create the OM problem
+        
         input_dict = {
             "system": "onshore_no_cable_design",
             "modeling_options": self.modeling_options,
             "analysis_options": {},
         }
 
-        self.prob = glue2.set_up_ard_model(input_dict=input_dict)
-
-        # # Approach 1
-        # print("Approach 1 :")
-        # om.n2(self.prob, outfile="prob1_n2.html")
-        # print("Approach 2 :")
-        # om.n2(self.prob2, outfile="prob2_n2.html")
+        self.prob = glue.set_up_ard_model(input_dict=input_dict)
 
     def test_model(self, subtests):
 
