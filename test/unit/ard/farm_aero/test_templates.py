@@ -69,7 +69,6 @@ class TestFarmAeroTemplate:
 class TestBatchFarmPowerTemplate:
 
     def setup_method(self):
-
         self.wq = wq.WindQuery(
             np.array([0.0, 180.0, 360.0]),
             np.array([1.0, 10.0, 30.0]),
@@ -142,7 +141,6 @@ class TestBatchFarmPowerTemplate:
 class TestFarmAEPTemplate:
 
     def setup_method(self):
-
         self.wr = floris.WindRose(
             wind_directions=np.array([270, 280]),
             wind_speeds=np.array([6.0, 7.0, 8.0]),

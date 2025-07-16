@@ -104,7 +104,7 @@ class TestLCOE_OFL_stack:
             / "api"
             / "test_LCOE_OFL_stack_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file
-            # rtol_val=5e-3,
+            # rtol_val=5e-3,  # Temporarily disabled; adjust tolerance for validation if needed
             load_only=True,
         )
 
