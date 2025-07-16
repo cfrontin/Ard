@@ -141,7 +141,6 @@ class TestBatchFarmPowerTemplate:
 class TestFarmAEPTemplate:
 
     def setup_method(self):
-
         self.wr = floris.WindRose(
             wind_directions=np.array([270, 280]),
             wind_speeds=np.array([6.0, 7.0, 8.0]),
