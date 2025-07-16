@@ -34,18 +34,22 @@ class CollectionTemplate(om.ExplicitComponent):
     Outputs
     -------
     total_length_cables : float
-        the total length of cables to collect energy generated
+        the total length of cables used in the collection system network
 
     Discrete Outputs
     -------
     length_cables : np.ndarray
-        a (variable-length) 1D numpy array that holds the lengths of each of the cables necessary
+        a 1D numpy array that holds the lengths of each of the cables necessary
         to collect energy generated, with length `N_turbines`
     load_cables : np.ndarray
-        a (variable-length) 1D numpy array that holds the load integer (i.e. total number of
-        turbines) collected up to each cable, with length `N_turbines`
-    max_load_cables : np.ndarray
-        the maximum cable capacity required by the system
+        a 1D numpy array that holds the turbine count upstream of the cable segment
+        (i.e. number of turbines whose power is collected through the cable), with
+        length `N_turbines`
+    max_load_cables : int
+        the maximum cable capacity required by the collection system
+    terse_links : np.ndarray
+        a 1D numpy int array encoding the electrical connections of the collection
+        system (tree topology), with length `N_turbines`
     """
 
     def initialize(self):
@@ -64,14 +68,14 @@ class CollectionTemplate(om.ExplicitComponent):
         self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="m")
         self.add_input("x_substations", np.zeros((self.N_substations,)), units="m")
         self.add_input("y_substations", np.zeros((self.N_substations,)), units="m")
+        self.add_discrete_input("x_border", None)
+        self.add_discrete_input("y_border", None)
 
         # set up outputs for the collection system
-        self.add_discrete_output(
-            "length_cables",
-            np.zeros((self.N_turbines,)),  # units="m",
-        )
-        self.add_discrete_output("load_cables", np.zeros((self.N_turbines,)))
         self.add_output("total_length_cables", 0.0, units="m")
+        self.add_discrete_output("length_cables", np.zeros((self.N_turbines,)))
+        self.add_discrete_output("terse_links", np.full((self.N_turbines,), -1))
+        self.add_discrete_output("load_cables", np.zeros((self.N_turbines,)))
         self.add_discrete_output("max_load_cables", 0.0)
 
     def compute(

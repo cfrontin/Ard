@@ -24,7 +24,7 @@ def run_example():
 
     # create the wind query
     wind_rose_wrg = floris.wind_data.WindRoseWRG(
-        Path(ard.__file__).parents[1] / "examples" / "data" / "wrg_example.wrg"
+        Path(__file__).parents[1] / "data" / "wrg_example.wrg"
     )
     wind_rose_wrg.set_wd_step(90.0)
     wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
@@ -33,10 +33,7 @@ def run_example():
 
     # specify the configuration/specification files to use
     filename_turbine_spec = (
-        Path(ard.__file__).parents[1]
-        / "examples"
-        / "data"
-        / "turbine_spec_IEA-3p4-130-RWT.yaml"
+        Path(__file__).parents[1] / "data" / "turbine_spec_IEA-3p4-130-RWT.yaml"
     )  # toolset generalized turbine specification
     data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
@@ -49,10 +46,13 @@ def run_example():
         "turbine": data_turbine_spec,
         "collection": {
             "max_turbines_per_string": 8,
-            "solver_name": "appsi_highs",
+            "model_options": dict(
+                topology="branched", feeder_route="segmented", feeder_limit="unlimited"
+            ),
+            "solver_name": "highs",
             "solver_options": dict(
-                time_limit=60,
-                mip_rel_gap=0.005,  # TODO ???
+                time_limit=10,
+                mip_gap=0.02,  # TODO ???
             ),
         },
     }
