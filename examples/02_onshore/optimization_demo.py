@@ -17,11 +17,12 @@ def run_example():
     # set up system
     prob = set_up_ard_model(input_dict=input_dict, root_data_path="inputs")
 
+    if False:
+        # visualize model
+        om.n2(prob)
+
     # run the model
     prob.run_model()
-
-    # Visualize model
-    # om.n2(prob)
 
     # collapse the test result data
     test_data = {
@@ -75,43 +76,43 @@ def run_example():
         pp.pprint(test_data)
         print("\n\n")
 
-        # plot convergence
-        ## read cases
-        cr = om.CaseReader(
-            prob.get_outputs_dir()
-            / input_dict["analysis_options"]["recorder"]["filepath"]
-        )
 
-        # Extract the driver cases
-        cases = cr.get_cases("driver")
-
-        # Initialize lists to store iteration data
-        iterations = []
-        objective_values = []
-
-        # Loop through the cases and extract iteration number and objective value
-        for i, case in enumerate(cases):
-            iterations.append(i)
-            objective_values.append(
-                case.get_objectives()[
-                    input_dict["analysis_options"]["objective"]["name"]
-                ]
-            )
-
-        # Plot the convergence
-        plt.figure(figsize=(8, 6))
-        plt.plot(iterations, objective_values, marker="o", label="Objective (LCOE)")
-        plt.xlabel("Iteration")
-        plt.ylabel("Objective Value (Total Cable Length (m))")
-        plt.title("Convergence Plot")
-        plt.legend()
-        plt.grid()
-        plt.show()
-
-    optiwindnet.plotting.gplot(prob.model.optiwindnet_coll.graph)
-
-    plt.show()
-
+#         # plot convergence
+#         ## read cases
+#         cr = om.CaseReader(
+#             prob.get_outputs_dir()
+#             / input_dict["analysis_options"]["recorder"]["filepath"]
+#         )
+#
+#         # Extract the driver cases
+#         cases = cr.get_cases("driver")
+#
+#         # Initialize lists to store iteration data
+#         iterations = []
+#         objective_values = []
+#
+#         # Loop through the cases and extract iteration number and objective value
+#         for i, case in enumerate(cases):
+#             iterations.append(i)
+#             objective_values.append(
+#                 case.get_objectives()[
+#                     input_dict["analysis_options"]["objective"]["name"]
+#                 ]
+#             )
+#
+#         # Plot the convergence
+#         plt.figure(figsize=(8, 6))
+#         plt.plot(iterations, objective_values, marker="o", label="Objective (LCOE)")
+#         plt.xlabel("Iteration")
+#         plt.ylabel("Objective Value (Total Cable Length (m))")
+#         plt.title("Convergence Plot")
+#         plt.legend()
+#         plt.grid()
+#         plt.show()
+#
+#     optiwindnet.plotting.gplot(prob.model.optiwindnet_coll.graph)
+#
+#     plt.show()
 
 if __name__ == "__main__":
 

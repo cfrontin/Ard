@@ -28,14 +28,11 @@ systems:
           modeling_options:
           data_path:
           case_title: "default"
-      # aepPlaceholder:
-      #   type: component
-      #   module: ard.farm_aero.placeholder
-      #   object: PlaceholderAEP
-      #   promotes: ["x_turbines", "y_turbines", "AEP_farm"]
-      #   kwargs:
-      #     modeling_options:
-      #     data_path:
+    approx_totals:
+      method: "fd"
+      step: 1.0E-3
+      form: "central"
+      step_calc: "rel_avg"
   landuse:
     type: component
     module: ard.layout.gridfarm
@@ -80,7 +77,7 @@ systems:
     object: OperatingExpenses
     promotes: [
       "turbine_number",
-      "machine_rating", 
+      "machine_rating",
       "opex_per_kW"
     ]
   financese:
