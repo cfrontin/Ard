@@ -24,10 +24,14 @@ modeling_options:
     substation_x: 100.0
     substation_y: 100.0
     max_turbines_per_string: 8
-    solver_name: "appsi_highs"
+    solver_name: "highs"
     solver_options:
       time_limit: 60
-      mip_rel_gap: 0.005
+      mip_gap: 0.005
+    model_options:
+      topology: "branched"
+      feeder_route: "segmented"
+      feeder_limit: "unlimited"
   offshore: true
   floating: true
   site_depth: 50.0

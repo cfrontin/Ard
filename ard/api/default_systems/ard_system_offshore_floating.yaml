@@ -35,7 +35,7 @@ systems:
   collection:
     type: component
     module: ard.collection
-    object: optiwindnetCollection
+    object: OptiwindnetCollection
     promotes: ["x_turbines", "y_turbines"]
     kwargs:
       modeling_options:

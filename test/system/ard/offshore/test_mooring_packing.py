@@ -36,6 +36,8 @@ class TestMooringPacking:
                 "angle_orientation": 0.0,
                 "angle_skew": 0.0,
                 "phi_platform": 0.0,
+                "x_turbines": np.zeros(4),
+                "y_turbines": np.zeros(4),
                 "x_substations": 500,
                 "y_substations": 500,
             },

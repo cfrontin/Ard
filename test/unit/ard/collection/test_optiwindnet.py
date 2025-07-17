@@ -17,6 +17,46 @@ import ard.utils.io
 import ard.utils.test_utils
 import ard.collection.optiwindnet_wrap as ard_own
 
+def make_modeling_options(x_turbines, y_turbines, x_substations, y_substations):
+
+    # specify the configuration/specification files to use
+    filename_turbine_spec = (
+        Path(ard.__file__).parents[1]
+        / "examples"
+        / "data"
+        / "turbine_spec_IEA-3p4-130-RWT.yaml"
+    )  # toolset generalized turbine specification
+    data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
+
+    # set up the modeling options
+    N_turbines = len(x_turbines)
+    N_substations = len(x_substations)
+    modeling_options = {
+        "farm": {
+            "N_turbines": N_turbines,
+            "N_substations": N_substations,
+            "x_substations": x_substations,
+            "y_substations": y_substations,
+            "x_turbines": x_turbines,
+            "y_turbines": y_turbines,
+        },
+        "turbine": data_turbine_spec,
+        "collection": {
+            "max_turbines_per_string": 8,
+            "model_options": dict(
+                topology="branched",
+                feeder_route="segmented",
+                feeder_limit="unlimited",
+            ),
+            "solver_name": "highs",
+            "solver_options": dict(
+                time_limit=10,
+                mip_gap=0.005,  # TODO ???
+            ),
+        },
+    }
+
+    return modeling_options
 
 @pytest.mark.usefixtures("subtests")
 class TestOptiWindNetCollection:
@@ -24,50 +64,20 @@ class TestOptiWindNetCollection:
     def setup_method(self):
 
         # create the farm layout specification
-        self.farm_spec = {}
-        self.farm_spec["xD_farm"], self.farm_spec["yD_farm"] = [
-            7 * v.flatten()
+        n_turbines = 25
+        x_turbines, y_turbines = [
+            130.0 * 7 * v.flatten()
             for v in np.meshgrid(
-                np.linspace(-2, 2, 5, dtype=int), np.linspace(-2, 2, 5, dtype=int)
+                np.linspace(-2, 2, int(np.sqrt(n_turbines)), dtype=int), np.linspace(-2, 2, int(np.sqrt(n_turbines)), dtype=int)
             )
         ]
-        self.farm_spec["x_substations"] = np.array([-500.0, 500.0], dtype=np.float64)
-        self.farm_spec["y_substations"] = np.array([-500.0, 500.0], dtype=np.float64)
+        x_substations = np.array([-500.0, 500.0], dtype=np.float64)
+        y_substations = np.array([-500.0, 500.0], dtype=np.float64)
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
-            Path(ard.__file__).parents[1]
-            / "examples"
-            / "data"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
-        # set up the modeling options
-        self.N_turbines = len(self.farm_spec["xD_farm"])
-        self.N_substations = len(self.farm_spec["x_substations"])
-        self.modeling_options = modeling_options = {
-            "farm": {
-                "N_turbines": self.N_turbines,
-                "N_substations": self.N_substations,
-                "x_substations": self.farm_spec["x_substations"],
-                "y_substations": self.farm_spec["y_substations"],
-            },
-            "turbine": data_turbine_spec,
-            "collection": {
-                "max_turbines_per_string": 8,
-                "model_options": dict(
-                    topology="branched",
-                    feeder_route="segmented",
-                    feeder_limit="unlimited",
-                ),
-                "solver_name": "highs",
-                "solver_options": dict(
-                    time_limit=10,
-                    mip_gap=0.005,  # TODO ???
-                ),
-            },
-        }
+        modeling_options = make_modeling_options(x_turbines=x_turbines,
+                                                 y_turbines=y_turbines,
+                                                 x_substations=x_substations,
+                                                 y_substations=y_substations)
 
         # create the OpenMDAO model
         model = om.Group()
@@ -135,12 +145,75 @@ class TestOptiWindNetCollection:
             ]:
                 assert var_to_check in discrete_output_list
 
+    def test_compute_pyrite(self, subtests):
+
+        # run optiwindnet
+        self.prob.run_model()
+
+        # # DEBUG!!!!! viz for verification
+        # gplot(self.optiwindnet_coll.graph)
+        # plt.savefig("/Users/cfrontin/Downloads/dummy.png")  # DEBUG!!!!!
+
+        # collect data to validate
+        validation_data = {
+            "terse_links": self.prob.get_val("optiwindnet_coll.terse_links"),
+            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables"),
+            "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
+            "total_length_cables": self.prob.get_val(
+                "optiwindnet_coll.total_length_cables"
+            ),
+            "max_load_cables": self.prob.get_val("optiwindnet_coll.max_load_cables"),
+        }
+
+        # validate data against pyrite file
+        pyrite_data = ard.utils.test_utils.pyrite_validator(
+            validation_data,
+            Path(__file__).parent / "test_optiwindnet_pyrite.npz",
+            # rtol_val=5e-3, # only for check in validator
+            #  rewrite=True,  # uncomment to write new pyrite file
+            load_only=True
+        )
+
+        for key in validation_data:
+            with subtests.test(key):
+                assert np.allclose(validation_data[key], pyrite_data[key], rtol=5e-3)
+
+class TestOptiWindNetCollection12Turbines:
+
+    def setup_method(self):
+
+        x_turbines = np.array(
+            [1940, 1920, 1475, 1839, 1277, 442, 737, 1060, 522, 87, 184, 71],
+            dtype=np.float64,
+        )
+        y_turbines = np.array(
+            [279, 703, 696, 1250, 1296, 1359, 435, 26, 176, 35, 417, 878],
+            dtype=np.float64,
+        )
+        x_substations = np.array([696], dtype=np.float64)
+        y_substations = np.array([1063], dtype=np.float64)
+
+        self.modeling_options = make_modeling_options(x_turbines=x_turbines,
+                                                      y_turbines=y_turbines,
+                                                      x_substations=x_substations,
+                                                      y_substations=y_substations)
+
+        # create the OpenMDAO model
+        model = om.Group()
+        self.optiwindnet_coll = model.add_subsystem(
+            "optiwindnet_coll",
+            ard_own.OptiwindnetCollection(
+                modeling_options=self.modeling_options,
+            ),
+        )
+
+        self.prob = om.Problem(model)
+        self.prob.setup()
+
     def test_example_location(self):
 
         # deep copy modeling options and adjust
-        modeling_options = copy.deepcopy(self.modeling_options)
-        modeling_options["farm"]["N_turbines"] = 12
-        modeling_options["farm"]["N_substations"] = 1
+        modeling_options = self.modeling_options
         modeling_options["collection"]["max_turbines_per_string"] = 4
 
         # create the OpenMDAO model
@@ -154,26 +227,6 @@ class TestOptiWindNetCollection:
         prob = om.Problem(model)
         prob.setup()
 
-        prob.set_val(
-            "optiwindnet_coll.x_turbines",
-            np.array(
-                [1940, 1920, 1475, 1839, 1277, 442, 737, 1060, 522, 87, 184, 71],
-                dtype=np.float64,
-            ),
-        )
-        prob.set_val(
-            "optiwindnet_coll.y_turbines",
-            np.array(
-                [279, 703, 696, 1250, 1296, 1359, 435, 26, 176, 35, 417, 878],
-                dtype=np.float64,
-            ),
-        )
-        prob.set_val(
-            "optiwindnet_coll.x_substations", np.array([696], dtype=np.float64)
-        )
-        prob.set_val(
-            "optiwindnet_coll.y_substations", np.array([1063], dtype=np.float64)
-        )
         prob.set_val(
             "optiwindnet_coll.x_border",
             np.array(
@@ -200,43 +253,30 @@ class TestOptiWindNetCollection:
         cpJ = prob.check_partials(out_stream=None)
         assert_check_partials(cpJ, atol=1.0e-5, rtol=1.0e-3)
 
-    def test_compute_pyrite(self):
+class TestOptiWindNetCollection5Turbines:
 
-        # set in the variables
-        X_turbines = 130.0 * self.farm_spec["xD_farm"]
-        Y_turbines = 130.0 * self.farm_spec["yD_farm"]
-        X_substations = self.farm_spec["x_substations"]
-        Y_substations = self.farm_spec["y_substations"]
-        self.prob.set_val("optiwindnet_coll.x_turbines", X_turbines)
-        self.prob.set_val("optiwindnet_coll.y_turbines", Y_turbines)
-        self.prob.set_val("optiwindnet_coll.x_substations", X_substations)
-        self.prob.set_val("optiwindnet_coll.y_substations", Y_substations)
+    def setup_method(self):
+        n_turbines = 5
+        theta_turbines = np.linspace(
+            0.0, 2 * np.pi, n_turbines + 1
+        )[:-1]
+        x_turbines = 7.0 * 130.0 * np.sin(theta_turbines)
+        y_turbines = 7.0 * 130.0 * np.cos(theta_turbines)
+        x_substations = np.array([0.0])
+        y_substations = np.array([0.0])
+        self.modeling_options = make_modeling_options(x_turbines, y_turbines, x_substations, y_substations)
 
-        # run optiwindnet
-        self.prob.run_model()
-
-        # # DEBUG!!!!! viz for verification
-        # gplot(self.optiwindnet_coll.graph)
-        # plt.savefig("/Users/cfrontin/Downloads/dummy.png")  # DEBUG!!!!!
-
-        # collect data to validate
-        validation_data = {
-            "terse_links": self.prob.get_val("optiwindnet_coll.terse_links"),
-            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables"),
-            "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
-            "total_length_cables": self.prob.get_val(
-                "optiwindnet_coll.total_length_cables"
+        # create the OpenMDAO model
+        model = om.Group()
+        self.optiwindnet_coll = model.add_subsystem(
+            "optiwindnet_coll",
+            ard_own.OptiwindnetCollection(
+                modeling_options=self.modeling_options,
             ),
-            "max_load_cables": self.prob.get_val("optiwindnet_coll.max_load_cables"),
-        }
-
-        # validate data against pyrite file
-        ard.utils.test_utils.pyrite_validator(
-            validation_data,
-            Path(__file__).parent / "test_optiwindnet_pyrite.npz",
-            rtol_val=5e-3,
-            #  rewrite=True,  # uncomment to write new pyrite file
         )
+
+        self.prob = om.Problem(model)
+        self.prob.setup()
 
     def test_compute_partials_mini_pentagon(self):
         """
@@ -263,18 +303,6 @@ class TestOptiWindNetCollection:
 
         prob = om.Problem(model)
         prob.setup()
-        # set in the variables
-        theta_turbines = np.linspace(
-            0.0, 2 * np.pi, modeling_options["farm"]["N_turbines"] + 1
-        )[:-1]
-        X_turbines = 7.0 * 130.0 * np.sin(theta_turbines)
-        Y_turbines = 7.0 * 130.0 * np.cos(theta_turbines)
-        X_substations = np.array([0.0])
-        Y_substations = np.array([0.0])
-        prob.set_val("optiwindnet_coll.x_turbines", X_turbines)
-        prob.set_val("optiwindnet_coll.y_turbines", Y_turbines)
-        prob.set_val("optiwindnet_coll.x_substations", X_substations)
-        prob.set_val("optiwindnet_coll.y_substations", Y_substations)
 
         # run optiwindnet
         prob.run_model()

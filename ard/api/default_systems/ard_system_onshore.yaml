@@ -43,7 +43,7 @@ systems:
   optiwindnet_coll:
     type: component
     module: ard.collection.optiwindnet_wrap
-    object: optiwindnetCollection
+    object: OptiwindnetCollection
     promotes: ["*"]
     kwargs:
       modeling_options:

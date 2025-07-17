@@ -18,10 +18,10 @@ modeling_options:
   turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
   collection:
     max_turbines_per_string: 8
-    solver_name: "appsi_highs"
+    solver_name: "highs"
     solver_options:
       time_limit: 60
-      mip_rel_gap: 0.005
+      mip_gap: 0.005
   offshore: false
   floating: false
 

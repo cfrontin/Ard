@@ -52,6 +52,8 @@ class TestoptiwindnetLayout:
             "farm": {
                 "N_turbines": 25,
                 "N_substations": 1,
+                "x_turbines": np.zeros(25),
+                "y_turbines": np.zeros(25),
                 "x_substations": 0.0,  # reset in test
                 "y_substations": 0.0,  # reset in test
             },
