@@ -37,7 +37,6 @@ class TestoptiwindnetLayout:
             np.array([5.0, 10.0, 15.0, 20.0], dtype=np.float64)
         )
         wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
-        wind_query = wq.WindQuery.from_FLORIS_WindData(wind_rose)
 
         # specify the configuration/specification files to use
         filename_turbine_spec = (
@@ -53,7 +52,12 @@ class TestoptiwindnetLayout:
             "farm": {
                 "N_turbines": 25,
                 "N_substations": 1,
+                "x_turbines": np.zeros(25),
+                "y_turbines": np.zeros(25),
+                "x_substations": 0.0,  # reset in test
+                "y_substations": 0.0,  # reset in test
             },
+            "wind_rose": wind_rose,
             "turbine": data_turbine_spec,
             "offshore": False,
             "collection": {
@@ -87,8 +91,8 @@ class TestoptiwindnetLayout:
             "aepFLORIS",
             farmaero_floris.FLORISAEP(
                 modeling_options=self.modeling_options,
-                wind_rose=wind_rose,
                 case_title="letsgo",
+                data_path="",
             ),
             # promotes=["AEP_farm"],
             promotes=["x_turbines", "y_turbines", "AEP_farm"],

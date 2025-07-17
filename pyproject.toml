@@ -45,6 +45,7 @@ dependencies = [
   "optiwindnet>=0.0.4",
   "statsmodels@git+https://github.com/statsmodels/statsmodels.git@main",
   "highspy",
+  "pyyaml",
 ]
 [project.optional-dependencies]
 dev = [

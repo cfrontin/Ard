@@ -37,7 +37,7 @@ class CollectionTemplate(om.ExplicitComponent):
         the total length of cables used in the collection system network
 
     Discrete Outputs
-    -------
+    ----------------
     length_cables : np.ndarray
         a 1D numpy array that holds the lengths of each of the cables necessary
         to collect energy generated, with length `N_turbines`
@@ -62,12 +62,22 @@ class CollectionTemplate(om.ExplicitComponent):
         self.modeling_options = self.options["modeling_options"]
         self.N_turbines = self.modeling_options["farm"]["N_turbines"]
         self.N_substations = self.modeling_options["farm"]["N_substations"]
+        if "x_turbines" in self.modeling_options["farm"]:
+            self.x_turbines = self.modeling_options["farm"]["x_turbines"]
+        else:
+            self.x_turbines = np.zeros(self.N_turbines)
+        if "y_turbines" in self.modeling_options["farm"]:
+            self.y_turbines = self.modeling_options["farm"]["y_turbines"]
+        else:
+            self.y_turbines = np.zeros(self.N_turbines)
+        self.x_substations = self.modeling_options["farm"]["x_substations"]
+        self.y_substations = self.modeling_options["farm"]["y_substations"]
 
         # set up inputs for farm layout
-        self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="m")
-        self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="m")
-        self.add_input("x_substations", np.zeros((self.N_substations,)), units="m")
-        self.add_input("y_substations", np.zeros((self.N_substations,)), units="m")
+        self.add_input("x_turbines", self.x_turbines, units="m")
+        self.add_input("y_turbines", self.y_turbines, units="m")
+        self.add_input("x_substations", self.x_substations, units="m")
+        self.add_input("y_substations", self.y_substations, units="m")
         self.add_discrete_input("x_border", None)
         self.add_discrete_input("y_border", None)
 
