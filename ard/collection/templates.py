@@ -73,7 +73,6 @@ class CollectionTemplate(om.ExplicitComponent):
         self.x_substations = self.modeling_options["farm"]["x_substations"]
         self.y_substations = self.modeling_options["farm"]["y_substations"]
 
-
         # set up inputs for farm layout
         self.add_input("x_turbines", self.x_turbines, units="m")
         self.add_input("y_turbines", self.y_turbines, units="m")

@@ -17,6 +17,7 @@ import ard.utils.io
 import ard.utils.test_utils
 import ard.collection.optiwindnet_wrap as ard_own
 
+
 def make_modeling_options(x_turbines, y_turbines, x_substations, y_substations):
 
     # specify the configuration/specification files to use
@@ -58,6 +59,7 @@ def make_modeling_options(x_turbines, y_turbines, x_substations, y_substations):
 
     return modeling_options
 
+
 @pytest.mark.usefixtures("subtests")
 class TestOptiWindNetCollection:
 
@@ -68,16 +70,19 @@ class TestOptiWindNetCollection:
         x_turbines, y_turbines = [
             130.0 * 7 * v.flatten()
             for v in np.meshgrid(
-                np.linspace(-2, 2, int(np.sqrt(n_turbines)), dtype=int), np.linspace(-2, 2, int(np.sqrt(n_turbines)), dtype=int)
+                np.linspace(-2, 2, int(np.sqrt(n_turbines)), dtype=int),
+                np.linspace(-2, 2, int(np.sqrt(n_turbines)), dtype=int),
             )
         ]
         x_substations = np.array([-500.0, 500.0], dtype=np.float64)
         y_substations = np.array([-500.0, 500.0], dtype=np.float64)
 
-        modeling_options = make_modeling_options(x_turbines=x_turbines,
-                                                 y_turbines=y_turbines,
-                                                 x_substations=x_substations,
-                                                 y_substations=y_substations)
+        modeling_options = make_modeling_options(
+            x_turbines=x_turbines,
+            y_turbines=y_turbines,
+            x_substations=x_substations,
+            y_substations=y_substations,
+        )
 
         # create the OpenMDAO model
         model = om.Group()
@@ -171,12 +176,13 @@ class TestOptiWindNetCollection:
             Path(__file__).parent / "test_optiwindnet_pyrite.npz",
             # rtol_val=5e-3, # only for check in validator
             #  rewrite=True,  # uncomment to write new pyrite file
-            load_only=True
+            load_only=True,
         )
 
         for key in validation_data:
             with subtests.test(key):
                 assert np.allclose(validation_data[key], pyrite_data[key], rtol=5e-3)
+
 
 class TestOptiWindNetCollection12Turbines:
 
@@ -193,10 +199,12 @@ class TestOptiWindNetCollection12Turbines:
         x_substations = np.array([696], dtype=np.float64)
         y_substations = np.array([1063], dtype=np.float64)
 
-        self.modeling_options = make_modeling_options(x_turbines=x_turbines,
-                                                      y_turbines=y_turbines,
-                                                      x_substations=x_substations,
-                                                      y_substations=y_substations)
+        self.modeling_options = make_modeling_options(
+            x_turbines=x_turbines,
+            y_turbines=y_turbines,
+            x_substations=x_substations,
+            y_substations=y_substations,
+        )
 
         # create the OpenMDAO model
         model = om.Group()
@@ -253,18 +261,19 @@ class TestOptiWindNetCollection12Turbines:
         cpJ = prob.check_partials(out_stream=None)
         assert_check_partials(cpJ, atol=1.0e-5, rtol=1.0e-3)
 
+
 class TestOptiWindNetCollection5Turbines:
 
     def setup_method(self):
         n_turbines = 5
-        theta_turbines = np.linspace(
-            0.0, 2 * np.pi, n_turbines + 1
-        )[:-1]
+        theta_turbines = np.linspace(0.0, 2 * np.pi, n_turbines + 1)[:-1]
         x_turbines = 7.0 * 130.0 * np.sin(theta_turbines)
         y_turbines = 7.0 * 130.0 * np.cos(theta_turbines)
         x_substations = np.array([0.0])
         y_substations = np.array([0.0])
-        self.modeling_options = make_modeling_options(x_turbines, y_turbines, x_substations, y_substations)
+        self.modeling_options = make_modeling_options(
+            x_turbines, y_turbines, x_substations, y_substations
+        )
 
         # create the OpenMDAO model
         model = om.Group()
