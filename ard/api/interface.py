@@ -66,6 +66,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         "offshore_monopile",
         "offshore_monopile_no_cable_design",
         "offshore_floating",
+        "offshore_floating_detailed_mooring",
         "offshore_floating_no_cable_design",
     ]
 

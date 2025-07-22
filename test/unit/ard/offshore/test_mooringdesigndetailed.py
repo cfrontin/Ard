@@ -39,7 +39,7 @@ class TestMooringDesignDetailed:
                 "min_mooring_line_length_m": 500.0,
                 "N_anchor_dimensions": 2,
             },
-            "site_depth": 50.0,
+            "site_depth": 200.0,
             "collection": {
                 "max_turbines_per_string": 8,
                 "solver_name": "appsi_highs",
@@ -50,7 +50,7 @@ class TestMooringDesignDetailed:
             },
             "mooring_setup": {
                 "site_conds": {
-                    "general": {"water_depth": 200},
+                    "general": {},
                     "bathymetry": {
                         "file": Path(ard.__file__).parents[1]
                         / "examples"
@@ -82,6 +82,7 @@ class TestMooringDesignDetailed:
             ard.offshore.mooring_design_detailed.DetailedMooringDesign(
                 modeling_options=self.modeling_options,
                 wind_query=None,
+                data_path="",
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )
@@ -115,6 +116,7 @@ class TestMooringDesignDetailed:
             ard.offshore.mooring_design_detailed.DetailedMooringDesign(
                 modeling_options=self.modeling_options,
                 wind_query=None,
+                data_path="",
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )

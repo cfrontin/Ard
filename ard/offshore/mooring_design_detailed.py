@@ -10,8 +10,9 @@ from ard.geographic.geomorphology import BathymetryGridData
 from famodel import Project
 from famodel.platform.platform import Platform
 from famodel.helpers import getMoorings, getAnchors, adjustMooring, configureAdjuster
-import yaml
+from ard.utils.io import load_yaml
 
+from famodel.helpers import adjustMooring
 
 class DetailedMooringDesign(om.ExplicitComponent):
     """
@@ -66,6 +67,8 @@ class DetailedMooringDesign(om.ExplicitComponent):
 
         # currently I'm thinking of sea bed conditions as a class, see above
         self.options.declare("bathymetry_data")  # BatyhmetryData object
+
+        self.options.declare("data_path")
 
     def setup(self):
         """Setup of the OpenMDAO component."""
@@ -128,6 +131,29 @@ class DetailedMooringDesign(om.ExplicitComponent):
 
         if "mooring_setup" not in self.options["modeling_options"]:
             raise ValueError("Mooring setup options not provided")
+        
+        site_depth = self.options["modeling_options"]["site_depth"]
+        if "general" in self.options["modeling_options"]["mooring_setup"]["site_conds"]:
+            if "water_depth" in self.options["modeling_options"]["mooring_setup"]["site_conds"]["general"]:
+                water_depth_trow_away = self.options["modeling_options"]["mooring_setup"]["site_conds"]["general"]["water_depth"]
+                raise(ValueError(f"'water_depth' ({water_depth_trow_away}) included in 'mooring_setup/site_conds/general', set water depth using 'site_depth'"))
+        
+        if "general" not in self.options["modeling_options"]["mooring_setup"]["site_conds"]:
+            self.options["modeling_options"]["mooring_setup"]["site_conds"]["general"] = {}
+
+        self.options["modeling_options"]["mooring_setup"]["site_conds"]["general"]["water_depth"] = site_depth
+
+        if "bathymetry" in self.options["modeling_options"]["mooring_setup"]["site_conds"]:
+            if "file" in self.options["modeling_options"]["mooring_setup"]["site_conds"]["bathymetry"]:
+                filename = self.options["modeling_options"]["mooring_setup"]["site_conds"]["bathymetry"]["file"]
+                absolute_filename = str(Path(self.options["data_path"]).absolute() / filename)
+                self.options["modeling_options"]["mooring_setup"]["site_conds"]["bathymetry"]["file"] = absolute_filename
+
+        if "adjuster_settings" in self.options["modeling_options"]["mooring_setup"]:
+            if "adjuster" in self.options["modeling_options"]["mooring_setup"]["adjuster_settings"]:
+                adjuster = self.options["modeling_options"]["mooring_setup"]["adjuster_settings"]["adjuster"]
+                if adjuster == "adjustMooring":
+                    self.options["modeling_options"]["mooring_setup"]["adjuster_settings"]["adjuster"] = adjustMooring
 
         self.FAM = self.buildFAModel(
             **self.options["modeling_options"]["mooring_setup"]
@@ -220,8 +246,9 @@ class DetailedMooringDesign(om.ExplicitComponent):
         pf_rFair = FAM_settings.get("rFair", 58)
         pf_zFair = FAM_settings.get("zFair", -14)
 
-        with open(FAM_settings.get("mooring_info", {})) as file:
-            mooring_info = yaml.load(file, Loader=yaml.FullLoader)
+        data_path = self.options["data_path"]
+        mooring_info = load_yaml(Path(data_path).absolute() / FAM_settings["mooring_info"])
+
         anchor_info = FAM_settings.get("anchor_info", {})
         site_conds = FAM_settings.get("site_conds", {})
 
