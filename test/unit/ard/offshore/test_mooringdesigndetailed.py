@@ -12,6 +12,7 @@ from pathlib import Path
 import ard
 from famodel.helpers import adjustMooring
 
+
 class TestMooringDesignDetailed:
     def setup_method(self):
 
@@ -27,12 +28,11 @@ class TestMooringDesignDetailed:
         self.y_turbines = Y.flatten()
 
         self.N_turbines = len(self.x_turbines)
-        
+
         self.modeling_options = {
             "farm": {
                 "N_turbines": self.N_turbines,
-                },
-            
+            },
             "floating": True,
             "platform": {
                 "N_anchors": 3,
@@ -65,7 +65,6 @@ class TestMooringDesignDetailed:
                     / "offshore-detailed"
                     / "OntologySample200m.yaml"
                 ),
-            
                 "adjuster_settings": {
                     "adjuster": adjustMooring,
                     "method": "horizontal",
@@ -75,7 +74,6 @@ class TestMooringDesignDetailed:
         }
 
     def test_FAModel_turbine_positions(self):
-
 
         # set up openmdao problem
         model = om.Group()
@@ -87,7 +85,7 @@ class TestMooringDesignDetailed:
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )
-        
+
         prob = om.Problem(model)
         prob.setup()
 
@@ -104,12 +102,12 @@ class TestMooringDesignDetailed:
         assert np.all(
             np.isclose(prob.get_val("mooring_design.y_turbines"), self.y_turbines)
         )
-   
+
     def test_FAModel_anchor_positions(self):
-        
-        #change number of turbines to one
+
+        # change number of turbines to one
         self.modeling_options["farm"]["N_turbines"] = 1
-        
+
         # set up openmdao problem
         model = om.Group()
         model.add_subsystem(  # mooring system design
@@ -120,7 +118,7 @@ class TestMooringDesignDetailed:
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )
-        
+
         prob = om.Problem(model)
         prob.setup()
 
@@ -129,17 +127,19 @@ class TestMooringDesignDetailed:
         prob.set_val("y_turbines", [1])
 
         prob.run_model()
-        
+
         # calculate anchor positions in km
-        x_anchors = [1 + 0.7*np.cos(60/180*np.pi), 1 + 0.7*np.cos(60/180*np.pi), 1 - 0.7]
-        y_anchors = [1 - 0.7*np.sin(60/180*np.pi), 1 + 0.7*np.sin(60/180*np.pi), 1]
-        
+        x_anchors = [
+            1 + 0.7 * np.cos(60 / 180 * np.pi),
+            1 + 0.7 * np.cos(60 / 180 * np.pi),
+            1 - 0.7,
+        ]
+        y_anchors = [
+            1 - 0.7 * np.sin(60 / 180 * np.pi),
+            1 + 0.7 * np.sin(60 / 180 * np.pi),
+            1,
+        ]
+
         # check that mooring_design anchor positions match expected
-        assert np.all(
-
-            np.isclose(prob.get_val("mooring_design.x_anchors"), x_anchors)
-        )
-        assert np.all(
-            np.isclose(prob.get_val("mooring_design.y_anchors"), y_anchors)
-        )
-
+        assert np.all(np.isclose(prob.get_val("mooring_design.x_anchors"), x_anchors))
+        assert np.all(np.isclose(prob.get_val("mooring_design.y_anchors"), y_anchors))
