@@ -52,17 +52,14 @@ class TestMooringDesignDetailed:
                 "site_conds": {
                     "general": {},
                     "bathymetry": {
-                        "file": Path(ard.__file__).parents[1]
-                        / "examples"
-                        / "data"
-                        / "offshore"
+                        "file": Path(__file__).parent.absolute()
+                        / "inputs"
                         / "GulfOfMaine_bathymetry_100x99.txt"
                     },
                 },
                 "mooring_info": (
-                    Path(ard.__file__).parents[1]
-                    / "examples"
-                    / "offshore-detailed"
+                    Path(__file__).parent.absolute()
+                    / "inputs"
                     / "OntologySample200m.yaml"
                 ),
                 "adjuster_settings": {
@@ -82,7 +79,7 @@ class TestMooringDesignDetailed:
             ard.offshore.mooring_design_detailed.DetailedMooringDesign(
                 modeling_options=self.modeling_options,
                 wind_query=None,
-                data_path="",
+                data_path=Path(__file__).parent.absolute(),
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )
@@ -116,7 +113,7 @@ class TestMooringDesignDetailed:
             ard.offshore.mooring_design_detailed.DetailedMooringDesign(
                 modeling_options=self.modeling_options,
                 wind_query=None,
-                data_path="",
+                data_path="inputs",
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )

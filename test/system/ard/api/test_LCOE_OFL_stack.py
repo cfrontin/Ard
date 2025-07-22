@@ -18,6 +18,7 @@ from ard.api import set_up_ard_model
 
 from ard.utils.io import load_yaml
 
+
 class TestLCOE_OFL_stack:
 
     def setup_method(self):
@@ -159,5 +160,6 @@ class TestLCOE_OFL_stack_detailed_mooring:
         for key, value in test_data.items():
             with subtests.test(key=key):
                 assert np.isclose(value, pyrite_data[key], rtol=5e-3)
+
 
 #
