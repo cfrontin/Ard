@@ -44,7 +44,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install Ard
       run: |
-        pip install .[dev]
+        pip install .[dev,doc,floating]
 
   test-unit:
     name: Run unit tests
