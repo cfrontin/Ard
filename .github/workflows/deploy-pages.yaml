@@ -22,7 +22,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -e ".[docs]"
+        pip install -e ".[dev,docs,floating]"
 
     # Build the book
     - name: Build the book
