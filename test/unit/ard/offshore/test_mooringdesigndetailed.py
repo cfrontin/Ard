@@ -113,7 +113,7 @@ class TestMooringDesignDetailed:
             ard.offshore.mooring_design_detailed.DetailedMooringDesign(
                 modeling_options=self.modeling_options,
                 wind_query=None,
-                data_path="inputs",
+                data_path=Path("inputs").absolute(),
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )
