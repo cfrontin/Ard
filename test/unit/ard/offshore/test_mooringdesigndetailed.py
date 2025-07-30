@@ -12,6 +12,7 @@ from pathlib import Path
 import ard
 from famodel.helpers import adjustMooring
 
+
 class TestMooringDesignDetailed:
     def setup_method(self):
 
@@ -27,19 +28,18 @@ class TestMooringDesignDetailed:
         self.y_turbines = Y.flatten()
 
         self.N_turbines = len(self.x_turbines)
-        
+
         self.modeling_options = {
             "farm": {
                 "N_turbines": self.N_turbines,
-                },
-            
+            },
             "floating": True,
             "platform": {
                 "N_anchors": 3,
                 "min_mooring_line_length_m": 500.0,
                 "N_anchor_dimensions": 2,
             },
-            "site_depth": 50.0,
+            "site_depth": 200.0,
             "collection": {
                 "max_turbines_per_string": 8,
                 "solver_name": "appsi_highs",
@@ -50,22 +50,18 @@ class TestMooringDesignDetailed:
             },
             "mooring_setup": {
                 "site_conds": {
-                    "general": {"water_depth": 200},
+                    "general": {},
                     "bathymetry": {
-                        "file": Path(ard.__file__).parents[1]
-                        / "examples"
-                        / "data"
-                        / "offshore"
+                        "file": Path(__file__).parent.absolute()
+                        / "inputs"
                         / "GulfOfMaine_bathymetry_100x99.txt"
                     },
                 },
                 "mooring_info": (
-                    Path(ard.__file__).parents[1]
-                    / "examples"
-                    / "offshore-detailed"
+                    Path(__file__).parent.absolute()
+                    / "inputs"
                     / "OntologySample200m.yaml"
                 ),
-            
                 "adjuster_settings": {
                     "adjuster": adjustMooring,
                     "method": "horizontal",
@@ -76,7 +72,6 @@ class TestMooringDesignDetailed:
 
     def test_FAModel_turbine_positions(self):
 
-
         # set up openmdao problem
         model = om.Group()
         model.add_subsystem(  # mooring system design
@@ -84,10 +79,11 @@ class TestMooringDesignDetailed:
             ard.offshore.mooring_design_detailed.DetailedMooringDesign(
                 modeling_options=self.modeling_options,
                 wind_query=None,
+                data_path=Path(__file__).parent.absolute(),
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )
-        
+
         prob = om.Problem(model)
         prob.setup()
 
@@ -104,12 +100,12 @@ class TestMooringDesignDetailed:
         assert np.all(
             np.isclose(prob.get_val("mooring_design.y_turbines"), self.y_turbines)
         )
-   
+
     def test_FAModel_anchor_positions(self):
-        
-        #change number of turbines to one
+
+        # change number of turbines to one
         self.modeling_options["farm"]["N_turbines"] = 1
-        
+
         # set up openmdao problem
         model = om.Group()
         model.add_subsystem(  # mooring system design
@@ -117,10 +113,11 @@ class TestMooringDesignDetailed:
             ard.offshore.mooring_design_detailed.DetailedMooringDesign(
                 modeling_options=self.modeling_options,
                 wind_query=None,
+                data_path=Path("inputs").absolute(),
             ),
             promotes_inputs=["x_turbines", "y_turbines"],
         )
-        
+
         prob = om.Problem(model)
         prob.setup()
 
@@ -129,17 +126,19 @@ class TestMooringDesignDetailed:
         prob.set_val("y_turbines", [1])
 
         prob.run_model()
-        
+
         # calculate anchor positions in km
-        x_anchors = [1 + 0.7*np.cos(60/180*np.pi), 1 + 0.7*np.cos(60/180*np.pi), 1 - 0.7]
-        y_anchors = [1 - 0.7*np.sin(60/180*np.pi), 1 + 0.7*np.sin(60/180*np.pi), 1]
-        
+        x_anchors = [
+            1 + 0.7 * np.cos(60 / 180 * np.pi),
+            1 + 0.7 * np.cos(60 / 180 * np.pi),
+            1 - 0.7,
+        ]
+        y_anchors = [
+            1 - 0.7 * np.sin(60 / 180 * np.pi),
+            1 + 0.7 * np.sin(60 / 180 * np.pi),
+            1,
+        ]
+
         # check that mooring_design anchor positions match expected
-        assert np.all(
-
-            np.isclose(prob.get_val("mooring_design.x_anchors"), x_anchors)
-        )
-        assert np.all(
-            np.isclose(prob.get_val("mooring_design.y_anchors"), y_anchors)
-        )
-
+        assert np.all(np.isclose(prob.get_val("mooring_design.x_anchors"), x_anchors))
+        assert np.all(np.isclose(prob.get_val("mooring_design.y_anchors"), y_anchors))
