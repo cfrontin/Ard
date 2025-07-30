@@ -1,5 +1,5 @@
-[![Python System Tests with Coverage](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml/badge.svg)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml)
 [![Python Unit Tests with Coverage](https://github.com/WISDEM/Ard/actions/workflows/python-tests-unit.yml/badge.svg)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-unit.yml)
+[![Python System Tests with Coverage](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml/badge.svg)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml)
 
 # Ard
 
