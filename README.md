@@ -1,6 +1,4 @@
-[![Python System Tests with Coverage](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml/badge.svg)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml)
-[![Python Unit Tests with Coverage](https://github.com/WISDEM/Ard/actions/workflows/python-tests-unit.yml/badge.svg)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-unit.yml)
-
+[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml)
 # Ard
 
 **Dig into wind farm design.**
