@@ -23,6 +23,8 @@ modeling_options: &modeling_options
     site_conds:
       bathymetry:
         file: GulfOfMaine_bathymetry_100x99.txt
+      seabed:
+        file: GulfOfMaine_soil_100x99.txt
     mooring_info: OntologySample200m.yaml
     adjuster_settings:
       adjuster: adjustMooring

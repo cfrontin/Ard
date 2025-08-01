@@ -56,7 +56,10 @@ class DetailedMooringDesign(om.ExplicitComponent):
     y_anchors : np.ndarray
         a 1D numpy array indicating the y-dimension locations of the mooring
         system anchors, with shape `N_turbines` x `N_anchors`
-
+    cost_anchor_2024USD : float
+        the total cost of the detailed anchor system for the whole array
+    cost_mooring_2024USD : float
+        the total cost of the detailed mooring system for the whole array
     """
 
     def initialize(self):
@@ -85,6 +88,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
         # get the number of wind conditions (for thrust measurements)
         if self.options["wind_query"] is not None:
             self.N_wind_conditions = self.options["wind_query"].N_conditions
+
         # MANAGE ADDITIONAL LATENT VARIABLES HERE!!!!!
 
         # BEGIN: VARIABLES TO BE INCORPORATED PROPERLY
@@ -130,53 +134,38 @@ class DetailedMooringDesign(om.ExplicitComponent):
             raise ValueError("Mooring setup options not provided")
 
         site_depth = self.options["modeling_options"]["site_depth"]
-        if "general" in self.options["modeling_options"]["mooring_setup"]["site_conds"]:
-            if (
-                "water_depth"
-                in self.options["modeling_options"]["mooring_setup"]["site_conds"][
-                    "general"
-                ]
-            ):
-                water_depth_trow_away = self.options["modeling_options"][
-                    "mooring_setup"
-                ]["site_conds"]["general"]["water_depth"]
+        site_conds = self.options["modeling_options"]["mooring_setup"]["site_conds"]
+        if "general" in site_conds:
+            if "water_depth" in site_conds["general"]:
+                water_depth_trow_away = site_conds["general"]["water_depth"]
                 raise (
                     ValueError(
                         f"'water_depth' ({water_depth_trow_away}) included in 'mooring_setup/site_conds/general', set water depth using 'site_depth'"
                     )
                 )
 
-        if (
-            "general"
-            not in self.options["modeling_options"]["mooring_setup"]["site_conds"]
-        ):
-            self.options["modeling_options"]["mooring_setup"]["site_conds"][
-                "general"
-            ] = {}
+        if "general" not in site_conds:
+            site_conds["general"] = {}
 
-        self.options["modeling_options"]["mooring_setup"]["site_conds"]["general"][
-            "water_depth"
-        ] = site_depth
+        site_conds["general"]["water_depth"] = site_depth
 
-        if (
-            "bathymetry"
-            in self.options["modeling_options"]["mooring_setup"]["site_conds"]
-        ):
-            if (
-                "file"
-                in self.options["modeling_options"]["mooring_setup"]["site_conds"][
-                    "bathymetry"
-                ]
-            ):
+        if "bathymetry" in site_conds:
+            if "file" in site_conds["bathymetry"]:
                 filename = self.options["modeling_options"]["mooring_setup"][
                     "site_conds"
                 ]["bathymetry"]["file"]
                 absolute_filename = str(
                     Path(self.options["data_path"]).absolute() / filename
                 )
-                self.options["modeling_options"]["mooring_setup"]["site_conds"][
-                    "bathymetry"
-                ]["file"] = absolute_filename
+                site_conds["bathymetry"]["file"] = absolute_filename
+
+        if "seabed" in site_conds:
+            if "file" in site_conds["seabed"]:
+                filename = site_conds["seabed"]["file"]
+                absolute_filename = str(
+                    Path(self.options["data_path"]).absolute() / filename
+                )
+                site_conds["seabed"]["file"] = absolute_filename
 
         if "adjuster_settings" in self.options["modeling_options"]["mooring_setup"]:
             if (
@@ -225,6 +214,12 @@ class DetailedMooringDesign(om.ExplicitComponent):
             np.zeros((self.N_turbines, self.N_anchors)),
             units="km",
         )  # y location of the mooring platform in km w.r.t. reference coordinates
+        self.add_output(
+            "cost_anchor_2024USD", 0.0, units="USD"
+        )  # cost of the anchors for the entire array in 2024USD
+        self.add_output(
+            "cost_mooring_2024USD", 0.0, units="USD"
+        )  # cost of the moorings for the entire array in 2024USD
 
     def setup_partials(self):
         """Derivative setup for the OpenMDAO component."""
@@ -255,7 +250,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
         # END ALIASES FOR SOME USEFUL VARIABLES
 
         # reposition FAModel using the x and y turbine postions, and turbine headings
-        self.FAM.repositionArray(
+        anchor_cost_2024USD, mooring_cost_2024USD = self.FAM.repositionArray(
             np.array([[x_turbines[i], y_turbines[i]] for i in range(len(x_turbines))]),
             platform_headings=phi_platform,
             anch_resize=False,
@@ -270,9 +265,11 @@ class DetailedMooringDesign(om.ExplicitComponent):
             float(self.FAM.anchorList[anch].r[1] / 1000) for anch in self.FAM.anchorList
         ]
 
-        # replace the below with the final anchor locations...
+        # map to the outputs
         outputs["x_anchors"] = x_anchors
         outputs["y_anchors"] = y_anchors
+        outputs["cost_anchor_2024USD"] = anchor_cost_2024USD
+        outputs["cost_mooring_2024USD"] = mooring_cost_2024USD
 
     def buildFAModel(self, **FAM_settings):
 
