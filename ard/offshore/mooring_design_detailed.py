@@ -56,9 +56,9 @@ class DetailedMooringDesign(om.ExplicitComponent):
     y_anchors : np.ndarray
         a 1D numpy array indicating the y-dimension locations of the mooring
         system anchors, with shape `N_turbines` x `N_anchors`
-    cost_anchor_2024USD : float
+    cost_anchor : float
         the total cost of the detailed anchor system for the whole array
-    cost_mooring_2024USD : float
+    cost_mooring : float
         the total cost of the detailed mooring system for the whole array
     """
 
@@ -215,10 +215,10 @@ class DetailedMooringDesign(om.ExplicitComponent):
             units="km",
         )  # y location of the mooring platform in km w.r.t. reference coordinates
         self.add_output(
-            "cost_anchor_2024USD", 0.0, units="USD"
+            "cost_anchor", 0.0, units="USD"
         )  # cost of the anchors for the entire array in 2024USD
         self.add_output(
-            "cost_mooring_2024USD", 0.0, units="USD"
+            "cost_mooring", 0.0, units="USD"
         )  # cost of the moorings for the entire array in 2024USD
 
     def setup_partials(self):
@@ -268,8 +268,8 @@ class DetailedMooringDesign(om.ExplicitComponent):
         # map to the outputs
         outputs["x_anchors"] = x_anchors
         outputs["y_anchors"] = y_anchors
-        outputs["cost_anchor_2024USD"] = anchor_cost_2024USD
-        outputs["cost_mooring_2024USD"] = mooring_cost_2024USD
+        outputs["cost_anchor"] = anchor_cost_2024USD
+        outputs["cost_mooring"] = mooring_cost_2024USD
 
     def buildFAModel(self, **FAM_settings):
 
