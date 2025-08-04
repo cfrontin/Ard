@@ -264,6 +264,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=True)
 
     def setup(self):
         """Define all the inputs."""
@@ -319,6 +320,14 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             "layout": "custom",
             "num_turbines": int(discrete_inputs["number_of_turbines"]),
         }
+
+        # override the mooring line values
+        if self.options["override_mooring_lines"]:
+            # if mooring lines will be calculated in detail
+            # zero their ORBIT cost contributions
+            config["mooring_system"]["line_cost"] = 0.0
+            # the standard diameter and mass can still be used to approximate
+            # construction times and costs, etc.
 
         # switch to the custom array system design
         if not ("ArraySystemDesign" in config["design_phases"]):
