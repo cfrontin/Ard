@@ -70,7 +70,11 @@ def generate_orbit_location_from_graph(
     for edge in edges_to_process:
         node_countmap[edge[0]] += 1
         node_countmap[edge[1]] += 1
-    if np.any(np.array(list(node_countmap.values())) > 2):
+
+    if np.any(
+        (np.array(list(node_countmap.values())) > 2)
+        & (np.array(list(node_countmap.keys())) >= 0)
+    ):
         if allow_branching_approximation:
             warnings.warn(
                 "The provided collection system design graph includes branching, "
@@ -201,6 +205,7 @@ class ORBITDetail(orbit_wisdem.Orbit):
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=True)
 
     def setup(self):
         """Define all input variables from all models."""
@@ -245,6 +250,7 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 modeling_options=self.modeling_options,
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
+                override_mooring_lines=self.options["override_mooring_lines"],
                 floating=self.options["floating"],
                 jacket=self.options["jacket"],
                 jacket_legs=self.options["jacket_legs"],
@@ -374,6 +380,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         if self._path_library:
             initialize_library(self._path_library)
 
+        # send it back to the superclass compute
         super().compute(
             inputs,
             outputs,
