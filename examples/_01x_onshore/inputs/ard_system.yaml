@@ -1,0 +1,155 @@
+windIO: &windIO !include windio.yaml
+
+modeling_options: &modeling_options
+  farm:
+    N_turbines: 25
+    N_substations: 1
+    spacing_primary: 7.0
+    spacing_secondary: 7.0
+    angle_orientation: 0.0
+    angle_skew: 0.0
+    # x_substations: 100
+    # y_substations: 100
+  # wind_rose:
+  #   file: wrg_example.wrg
+  #   wd_step: 90.0
+  #   wind_speeds: [5.0, 10.0, 15.0, 20.0]
+  #   point: [0.0, 0.0]
+  # turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
+  collection:
+    max_turbines_per_string: 8
+    solver_name: "highs"
+    solver_options:
+      time_limit: 60
+      mip_gap: 0.02
+    model_options:
+      topology: "radial"  # "radial", "branched"
+      feeder_route: "segmented"
+      feeder_limit: "unlimited"
+  offshore: false
+  floating: false
+
+system:
+  type: group
+  connections:
+    - ["AEP_farm", "financese.plant_aep_in"]
+    - ["total_capex_kW", "financese.bos_per_kW"]
+  systems:
+    layout2aep:
+      type: group
+      promotes: ["*"]
+      approx_totals:
+        method: "fd"
+        step: 1.0E-3
+        form: "central"
+        step_calc: "rel_avg"
+      systems:
+        layout:
+          type: component
+          module: ard.layout.gridfarm
+          object: GridFarmLayout
+          promotes: ["*"]
+          kwargs:
+            modeling_options: *modeling_options
+        aepFLORIS:
+          type: component
+          module: ard.farm_aero.floris
+          object: FLORISAEP
+          promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+          kwargs:
+            modeling_options: *modeling_options
+            windIO: *windIO
+            data_path:
+            case_title: "default"
+      approx_totals:
+        method: "fd"
+        step: 1.0E-3
+        form: "central"
+        step_calc: "rel_avg"
+    landuse:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    optiwindnet_coll:
+      type: component
+      module: ard.collection.optiwindnet_wrap
+      object: OptiwindnetCollection
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    spacing_constraint:
+      type: component
+      module: ard.layout.spacing
+      object: TurbineSpacing
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    tcc:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: TurbineCapitalCosts
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+      ]
+    landbosse:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: LandBOSSEWithSpacingApproximations
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    opex:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: OperatingExpenses
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "opex_per_kW"
+      ]
+    financese:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: PlantFinance
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+        "opex_per_kW",
+      ]
+
+analysis_options:
+  driver:
+    name: ScipyOptimizeDriver
+    options:
+      optimizer: "COBYLA"
+  design_variables:
+    spacing_primary:
+      lower: 3.0
+      upper: 10.0
+    spacing_secondary:
+      lower: 3.0
+      upper: 10.0
+    angle_orientation:
+      lower: -180.0
+      upper: 180.0
+    angle_skew:
+      lower: -75.0
+      upper: 180.0
+  constraints:
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 552
+  objective:
+    name: financese.lcoe
+    options:
+      scaler: 1.0
+  recorder:
+    filepath: "cases.sql"
