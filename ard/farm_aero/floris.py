@@ -259,13 +259,20 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         FLORISFarmComponent.setup_partials(self)
 
     def compute(self, inputs, outputs):
-
+        
         # generate the list of conditions for evaluation
-        self.time_series = floris.TimeSeries(
-            wind_directions=np.degrees(np.array(self.wind_query.get_directions())),
-            wind_speeds=np.array(self.wind_query.get_speeds()),
-            turbulence_intensities=np.array(self.wind_query.get_TIs()),
+        if isinstance(self.wind_query, dict):
+            self.time_series = floris.TimeSeries(
+                wind_directions=np.array(self.wind_query["wind_directions"]),
+                wind_speeds=np.array(self.wind_query["wind_speeds"]),
+                turbulence_intensities=np.array(self.wind_query["wind_turbulence_intensities"]),
         )
+        else:
+            self.time_series = floris.TimeSeries(
+                wind_directions=np.degrees(np.array(self.wind_query.get_directions())),
+                wind_speeds=np.array(self.wind_query.get_speeds()),
+                turbulence_intensities=np.array(self.wind_query.get_TIs()),
+            )
 
         # set up and run the floris model
         self.fmodel.set(
@@ -279,12 +286,13 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         self.fmodel.run()
 
         # dump the yaml to re-run this case on demand
-        FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
+        # FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
+        outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
         outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)
-        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
-        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
+        # outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
+        # outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
 
 
 class FLORISAEP(templates.FarmAEPTemplate):
