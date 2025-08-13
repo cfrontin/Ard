@@ -22,11 +22,11 @@ windIOdict = windIO.load_yaml(path_windIO)
 path_ard_system = Path(__file__).parent / "inputs" / "ard_system.yaml"
 input_dict = load_yaml(path_ard_system)
 
-# # create a windrose for reference
-# winddata = ard_aero.create_windresource_from_windIO(windIOdict)
-#
-# # plot the wind rose
-# ax = winddata.plot()
-# plt.show()
-
+# build the Ard model
 prob = set_up_ard_model(input_dict=input_dict, root_data_path="inputs")
+
+# run the model
+prob.run_model()
+
+# print the AEP result
+print(f"AEP result: {prob.get_val('AEP_farm', units='GW*h')}")

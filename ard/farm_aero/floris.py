@@ -11,6 +11,7 @@ import ard.farm_aero.templates as templates
 
 def create_FLORIS_turbine_from_windIO(
     windIOplant: dict,
+    modeling_options: dict = {},
 ) -> dict:
 
     # extract the turbine... assuming a single one for now
@@ -88,6 +89,7 @@ def create_FLORIS_turbine_from_windIO(
             "The windIO file appears to be invalid. Try validating and re-running."
         )
 
+    # create a FLORIS turbine using the utility
     turbine_FLORIS = (
         floris.turbine_library.turbine_utilities.build_cosine_loss_turbine_dict(
             turbine_data_dict=tdd,
@@ -98,6 +100,14 @@ def create_FLORIS_turbine_from_windIO(
             generator_efficiency=windIOturbine.get("generator_efficiency", 1.0),
         )
     )
+
+    # append peak shaving reduction fraction and TI threshhold they exist
+    psf_val = modeling_options.get("floris", {}).get("peak_shaving_fraction")
+    psf_thresh = modeling_options.get("floris", {}).get("peak_shaving_TI_threshold")
+    if all(var_psf is not None for var_psf in [psf_val, psf_thresh]):
+        # if they exist, set them
+        turbine_FLORIS["power_thrust_table"]["peak_shaving_fraction"] = psf_val
+        turbine_FLORIS["power_thrust_table"]["peak_shaving_TI_threshold"] = psf_thresh
 
     # # If an export filename is given, write it out
     # if filename_turbine_FLORIS is not None:
@@ -140,7 +150,7 @@ class FLORISFarmComponent:
         data_path = self.options["data_path"]
         self.fmodel.set(
             turbine_type=[
-                create_FLORIS_turbine_from_windIO(self.windIO),
+                create_FLORIS_turbine_from_windIO(self.windIO, self.modeling_options),
             ],
             wind_shear=self.windIO["site"]["energy_resource"]["wind_resource"].get(
                 "shear"

@@ -178,7 +178,7 @@ class FarmAeroTemplate(om.ExplicitComponent):
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
         self.windIO = self.options["windIO"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
 
         # set up inputs and outputs for farm layout
         self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="m")
