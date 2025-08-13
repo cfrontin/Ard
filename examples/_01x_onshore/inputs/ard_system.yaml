@@ -1,4 +1,4 @@
-windIO: &windIO !include windio.yaml
+windIO_plant: &windIO_plant !include windio.yaml
 
 modeling_options: &modeling_options
   layout:
@@ -47,7 +47,7 @@ system:
           promotes: ["*"]
           kwargs:
             modeling_options: *modeling_options
-            windIO: *windIO
+            windIO_plant: *windIO_plant
         aepFLORIS:
           type: component
           module: ard.farm_aero.floris
@@ -55,7 +55,7 @@ system:
           promotes: ["x_turbines", "y_turbines", "AEP_farm"]
           kwargs:
             modeling_options: *modeling_options
-            windIO: *windIO
+            windIO_plant: *windIO_plant
             data_path:
             case_title: "default"
       approx_totals:
@@ -63,13 +63,14 @@ system:
         step: 1.0E-3
         form: "central"
         step_calc: "rel_avg"
-    # landuse:
-    #   type: component
-    #   module: ard.layout.gridfarm
-    #   object: GridFarmLanduse
-    #   promotes: ["*"]
-    #   kwargs:
-    #     modeling_options: *modeling_options
+    landuse:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+        windIO_plant: *windIO_plant
     # optiwindnet_coll:
     #   type: component
     #   module: ard.collection.optiwindnet_wrap
@@ -121,6 +122,7 @@ system:
     #     "offset_tcc_per_kW",
     #     "opex_per_kW",
     #   ]
+
 analysis_options:
   driver:
     name: ScipyOptimizeDriver

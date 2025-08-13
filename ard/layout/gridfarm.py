@@ -226,20 +226,20 @@ class GridFarmLanduse(templates.LanduseTemplate):
         # add grid farm-specific inputs
         self.add_input(
             "spacing_primary",
-            self.modeling_options["farm"]["spacing_primary"],
+            self.modeling_options["layout"]["spacing_primary"],
         )
         self.add_input(
             "spacing_secondary",
-            self.modeling_options["farm"]["spacing_secondary"],
+            self.modeling_options["layout"]["spacing_secondary"],
         )
         self.add_input(
             "angle_orientation",
-            self.modeling_options["farm"]["angle_orientation"],
+            self.modeling_options["layout"]["angle_orientation"],
             units="deg",
         )
         self.add_input(
             "angle_skew",
-            self.modeling_options["farm"]["angle_skew"],
+            self.modeling_options["layout"]["angle_skew"],
             units="deg",
         )
 

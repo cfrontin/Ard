@@ -169,7 +169,7 @@ class FarmAeroTemplate(om.ExplicitComponent):
     def initialize(self):
         """Initialization of OM component."""
         self.options.declare("modeling_options")
-        self.options.declare("windIO")
+        self.options.declare("windIO_plant")
         self.options.declare("data_path")
 
     def setup(self):
@@ -177,7 +177,7 @@ class FarmAeroTemplate(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.windIO = self.options["windIO"]
+        self.windIO = self.options["windIO_plant"]
         self.N_turbines = self.modeling_options["layout"]["N_turbines"]
 
         # set up inputs and outputs for farm layout
