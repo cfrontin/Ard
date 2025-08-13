@@ -2,7 +2,7 @@ system: "onshore_batch"
 analysis_options:
 modeling_options:
   farm:
-    N_turbines: 25
+    N_turbines: 25 # should be 65 turbines
     N_substations: 1
     spacing_primary: 7
     spacing_secondary: 7
@@ -11,7 +11,7 @@ modeling_options:
     x_substations: 100.0
     y_substations: 100.0
   wind_rose: !include open-meteo-56.20N8.54E86m.yaml
-  turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
+  turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml # Switch to IEA 5MW
   collection:
     substation_x: 0.1
     substation_y: 0.1
