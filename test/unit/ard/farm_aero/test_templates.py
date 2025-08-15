@@ -12,21 +12,30 @@ import ard.farm_aero.templates as templates
 class TestFarmAeroTemplate:
 
     def setup_method(self):
-        self.modeling_options = {
-            "farm": {
-                "N_turbines": 4,
+
+        self.N_turbines = 4
+        self.D_rotor = 130.0
+
+        self.windIO_plant = {
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
+                },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": 130.0,
-                }
+        }
+        self.modeling_options = {
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
         self.model = om.Group()
         self.fa_temp = self.model.add_subsystem(
             "fa_temp",
-            templates.FarmAeroTemplate(modeling_options=self.modeling_options),
+            templates.FarmAeroTemplate(
+                modeling_options=self.modeling_options,
+                windIO_plant=self.windIO_plant,
+            ),
             promotes=["*"],
         )
         self.prob = om.Problem(self.model)
@@ -39,8 +48,8 @@ class TestFarmAeroTemplate:
 
         assert "modeling_options" in [k for k, _ in self.fa_temp.options.items()]
 
-        assert "farm" in self.fa_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.fa_temp.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.fa_temp.options["modeling_options"].keys()
+        assert "N_turbines" in self.fa_temp.options["modeling_options"]["layout"].keys()
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
@@ -75,15 +84,28 @@ class TestBatchFarmPowerTemplate:
             0.06,
         )
 
-        self.modeling_options = {
-            "farm": {
-                "N_turbines": 4,
+        self.N_turbines = 4
+        self.D_rotor = 130.0
+
+        self.windIO_plant = {
+            "site": {
+                "energy_resource": {
+                    "wind_resource": {
+                        "wind_direction": self.wq.get_directions().tolist(),
+                        "wind_speed": self.wq.get_speeds().tolist(),
+                        "time": np.zeros_like(self.wq.get_speeds().tolist()),
+                    },
+                },
             },
-            "wind_rose": self.wq,
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": 130.0,
-                }
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
+                },
+            },
+        }
+        self.modeling_options = {
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
@@ -92,6 +114,7 @@ class TestBatchFarmPowerTemplate:
             "bfp_temp",
             templates.BatchFarmPowerTemplate(
                 modeling_options=self.modeling_options,
+                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )
@@ -102,8 +125,10 @@ class TestBatchFarmPowerTemplate:
         "make sure the modeling_options has what we need for farmaero"
         assert "modeling_options" in [k for k, _ in self.bfp_temp.options.items()]
 
-        assert "farm" in self.bfp_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.bfp_temp.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.bfp_temp.options["modeling_options"].keys()
+        assert (
+            "N_turbines" in self.bfp_temp.options["modeling_options"]["layout"].keys()
+        )
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
@@ -147,15 +172,32 @@ class TestFarmAEPTemplate:
             ti_table=0.06,
         )
 
-        self.modeling_options = {
-            "farm": {
-                "N_turbines": 4,
+        self.N_turbines = 4
+        self.D_rotor = 130.0
+
+        self.windIO_plant = {
+            "site": {
+                "energy_resource": {
+                    "wind_resource": {
+                        "name": "unit test resource",
+                        "wind_direction": self.wr.wind_directions.tolist(),
+                        "wind_speed": self.wr.wind_speeds.tolist(),
+                        "probability": {
+                            "data": self.wr.freq_table.tolist(),
+                            "dims": ["wind_direction", "wind_speed"],
+                        },
+                    },
+                },
             },
-            "wind_rose": self.wr,
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": 130.0,
-                }
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
+                },
+            },
+        }
+        self.modeling_options = {
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
@@ -164,6 +206,7 @@ class TestFarmAEPTemplate:
             "bfp_temp",
             templates.FarmAEPTemplate(
                 modeling_options=self.modeling_options,
+                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )
@@ -174,8 +217,10 @@ class TestFarmAEPTemplate:
         # make sure the modeling_options has what we need for farmaero
         assert "modeling_options" in [k for k, _ in self.aep_temp.options.items()]
 
-        assert "farm" in self.aep_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.aep_temp.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.aep_temp.options["modeling_options"].keys()
+        assert (
+            "N_turbines" in self.aep_temp.options["modeling_options"]["layout"].keys()
+        )
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
