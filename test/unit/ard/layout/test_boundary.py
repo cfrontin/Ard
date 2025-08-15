@@ -35,23 +35,28 @@ class TestFarmBoundaryDistancePolygon:
         region_assignments_single = np.zeros(self.N_turbines, dtype=int)
 
         # set modeling options
-        modeling_options_single = {
-            "farm": {
-                "N_turbines": self.N_turbines,
-                "boundary": {
-                    "type": "polygon",
-                    "vertices": [
-                        np.array(
-                            [[0.0, 0.0], [1000.0, 0.0], [1000.0, 1000.0], [0.0, 1000.0]]
-                        )
-                    ],
-                    "turbine_region_assignments": region_assignments_single,
+        windIO_single = {
+            "name": "unit test dummy",
+            "site": {
+                "name": "unit test site",
+                "boundaries": {
+                    "polygons": [
+                        {
+                            "x": [0.0, 1000.0, 1000.0, 0.0],
+                            "y": [0.0, 0.0, 1000.0, 1000.0],
+                        },
+                    ]
                 },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
                 }
+            },
+        }
+        modeling_options_single = {
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
@@ -60,7 +65,8 @@ class TestFarmBoundaryDistancePolygon:
         model_single.add_subsystem(
             "boundary",
             boundary.FarmBoundaryDistancePolygon(
-                modeling_options=modeling_options_single
+                modeling_options=modeling_options_single,
+                windIO_plant=windIO_single,
             ),
             promotes=["*"],
         )
@@ -85,23 +91,28 @@ class TestFarmBoundaryDistancePolygon:
         region_assignments_single = np.zeros(self.N_turbines, dtype=int)
 
         # set modeling options
-        modeling_options_single = {
-            "farm": {
-                "N_turbines": self.N_turbines,
-                "boundary": {
-                    "type": "polygon",
-                    "vertices": [
-                        np.array(
-                            [[0.0, 0.0], [1000.0, 0.0], [1000.0, 1000.0], [0.0, 1000.0]]
-                        )
+        windIO_single = {
+            "name": "unit test dummy",
+            "site": {
+                "name": "unit test site",
+                "boundaries": {
+                    "polygons": [
+                        {
+                            "x": [0.0, 1000.0, 1000.0, 0.0],
+                            "y": [0.0, 0.0, 1000.0, 1000.0],
+                        },
                     ],
-                    "turbine_region_assignments": region_assignments_single,
                 },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
-                }
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
+                },
+            },
+        }
+        modeling_options_single = {
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
@@ -110,7 +121,8 @@ class TestFarmBoundaryDistancePolygon:
         model_single.add_subsystem(
             "boundary",
             boundary.FarmBoundaryDistancePolygon(
-                modeling_options=modeling_options_single
+                modeling_options=modeling_options_single,
+                windIO_plant=windIO_single,
             ),
             promotes=["*"],
         )
@@ -197,19 +209,35 @@ class TestFarmBoundaryDistancePolygon:
         region_assignments[0:3] = 0
 
         # set modeling options
-        modeling_options = {
-            "farm": {
-                "N_turbines": self.N_turbines,
-                "boundary": {
-                    "type": "polygon",
-                    "vertices": boundary_vertices,
-                    "turbine_region_assignments": region_assignments,
+        windIO_multi = {
+            "name": "unit test dummy",
+            "site": {
+                "name": "unit test site",
+                "boundaries": {
+                    "polygons": [
+                        {
+                            "x": boundary_vertices_0[:, 0].tolist(),
+                            "y": boundary_vertices_0[:, 1].tolist(),
+                        },
+                        {
+                            "x": boundary_vertices_1[:, 0].tolist(),
+                            "y": boundary_vertices_1[:, 1].tolist(),
+                        },
+                    ]
                 },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
                 }
+            },
+        }
+        modeling_options_multi = {
+            "layout": {
+                "N_turbines": self.N_turbines,
+            },
+            "boundary": {
+                "turbine_region_assignments": region_assignments,
             },
         }
 
@@ -217,7 +245,10 @@ class TestFarmBoundaryDistancePolygon:
         model = om.Group()
         model.add_subsystem(
             "boundary",
-            boundary.FarmBoundaryDistancePolygon(modeling_options=modeling_options),
+            boundary.FarmBoundaryDistancePolygon(
+                modeling_options=modeling_options_multi,
+                windIO_plant=windIO_multi,
+            ),
             promotes=["*"],
         )
         prob = om.Problem(model)
@@ -233,6 +264,8 @@ class TestFarmBoundaryDistancePolygon:
         )
 
         # assert a match: loose tolerance for turbines in corners due to using the smooth min
+        print(f"DEBUG!!!!! boundary_distances: {prob["boundary_distances"]}")
+        print(f"DEBUG!!!!! expected_distances: {expected_distances}")
         assert np.allclose(prob["boundary_distances"], expected_distances, atol=1e-2)
 
     def test_multi_polygon_derivatives(self, subtests):
@@ -262,19 +295,35 @@ class TestFarmBoundaryDistancePolygon:
         region_assignments[0:3] = 0
 
         # set modeling options
-        modeling_options = {
-            "farm": {
-                "N_turbines": self.N_turbines,
-                "boundary": {
-                    "type": "polygon",
-                    "vertices": boundary_vertices,
-                    "turbine_region_assignments": region_assignments,
+        windIO_multi = {
+            "name": "unit test dummy",
+            "site": {
+                "name": "unit test site",
+                "boundaries": {
+                    "polygons": [
+                        {
+                            "x": boundary_vertices_0[:, 0].tolist(),
+                            "y": boundary_vertices_0[:, 1].tolist(),
+                        },
+                        {
+                            "x": boundary_vertices_1[:, 0].tolist(),
+                            "y": boundary_vertices_1[:, 1].tolist(),
+                        },
+                    ]
                 },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
                 }
+            },
+        }
+        modeling_options_multi = {
+            "layout": {
+                "N_turbines": self.N_turbines,
+            },
+            "boundary": {
+                "turbine_region_assignments": region_assignments,
             },
         }
 
@@ -282,7 +331,10 @@ class TestFarmBoundaryDistancePolygon:
         model = om.Group()
         model.add_subsystem(
             "boundary",
-            boundary.FarmBoundaryDistancePolygon(modeling_options=modeling_options),
+            boundary.FarmBoundaryDistancePolygon(
+                modeling_options=modeling_options_multi,
+                windIO_plant=windIO_multi,
+            ),
             promotes=["*"],
         )
         prob = om.Problem(model)

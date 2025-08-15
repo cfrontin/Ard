@@ -146,8 +146,9 @@ class FarmAeroTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    windIO : dict
-        a windIO file dictionary
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification
 
     Inputs
     ------
@@ -218,8 +219,9 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
     -------
     modeling_options : dict
         a modeling options dictionary (inherited from `FarmAeroTemplate`)
-    windIO : dict
-        a windIO file dictionary
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification
 
     Inputs
     ------
@@ -327,8 +329,9 @@ class FarmAEPTemplate(FarmAeroTemplate):
     -------
     modeling_options : dict
         a modeling options dictionary (inherited from FarmAeroTemplate)
-    windIO : dict
-        a windIO file dictionary (inherited from FarmAEPTemplate)
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification (inherited from FarmAEPTemplate)
     data_path: str
         absolute path to data directory
 

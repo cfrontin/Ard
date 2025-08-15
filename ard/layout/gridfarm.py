@@ -38,6 +38,9 @@ class GridFarmLayout(templates.LayoutTemplate):
     modeling_options : dict
         a modeling options dictionary (inherited from
         `templates.LayoutTemplate`)
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification (inherited from `templates.LayoutTemplate`)
     N_turbines : int
         the number of turbines that should be in the farm layout (inherited from
         `templates.LayoutTemplate`)
@@ -179,6 +182,9 @@ class GridFarmLanduse(templates.LanduseTemplate):
     modeling_options : dict
         a modeling options dictionary (inherited from
         `templates.LayoutTemplate`)
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification (inherited from `templates.LayoutTemplate`)
     N_turbines : int
         the number of turbines that should be in the farm layout (inherited from
         `templates.LayoutTemplate`)
