@@ -14,21 +14,27 @@ class TestFullFarmLanduse:
 
         self.N_turbines = 25
         self.D_rotor = 130.0
-        self.modeling_options = {
-            "farm": {
-                "N_turbines": self.N_turbines,
+
+        self.windIO_plant = {
+            "wind_farm": {
+                "turbine": {
+                    "rotor_diameter": self.D_rotor,
+                },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
-                }
+        }
+        self.modeling_options = {
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
         self.model = om.Group()
         self.lu = self.model.add_subsystem(
             "fullfarm",
-            fullfarm.FullFarmLanduse(modeling_options=self.modeling_options),
+            fullfarm.FullFarmLanduse(
+                modeling_options=self.modeling_options,
+                windIO_plant=self.windIO_plant,
+            ),
             promotes=["*"],
         )
         self.prob = om.Problem(self.model)

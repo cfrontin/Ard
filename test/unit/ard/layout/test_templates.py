@@ -21,8 +21,8 @@ class TestLayoutTemplate:
         self.lt = self.model.add_subsystem(
             "layout",
             layout_templates.LayoutTemplate(
-                windIO_plant=self.windIO_plant,
                 modeling_options=self.modeling_options,
+                windIO_plant=self.windIO_plant,
             ),
         )
         self.prob = om.Problem(self.model)
@@ -74,8 +74,8 @@ class TestLanduseTemplate:
         self.lu = self.model.add_subsystem(
             "landuse",
             layout_templates.LanduseTemplate(
-                windIO_plant=self.windIO_plant,
                 modeling_options=self.modeling_options,
+                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )
