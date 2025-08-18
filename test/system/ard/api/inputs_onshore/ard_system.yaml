@@ -20,8 +20,6 @@ modeling_options:
     angle_orientation: 0.0
     angle_skew: 0.0
   collection:
-    substation_x: 100.0
-    substation_y: 100.0
     max_turbines_per_string: 8
     solver_name: "highs"
     solver_options:

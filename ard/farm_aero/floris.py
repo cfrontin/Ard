@@ -108,7 +108,6 @@ def create_FLORIS_turbine_from_windIO(
     )
     if psf_val is not None:
         # if they exist, set them
-        print(f"DEBUG!!!!! INSTALLING PEAK-SHAVING!")
         turbine_FLORIS["power_thrust_table"]["peak_shaving_fraction"] = psf_val
         turbine_FLORIS["power_thrust_table"]["peak_shaving_TI_threshold"] = psf_thresh
 
@@ -300,9 +299,7 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
                 else None
             ),
         )
-        print(f"DEBUG!!!!! self.modeling_options: {self.modeling_options['floris']}")
         if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
-            print(f"DEBUG!!!!! ENABLING PEAK-SHAVING!")
             self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()
@@ -395,9 +392,7 @@ class FLORISAEP(templates.FarmAEPTemplate):
                 else None
             ),
         )
-        print(f"DEBUG!!!!! self.modeling_options: {self.modeling_options['floris']}")
         if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
-            print(f"DEBUG!!!!! ENABLING PEAK-SHAVING!")
             self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()

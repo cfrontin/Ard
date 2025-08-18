@@ -4,7 +4,6 @@ import yaml
 
 import numpy as np
 import openmdao.api as om
-import matplotlib.pyplot as plt  # DEBUG!!!!!
 
 import floris
 import pytest
@@ -140,37 +139,12 @@ class TestFLORISBatchPower:
         }
 
         # validate data against pyrite file
-        # pyrite_data = ard.utils.test_utils.pyrite_validator(  # DEBUG!!!!!
         ard.utils.test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_floris_batch_pyrite.npz",
             rtol_val=5e-3,
             # rewrite=True,  # uncomment to write new pyrite file
-            # load_only=True,  # DEBUG!!!!!
         )
-        # print(f"pyrite_data: {pyrite_data}")  # DEBUG!!!!!
-        # print(f"pyrite_data['power_farm']: {pyrite_data['power_farm']}")  # DEBUG!!!!!
-
-        # # plt.tricontourf(
-        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
-        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
-        # #     self.prob.get_val("batchFLORIS.power_farm", units="MW"),
-        # # )  # DEBUG!!!!!
-        # # plt.tricontour(
-        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
-        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
-        # #     pyrite_data["power_farm"],
-        # # )  # DEBUG!!!!!
-        # plt.tricontourf(
-        #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
-        #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
-        #     self.prob.get_val("batchFLORIS.power_farm", units="MW") - pyrite_data["power_farm"],
-        #     50,
-        # )  # DEBUG!!!!!
-        # plt.colorbar()  # DEBUG!!!!!
-        # plt.show()  # DEBUG!!!!!
-
-        # assert False  # DEBUG!!!!!
 
 
 class TestFLORISAEP:
