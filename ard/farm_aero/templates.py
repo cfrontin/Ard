@@ -114,7 +114,9 @@ def create_windresource_from_windIO(
         turbulence_intensities = 0.06
         if "turbulence_intensity" in wind_resource:
             if "data" in wind_resource["turbulence_intensity"]:
-                turbulence_intensities = np.array(wind_resource["turbulence_intensity"]["data"])
+                turbulence_intensities = np.array(
+                    wind_resource["turbulence_intensity"]["data"]
+                )
             else:
                 turbulence_intensities = np.array(wind_resource["turbulence_intensity"])
 
