@@ -39,7 +39,12 @@ class TestFLORISBatchPower:
         ]
 
         # set up the modeling options
-        path_turbine = Path(__file__).parent / "IEA-3.4MW-130m-RWT.yaml"
+        path_turbine = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "windIO_plant-turbine-IEA-3.4MW-130m-RWT.yaml"
+        )
         with open(path_turbine) as f_yaml:
             data_turbine_yaml = yaml.safe_load(f_yaml)
         self.modeling_options = {
@@ -189,7 +194,12 @@ class TestFLORISAEP:
         ]
 
         # set up the modeling options
-        path_turbine = Path(__file__).parent / "IEA-3.4MW-130m-RWT.yaml"
+        path_turbine = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "windIO_plant-turbine-IEA-3.4MW-130m-RWT.yaml"
+        )
         with open(path_turbine) as f_yaml:
             data_turbine_yaml = yaml.safe_load(f_yaml)
         modeling_options = {
