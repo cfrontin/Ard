@@ -69,15 +69,21 @@ class CollectionTemplate(om.ExplicitComponent):
         if "x_turbines" in self.modeling_options["layout"]:
             self.x_turbines = self.modeling_options["layout"]["x_turbines"]
         else:
-            self.x_turbines = self.windIO_plant["wind_farm"]["layouts"]["coordinates"][
-                "x"
-            ]
+            self.x_turbines = (
+                self.windIO_plant.get("wind_farm", {})
+                .get("layouts", {})
+                .get("coordinates", {})
+                .get("x", np.zeros((self.N_turbines,)))
+            )
         if "y_turbines" in self.modeling_options["layout"]:
             self.y_turbines = self.modeling_options["layout"]["y_turbines"]
         else:
-            self.y_turbines = self.windIO_plant["wind_farm"]["layouts"]["coordinates"][
-                "y"
-            ]
+            self.y_turbines = (
+                self.windIO_plant.get("wind_farm", {})
+                .get("layouts", {})
+                .get("coordinates", {})
+                .get("y", np.zeros((self.N_turbines,)))
+            )
         self.x_substations = np.array(
             [
                 li["electrical_substation"]["coordinates"]["x"]
