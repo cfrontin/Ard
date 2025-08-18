@@ -103,7 +103,9 @@ def create_FLORIS_turbine_from_windIO(
 
     # append peak shaving reduction fraction and TI threshhold they exist
     psf_val = modeling_options.get("floris", {}).get("peak_shaving_fraction")
-    psf_thresh = modeling_options.get("floris", {}).get("peak_shaving_TI_threshold", 0.0)
+    psf_thresh = modeling_options.get("floris", {}).get(
+        "peak_shaving_TI_threshold", 0.0
+    )
     if psf_val is not None:
         # if they exist, set them
         print(f"DEBUG!!!!! INSTALLING PEAK-SHAVING!")
@@ -298,7 +300,8 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
                 else None
             ),
         )
-        if "peak_shaving_fraction" in self.modeling_options.get("floris", {}).keys():
+        print(f"DEBUG!!!!! self.modeling_options: {self.modeling_options['floris']}")
+        if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
             print(f"DEBUG!!!!! ENABLING PEAK-SHAVING!")
             self.fmodel.set_operation_model("peak-shaving")
 
@@ -392,7 +395,9 @@ class FLORISAEP(templates.FarmAEPTemplate):
                 else None
             ),
         )
+        print(f"DEBUG!!!!! self.modeling_options: {self.modeling_options['floris']}")
         if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
+            print(f"DEBUG!!!!! ENABLING PEAK-SHAVING!")
             self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()

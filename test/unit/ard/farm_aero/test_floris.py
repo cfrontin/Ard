@@ -41,28 +41,29 @@ class TestFLORISBatchPower:
         path_turbine = Path(__file__).parent / "IEA-3.4MW-130m-RWT.yaml"
         with open(path_turbine) as f_yaml:
             data_turbine_yaml = yaml.safe_load(f_yaml)
-        windIO_plant = {
-            "wind_farm": {
-                "name": "unit test farm",
-                "turbine": data_turbine_yaml,
-            },
-            "site": {
-                "energy_resource": {
-                    "wind_resource": {
-                        "wind_direction": wind_query.get_directions().tolist(),
-                        "wind_speed": wind_query.get_speeds().tolist(),
-                        "time": np.zeros_like(wind_query.get_speeds().tolist()),
+        self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "name": "unit test farm",
+                    "turbine": data_turbine_yaml,
+                },
+                "site": {
+                    "energy_resource": {
+                        "wind_resource": {
+                            "wind_direction": wind_query.get_directions().tolist(),
+                            "wind_speed": wind_query.get_speeds().tolist(),
+                            "time": np.zeros_like(wind_query.get_speeds().tolist()),
+                        },
+                        "reference_height": 110.0,
                     },
                 },
             },
-        }
-        modeling_options = {
             "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
             "floris": {
                 "peak_shaving_fraction": 0.4,
-                # "peak_shaving_TI_threshold": 0.0,
+                "peak_shaving_TI_threshold": 0.0,
             },
         }
 
@@ -71,8 +72,7 @@ class TestFLORISBatchPower:
         self.FLORIS = model.add_subsystem(
             "batchFLORIS",
             farmaero_floris.FLORISBatchPower(
-                modeling_options=modeling_options,
-                windIO_plant=windIO_plant,
+                modeling_options=self.modeling_options,
                 case_title="letsgo",
                 data_path="",
             ),
@@ -163,34 +163,35 @@ class TestFLORISAEP:
         path_turbine = Path(__file__).parent / "IEA-3.4MW-130m-RWT.yaml"
         with open(path_turbine) as f_yaml:
             data_turbine_yaml = yaml.safe_load(f_yaml)
-        windIO_plant = {
-            "wind_farm": {
-                "name": "unit test farm",
-                "turbine": data_turbine_yaml,
-            },
-            "site": {
-                "energy_resource": {
-                    "wind_resource": {
-                        "wind_direction": wind_rose.wind_directions.tolist(),
-                        "wind_speed": wind_rose.wind_speeds.tolist(),
-                        "probability": {
-                            "data": wind_rose.freq_table.tolist(),
-                            "dim": [
-                                "wind_direction",
-                                "wind_speed",
-                            ],
+        modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "name": "unit test farm",
+                    "turbine": data_turbine_yaml,
+                },
+                "site": {
+                    "energy_resource": {
+                        "wind_resource": {
+                            "wind_direction": wind_rose.wind_directions.tolist(),
+                            "wind_speed": wind_rose.wind_speeds.tolist(),
+                            "probability": {
+                                "data": wind_rose.freq_table.tolist(),
+                                "dim": [
+                                    "wind_direction",
+                                    "wind_speed",
+                                ],
+                            },
+                            "reference_height": 110.0,
                         },
                     },
                 },
             },
-        }
-        modeling_options = {
             "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
             "floris": {
                 "peak_shaving_fraction": 0.4,
-                # "peak_shaving_TI_threshold": 0.0,
+                "peak_shaving_TI_threshold": 0.0,
             },
         }
 
@@ -200,7 +201,6 @@ class TestFLORISAEP:
             "aepFLORIS",
             farmaero_floris.FLORISAEP(
                 modeling_options=modeling_options,
-                windIO_plant=windIO_plant,
                 case_title="letsgo",
                 data_path="",
             ),

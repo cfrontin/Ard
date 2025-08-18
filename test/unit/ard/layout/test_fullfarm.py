@@ -15,14 +15,14 @@ class TestFullFarmLanduse:
         self.N_turbines = 25
         self.D_rotor = 130.0
 
-        self.windIO_plant = {
-            "wind_farm": {
-                "turbine": {
-                    "rotor_diameter": self.D_rotor,
+        self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
                 },
             },
-        }
-        self.modeling_options = {
             "layout": {
                 "N_turbines": self.N_turbines,
             },
@@ -33,7 +33,6 @@ class TestFullFarmLanduse:
             "fullfarm",
             fullfarm.FullFarmLanduse(
                 modeling_options=self.modeling_options,
-                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )

@@ -33,14 +33,13 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
     def initialize(self):
         """Initialization of the OpenMDAO component."""
         self.options.declare("modeling_options")
-        self.options.declare("windIO_plant")
 
     def setup(self):
         """Setup of the OpenMDAO component."""
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.windIO = self.options["windIO_plant"]
+        self.windIO = self.modeling_options["windIO_plant"]
         self.N_turbines = int(self.modeling_options["layout"]["N_turbines"])
 
         # load boundary vertices from windIO file

@@ -15,7 +15,7 @@ class TestCollectionTemplate:
                     "electrical_substations": [
                         {
                             "electrical_substation": {
-                                "coordinates":{
+                                "coordinates": {
                                     "x": [0.0, 0.0],
                                     "y": [0.0, 0.0],
                                 },
@@ -49,10 +49,16 @@ class TestCollectionTemplate:
         assert "modeling_options" in [k for k, _ in self.coll_temp.options.items()]
 
         assert "windIO_plant" in self.coll_temp.options["modeling_options"].keys()
-        assert "wind_farm" in self.coll_temp.options["modeling_options"]["windIO_plant"].keys()
-        assert "N_turbines" in self.coll_temp.options["modeling_options"]["layout"].keys()
         assert (
-            "N_substations" in self.coll_temp.options["modeling_options"]["layout"].keys()
+            "wind_farm"
+            in self.coll_temp.options["modeling_options"]["windIO_plant"].keys()
+        )
+        assert (
+            "N_turbines" in self.coll_temp.options["modeling_options"]["layout"].keys()
+        )
+        assert (
+            "N_substations"
+            in self.coll_temp.options["modeling_options"]["layout"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet

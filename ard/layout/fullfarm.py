@@ -19,9 +19,6 @@ class FullFarmLanduse(ard.layout.templates.LanduseTemplate):
     modeling_options : dict
         a modeling options dictionary (inherited from
         `templates.LanduseTemplate`)
-    windIO_plant : dict
-        the dictionary representation of a loaded and validated windIO
-        specification (inherited from `templates.LanduseTemplate`)
     N_turbines : int
         the number of turbines that should be in the farm layout (inherited from
         `templates.LanduseTemplate`)

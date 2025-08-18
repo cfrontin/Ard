@@ -13,14 +13,14 @@ class TestGridFarm:
         self.N_turbines = 25
         self.D_rotor = 130.0
 
-        self.windIO_plant = {
-            "wind_farm": {
-                "turbine": {
-                    "rotor_diameter": self.D_rotor,
+        self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
                 },
             },
-        }
-        self.modeling_options = {
             "layout": {
                 "N_turbines": self.N_turbines,
                 "spacing_primary": 0.0,  # reset in test_setup
@@ -35,7 +35,6 @@ class TestGridFarm:
             "gridfarm",
             gridfarm.GridFarmLayout(
                 modeling_options=self.modeling_options,
-                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )
@@ -49,11 +48,11 @@ class TestGridFarm:
         assert "layout" in self.gf.options["modeling_options"].keys()
         assert "N_turbines" in self.gf.options["modeling_options"]["layout"].keys()
 
-        assert "wind_farm" in self.gf.options["windIO_plant"].keys()
-        assert "turbine" in self.gf.options["windIO_plant"]["wind_farm"].keys()
+        assert "wind_farm" in self.modeling_options["windIO_plant"].keys()
+        assert "turbine" in self.modeling_options["windIO_plant"]["wind_farm"].keys()
         assert (
             "rotor_diameter"
-            in self.gf.options["windIO_plant"]["wind_farm"]["turbine"].keys()
+            in self.modeling_options["windIO_plant"]["wind_farm"]["turbine"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet
@@ -206,14 +205,14 @@ class TestGridFarmLanduse:
         self.N_turbines = 25
         self.D_rotor = 130.0
 
-        self.windIO_plant = {
-            "wind_farm": {
-                "turbine": {
-                    "rotor_diameter": self.D_rotor,
+        self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
                 },
             },
-        }
-        self.modeling_options = {
             "layout": {
                 "N_turbines": self.N_turbines,
                 "spacing_primary": 0.0,  # reset in test_setup
@@ -228,7 +227,6 @@ class TestGridFarmLanduse:
             "gridfarm",
             gridfarm.GridFarmLayout(
                 modeling_options=self.modeling_options,
-                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )
@@ -236,7 +234,6 @@ class TestGridFarmLanduse:
             "gflu",
             gridfarm.GridFarmLanduse(
                 modeling_options=self.modeling_options,
-                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )
@@ -250,11 +247,11 @@ class TestGridFarmLanduse:
         assert "layout" in self.lu.options["modeling_options"].keys()
         assert "N_turbines" in self.lu.options["modeling_options"]["layout"].keys()
 
-        assert "wind_farm" in self.gf.options["windIO_plant"].keys()
-        assert "turbine" in self.gf.options["windIO_plant"]["wind_farm"].keys()
+        assert "wind_farm" in self.modeling_options["windIO_plant"].keys()
+        assert "turbine" in self.modeling_options["windIO_plant"]["wind_farm"].keys()
         assert (
             "rotor_diameter"
-            in self.gf.options["windIO_plant"]["wind_farm"]["turbine"].keys()
+            in self.modeling_options["windIO_plant"]["wind_farm"]["turbine"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet
