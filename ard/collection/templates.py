@@ -58,13 +58,12 @@ class CollectionTemplate(om.ExplicitComponent):
     def initialize(self):
         """Initialization of OM component."""
         self.options.declare("modeling_options")
-        self.options.declare("windIO_plant")
 
     def setup(self):
         """Setup of OM component."""
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.windIO_plant = self.options["windIO_plant"]
+        self.windIO_plant = self.modeling_options["windIO_plant"]
         self.N_turbines = self.modeling_options["layout"]["N_turbines"]
         self.N_substations = self.modeling_options["layout"]["N_substations"]
         if "x_turbines" in self.modeling_options["layout"]:
