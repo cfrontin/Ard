@@ -73,8 +73,8 @@ def create_windresource_from_windIO(
         )
         probabilities = np.array(wind_resource["probability"]["data"])
         turbulence_intensities = (
-            np.array(wind_resource["turbulence_instensity"]["data"])
-            if "turbulence_instensity" in wind_resource
+            np.array(wind_resource["turbulence_intensity"]["data"])
+            if "turbulence_intensity" in wind_resource
             else 0.06
         )
 
@@ -111,11 +111,12 @@ def create_windresource_from_windIO(
             if type(wind_resource["wind_speed"]) is dict
             else wind_resource["wind_speed"]
         )
-        turbulence_intensities = (
-            np.array(wind_resource["turbulence_instensity"]["data"])
-            if "turbulence_instensity" in wind_resource
-            else 0.06
-        )
+        turbulence_intensities = 0.06
+        if "turbulence_intensity" in wind_resource:
+            if "data" in wind_resource["turbulence_intensity"]:
+                turbulence_intensities = np.array(wind_resource["turbulence_intensity"]["data"])
+            else:
+                turbulence_intensities = np.array(wind_resource["turbulence_intensity"])
 
         wind_resource_representation = floris.TimeSeries(
             wind_directions=wind_directions,

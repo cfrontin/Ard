@@ -55,7 +55,7 @@ class TestFLORISBatchPower:
                             "wind_speed": wind_query.get_speeds().tolist(),
                             "turbulence_intensity": wind_query.get_TIs().tolist(),
                             "time": np.zeros_like(wind_query.get_speeds().tolist()),
-                            # "shear": 0.585,
+                            "shear": 0.585,
                         },
                         "reference_height": 90.0,
                     },
@@ -135,37 +135,37 @@ class TestFLORISBatchPower:
         }
 
         # validate data against pyrite file
-        pyrite_data = ard.utils.test_utils.pyrite_validator(  # DEBUG!!!!!
-        # ard.utils.test_utils.pyrite_validator(
+        # pyrite_data = ard.utils.test_utils.pyrite_validator(  # DEBUG!!!!!
+        ard.utils.test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_floris_batch_pyrite.npz",
             rtol_val=5e-3,
             # rewrite=True,  # uncomment to write new pyrite file
-            load_only=True,  # DEBUG!!!!!
+            # load_only=True,  # DEBUG!!!!!
         )
-        print(f"pyrite_data: {pyrite_data}")  # DEBUG!!!!!
-        print(f"pyrite_data['power_farm']: {pyrite_data['power_farm']}")  # DEBUG!!!!!
+        # print(f"pyrite_data: {pyrite_data}")  # DEBUG!!!!!
+        # print(f"pyrite_data['power_farm']: {pyrite_data['power_farm']}")  # DEBUG!!!!!
 
+        # # plt.tricontourf(
+        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
+        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
+        # #     self.prob.get_val("batchFLORIS.power_farm", units="MW"),
+        # # )  # DEBUG!!!!!
+        # # plt.tricontour(
+        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
+        # #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
+        # #     pyrite_data["power_farm"],
+        # # )  # DEBUG!!!!!
         # plt.tricontourf(
         #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
         #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
-        #     self.prob.get_val("batchFLORIS.power_farm", units="MW"),
+        #     self.prob.get_val("batchFLORIS.power_farm", units="MW") - pyrite_data["power_farm"],
+        #     50,
         # )  # DEBUG!!!!!
-        # plt.tricontour(
-        #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
-        #     self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
-        #     pyrite_data["power_farm"],
-        # )  # DEBUG!!!!!
-        plt.tricontourf(
-            self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_direction"],
-            self.modeling_options["windIO_plant"]["site"]["energy_resource"]["wind_resource"]["wind_speed"],
-            self.prob.get_val("batchFLORIS.power_farm", units="MW") - pyrite_data["power_farm"],
-            50,
-        )  # DEBUG!!!!!
-        plt.colorbar()  # DEBUG!!!!!
-        plt.show()  # DEBUG!!!!!
+        # plt.colorbar()  # DEBUG!!!!!
+        # plt.show()  # DEBUG!!!!!
 
-        assert False  # DEBUG!!!!!
+        # assert False  # DEBUG!!!!!
 
 
 class TestFLORISAEP:
@@ -210,6 +210,7 @@ class TestFLORISAEP:
                                     "wind_speed",
                                 ],
                             },
+                            "shear": 0.585,
                             "reference_height": 110.0,
                         },
                     },
