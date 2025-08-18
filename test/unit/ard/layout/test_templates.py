@@ -10,8 +10,8 @@ class TestLayoutTemplate:
 
     def setup_method(self):
 
-        self.windIO_plant = {}
         self.modeling_options = {
+            "windIO_plant": {},
             "layout": {
                 "N_turbines": 4,
             },
@@ -22,7 +22,6 @@ class TestLayoutTemplate:
             "layout",
             layout_templates.LayoutTemplate(
                 modeling_options=self.modeling_options,
-                windIO_plant=self.windIO_plant,
             ),
         )
         self.prob = om.Problem(self.model)
@@ -57,14 +56,14 @@ class TestLanduseTemplate:
 
         self.N_turbines = 25
         self.D_rotor = 130.0
-        self.windIO_plant = {
-            "wind_farm": {
-                "turbine": {
-                    "rotor_diameter": self.D_rotor,
+        self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
                 },
             },
-        }
-        self.modeling_options = {
             "layout": {
                 "N_turbines": self.N_turbines,
             },
@@ -75,7 +74,6 @@ class TestLanduseTemplate:
             "landuse",
             layout_templates.LanduseTemplate(
                 modeling_options=self.modeling_options,
-                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )

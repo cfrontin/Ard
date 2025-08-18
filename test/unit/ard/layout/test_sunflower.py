@@ -18,14 +18,14 @@ class TestSunflowerFarm:
         self.N_turbines = 25
         self.D_rotor = 130.0
 
-        self.windIO_plant = {
-            "wind_farm": {
-                "turbine": {
-                    "rotor_diameter": self.D_rotor,
+        self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
                 },
             },
-        }
-        self.modeling_options = {
             "layout": {
                 "N_turbines": self.N_turbines,
             },
@@ -36,7 +36,6 @@ class TestSunflowerFarm:
             "sunflower",
             sunflower.SunflowerFarmLayout(
                 modeling_options=self.modeling_options,
-                windIO_plant=self.windIO_plant,
             ),
             promotes=["*"],
         )
@@ -52,11 +51,11 @@ class TestSunflowerFarm:
             "N_turbines" in self.sunflower.options["modeling_options"]["layout"].keys()
         )
 
-        assert "wind_farm" in self.sunflower.options["windIO_plant"].keys()
-        assert "turbine" in self.sunflower.options["windIO_plant"]["wind_farm"].keys()
+        assert "wind_farm" in self.modeling_options["windIO_plant"].keys()
+        assert "turbine" in self.modeling_options["windIO_plant"]["wind_farm"].keys()
         assert (
             "rotor_diameter"
-            in self.sunflower.options["windIO_plant"]["wind_farm"]["turbine"].keys()
+            in self.modeling_options["windIO_plant"]["wind_farm"]["turbine"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet
