@@ -19,17 +19,6 @@ class TestConstraints:
 
     def setup_method(self):
 
-        # # specify the configuration/specification files to use
-        # filename_turbine_spec = (
-        #     Path(ard.__file__).parents[1]
-        #     / "examples"
-        #     / "data"
-        #     / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        # ).absolute()  # toolset generalized turbine specification
-        #
-        # # load the turbine specification
-        # data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
         self.N_turbines = 25
         region_assignments_single = np.zeros(self.N_turbines, dtype=int)
 
