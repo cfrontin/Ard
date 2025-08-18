@@ -27,7 +27,7 @@ class TestConstraints:
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "windIO_plant-turbine-IEA-3.4MW-130m-RWT.yaml"
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
         )
         with open(path_turbine) as f_yaml:
             data_turbine_yaml = yaml.safe_load(f_yaml)
