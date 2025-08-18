@@ -20,15 +20,6 @@ import ard.collection.optiwindnet_wrap as ard_own
 
 def make_modeling_options(x_turbines, y_turbines, x_substations, y_substations):
 
-    # specify the configuration/specification files to use
-    filename_turbine_spec = (
-        Path(ard.__file__).parents[1]
-        / "examples"
-        / "data"
-        / "turbine_spec_IEA-3p4-130-RWT.yaml"
-    )  # toolset generalized turbine specification
-    data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
     # set up the modeling options
     N_turbines = len(x_turbines)
     N_substations = len(x_substations)
@@ -51,7 +42,6 @@ def make_modeling_options(x_turbines, y_turbines, x_substations, y_substations):
             "x_turbines": x_turbines,
             "y_turbines": y_turbines,
         },
-        "turbine": data_turbine_spec,
         "collection": {
             "max_turbines_per_string": 8,
             "model_options": dict(
