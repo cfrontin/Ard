@@ -41,7 +41,6 @@ system:
           promotes: ["*"]
           kwargs:
             modeling_options: *modeling_options
-            windIO_plant: *windIO_plant
         aepFLORIS:
           type: component
           module: ard.farm_aero.floris
@@ -49,7 +48,6 @@ system:
           promotes: ["x_turbines", "y_turbines", "AEP_farm"]
           kwargs:
             modeling_options: *modeling_options
-            windIO_plant: *windIO_plant
             data_path:
             case_title: "default"
       approx_totals:
@@ -64,7 +62,6 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-        windIO_plant: *windIO_plant
     landuse:
       type: component
       module: ard.layout.gridfarm
@@ -72,7 +69,6 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-        windIO_plant: *windIO_plant
     optiwindnet_coll:
       type: component
       module: ard.collection.optiwindnet_wrap
@@ -80,7 +76,6 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-        windIO_plant: *windIO_plant
     spacing_constraint:
       type: component
       module: ard.layout.spacing

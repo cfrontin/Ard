@@ -63,7 +63,6 @@ wind_farm:
                  1250.0,  1250.0,  1250.0,  1250.0,  1250.0,
                  2500.0,  2500.0,  2500.0,  2500.0,  2500.0
             ]
-    # turbine: !include IEA-3p4-130-RWT.yaml
     turbine:
         name: "IEA-3.4MW-130m-RWT"
         performance:
