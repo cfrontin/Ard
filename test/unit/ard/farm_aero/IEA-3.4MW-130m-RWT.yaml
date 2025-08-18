@@ -225,3 +225,4 @@ performance:
 hub_height: 110.0
 rotor_diameter: 130.0
 TSR: 8.01754386
+generator_efficiency: 1.0

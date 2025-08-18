@@ -1,6 +1,5 @@
-windIO_plant: &windIO_plant !include windio.yaml
-
 modeling_options: &modeling_options
+  windIO_plant: &windIO_plant !include windio.yaml
   layout:
     N_turbines: 25
     N_substations: 1
