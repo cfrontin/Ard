@@ -8,7 +8,6 @@ site:
     energy_resource:
         name: Great resource
         wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
-
 wind_farm:
     name: Great farm
     layouts:

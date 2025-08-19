@@ -14,27 +14,49 @@ class TestLandBOSSE:
 
     def setup_method(self):
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
+        # set up the modeling options
+        filename_turbine = (
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        ).absolute()  # toolset generalized turbine specification
-
-        # load the turbine specification
-        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
-        # set up the modeling options
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
         self.modeling_options = {
-            "farm": {
+            "windIO_plant": {
+                "site": {
+                    "energy_resource": {
+                        "wind_resource": {
+                            "shear": 0.2,
+                        },
+                    },
+                },
+                "wind_farm": {
+                    "turbine": ard.utils.io.load_yaml(filename_turbine),
+                },
+            },
+            "layout": {
                 "N_turbines": 25,
                 "spacing_primary": 0.0,  # reset in test_setup
                 "spacing_secondary": 0.0,  # reset in test_setup
                 "angle_orientation": 0.0,  # reset in test_setup
                 "angle_skew": 0.0,  # reset in test_setup
             },
-            "turbine": data_turbine,
+            "costs": {
+                "num_blades": 3,
+                "rated_thrust_N": 645645.83964671,
+                "gust_velocity_m_per_s": 52.5,
+                "blade_surface_area": 69.7974979,
+                "tower_mass": 620440.7337521,
+                "nacelle_mass": 101985.82836439,
+                "hub_mass": 8384.07517646,
+                "blade_mass": 14563.41339641,
+                "foundation_height": 0.0,
+                "commissioning_cost_kW": 44.0,
+                "decommissioning_cost_kW": 58.0,
+                "trench_len_to_substation_km": 50.0,
+                "distance_to_interconnect_mi": 4.97096954,
+                "interconnect_voltage_kV": 130.0,
+            },
         }
 
         # create an OM model and problem
@@ -90,20 +112,21 @@ class TestORBIT:
 
     def setup_method(self):
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
+        filename_turbine = (
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
-        ).absolute()  # toolset generalized turbine specification
-
-        # load the turbine specification
-        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": ard.utils.io.load_yaml(filename_turbine),
+                },
+            },
+            "layout": {
                 "N_turbines": 25,
                 "spacing_primary": 0.0,  # reset in test
                 "spacing_secondary": 0.0,  # reset in test
@@ -111,7 +134,6 @@ class TestORBIT:
                 "angle_skew": 0.0,  # reset in test
             },
             "site_depth": 50.0,
-            "turbine": data_turbine,
             "offshore": True,
             "floating": True,
         }
