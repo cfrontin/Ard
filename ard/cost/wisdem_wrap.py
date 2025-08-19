@@ -352,7 +352,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
             ]["hub_height"],
             "wind_shear_exponent": modeling_options["windIO_plant"]["site"][
                 "energy_resource"
-            ]["wind_resource"]["shear"],
+            ]["wind_resource"].get("shear", None),
             "rotor_diameter_m": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["rotor_diameter"],
@@ -529,7 +529,7 @@ def FinanceSE_setup_latents(prob, modeling_options):
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
         "turbine_number": int(modeling_options["layout"]["N_turbines"]),
-        "machine_rating": modeling_options["costs"]["power_rated"] * 1.0e3,
+        "machine_rating": modeling_options["costs"]["rated_power"] * 1.0e3,
         "tcc_per_kW": modeling_options["costs"]["tcc_per_kW"],
         "opex_per_kW": modeling_options["costs"]["opex_per_kW"],
     }
