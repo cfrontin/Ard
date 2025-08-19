@@ -42,6 +42,7 @@ class TestLandBOSSE:
                 "angle_skew": 0.0,  # reset in test_setup
             },
             "costs": {
+                "rated_power": 3.4,  # MW
                 "num_blades": 3,
                 "rated_thrust_N": 645645.83964671,
                 "gust_velocity_m_per_s": 52.5,
@@ -116,7 +117,7 @@ class TestORBIT:
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+            / "windIO-plant_turbine_IEA-22MW-284m-RWT.yaml"
         )
 
         # set up the modeling options
@@ -132,6 +133,49 @@ class TestORBIT:
                 "spacing_secondary": 0.0,  # reset in test
                 "angle_orientation": 0.0,  # reset in test
                 "angle_skew": 0.0,  # reset in test
+            },
+            "costs": {
+                "rated_power": 22.0,  # MW
+                "num_blades": 3,
+                "tower_length": 149.386,
+                "tower_mass": 1574044.87111,
+                "nacelle_mass": 849143.2357,
+                "blade_mass": 83308.31171,
+                "turbine_capex": 1397.17046735,
+                "site_mean_windspeed": 10.0,  # (m/s)
+                "turbine_rated_windspeed": 11.13484394,  # (m/s)
+                "commissioning_cost_kW": 44.0,  # ($/kW)
+                "decommissioning_cost_kW": 58.0,  # ($/kW)
+                "plant_substation_distance": 1.0,  # (km)
+                "interconnection_distance": 8.5,  # (km)
+                "site_distance": 115.0,  # km
+                "site_distance_to_landfall": 50.0,  # km
+                "port_cost_per_month": 2000000.0,  # $/mo
+                "construction_insurance": 44.,  # $/kW
+                "construction_financing": 183.,  # $/kW
+                "contingency": 316.0,  # $/kW
+                "site_auction_price": 100000000.0,  # $
+                "site_assessment_cost": 50000000.0,  # $
+                "construction_plan_cost": 250000.0,  # $
+                "installation_plan_cost": 1000000.0,  # $
+                "boem_review_cost": 0.0,  # $
+
+                "transition_piece_mass": 100.0e3,  # kg
+                "transition_piece_cost": 0.0,  # (USD)
+
+                # # Fixed bottom configuration
+                # monopile_mass: 2097.21115974 # (t)
+                # monopile_cost: 4744119.28172591 # (USD)
+                # tcc_per_kW: 1397.17046735 # (USD/kW)
+                # opex_per_kW: 110. # (USD/kWh)
+
+                # # Floating configuration
+                "num_mooring_lines": 3,  # (-)
+                "mooring_line_mass": 843225.1875,  # (kg)
+                "mooring_line_diameter": 0.225,  # (m)
+                "mooring_line_length": 837.0,  # (m)
+                "anchor_mass": 0.0,  # (kg)
+                "floating_substructure_cost": 11803978.242949858 # (USD)
             },
             "site_depth": 50.0,
             "offshore": True,

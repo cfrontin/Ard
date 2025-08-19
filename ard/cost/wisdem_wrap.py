@@ -292,10 +292,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
 
         variable_mapping = {
             "num_turbines": modeling_options["layout"]["N_turbines"],
-            "turbine_rating_MW": modeling_options["windIO_plant"]["wind_farm"][
-                "turbine"
-            ]["performance"]["rated_power"]
-            / 1.0e6,
+            "turbine_rating_MW": modeling_options["costs"]["rated_power"],
             "hub_height_meters": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["hub_height"],
@@ -318,10 +315,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
     elif any(key in modeling_options["costs"] for key in offshore_floating_keys):
         variable_mapping = {
             "num_turbines": modeling_options["layout"]["N_turbines"],
-            "turbine_rating_MW": modeling_options["windIO_plant"]["wind_farm"][
-                "turbine"
-            ]["performance"]["rated_power"]
-            / 1.0e6,
+            "turbine_rating_MW": modeling_options["costs"]["rated_power"],
             "hub_height_meters": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["hub_height"],
@@ -352,10 +346,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
         # be used for BOS costs for offshore systems.
         variable_mapping = {
             "num_turbines": modeling_options["layout"]["N_turbines"],
-            "turbine_rating_MW": modeling_options["windIO_plant"]["wind_farm"][
-                "turbine"
-            ]["performance"]["rated_power"]
-            / 1.0e6,
+            "turbine_rating_MW": modeling_options["costs"]["rated_power"],
             "hub_height_meters": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["hub_height"],
@@ -407,94 +398,75 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
 
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
-        "turbine_rating": modeling_options["turbine"]["nameplate"][
-            "power_rated"
-        ],  # *1E-3,
+        "turbine_rating": modeling_options["costs"]["rated_power"],
         "site_depth": modeling_options["site_depth"],
-        "number_of_turbines": modeling_options["farm"]["N_turbines"],
-        "number_of_blades": modeling_options["turbine"]["geometry"]["num_blades"],
-        "hub_height": modeling_options["turbine"]["geometry"]["height_hub"],
-        "turbine_rotor_diameter": modeling_options["turbine"]["geometry"][
-            "diameter_rotor"
-        ],
-        "tower_length": modeling_options["turbine"]["geometry"]["tower_length"],
-        "tower_mass": modeling_options["turbine"]["costs"]["tower_mass"],
-        "nacelle_mass": modeling_options["turbine"]["costs"]["nacelle_mass"],
-        "blade_mass": modeling_options["turbine"]["costs"]["blade_mass"],
-        "turbine_capex": modeling_options["turbine"]["costs"]["turbine_capex"],
-        "site_mean_windspeed": modeling_options["turbine"]["costs"][
+        "number_of_turbines": modeling_options["layout"]["N_turbines"],
+        "number_of_blades": modeling_options["costs"]["num_blades"],
+        "hub_height": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["hub_height"],
+        "turbine_rotor_diameter": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["rotor_diameter"],
+        "tower_length": modeling_options["costs"]["tower_length"],
+        "tower_mass": modeling_options["costs"]["tower_mass"],
+        "nacelle_mass": modeling_options["costs"]["nacelle_mass"],
+        "blade_mass": modeling_options["costs"]["blade_mass"],
+        "turbine_capex": modeling_options["costs"]["turbine_capex"],
+        "site_mean_windspeed": modeling_options["costs"][
             "site_mean_windspeed"
         ],
-        "turbine_rated_windspeed": modeling_options["turbine"]["costs"][
+        "turbine_rated_windspeed": modeling_options["costs"][
             "turbine_rated_windspeed"
         ],
-        "commissioning_cost_kW": modeling_options["turbine"]["costs"][
+        "commissioning_cost_kW": modeling_options["costs"][
             "commissioning_cost_kW"
         ],
-        "decommissioning_cost_kW": modeling_options["turbine"]["costs"][
+        "decommissioning_cost_kW": modeling_options["costs"][
             "decommissioning_cost_kW"
         ],
-        "plant_substation_distance": modeling_options["turbine"]["costs"][
+        "plant_substation_distance": modeling_options["costs"][
             "plant_substation_distance"
         ],
-        "interconnection_distance": modeling_options["turbine"]["costs"][
+        "interconnection_distance": modeling_options["costs"][
             "interconnection_distance"
         ],
-        "site_distance": modeling_options["turbine"]["costs"]["site_distance"],
-        "site_distance_to_landfall": modeling_options["turbine"]["costs"][
+        "site_distance": modeling_options["costs"]["site_distance"],
+        "site_distance_to_landfall": modeling_options["costs"][
             "site_distance_to_landfall"
         ],
-        "port_cost_per_month": modeling_options["turbine"]["costs"][
+        "port_cost_per_month": modeling_options["costs"][
             "port_cost_per_month"
         ],
-        "construction_insurance": modeling_options["turbine"]["costs"][
+        "construction_insurance": modeling_options["costs"][
             "construction_insurance"
         ],
-        "construction_financing": modeling_options["turbine"]["costs"][
+        "construction_financing": modeling_options["costs"][
             "construction_financing"
         ],
-        "contingency": modeling_options["turbine"]["costs"]["contingency"],
-        "site_auction_price": modeling_options["turbine"]["costs"][
+        "contingency": modeling_options["costs"]["contingency"],
+        "site_auction_price": modeling_options["costs"][
             "site_auction_price"
         ],
-        "site_assessment_cost": modeling_options["turbine"]["costs"][
+        "site_assessment_cost": modeling_options["costs"][
             "site_assessment_cost"
         ],
-        "construction_plan_cost": modeling_options["turbine"]["costs"][
+        "construction_plan_cost": modeling_options["costs"][
             "construction_plan_cost"
         ],
-        "installation_plan_cost": modeling_options["turbine"]["costs"][
+        "installation_plan_cost": modeling_options["costs"][
             "installation_plan_cost"
         ],
-        "boem_review_cost": modeling_options["turbine"]["costs"]["boem_review_cost"],
+        "boem_review_cost": modeling_options["costs"]["boem_review_cost"],
     }
 
     # Add floating-foundation specific keys if applicable
     if modeling_options["floating"]:
         variable_mapping.update(
             {
-                "num_mooring_lines": modeling_options["turbine"]["costs"][
-                    "num_mooring_lines"
-                ],
-                "mooring_line_mass": modeling_options["turbine"]["costs"][
-                    "mooring_line_mass"
-                ],
-                "mooring_line_diameter": modeling_options["turbine"]["costs"][
-                    "mooring_line_diameter"
-                ],
-                "mooring_line_length": modeling_options["turbine"]["costs"][
-                    "mooring_line_length"
-                ],
-                "anchor_mass": modeling_options["turbine"]["costs"]["anchor_mass"],
-                "transition_piece_mass": modeling_options["turbine"]["costs"][
-                    "transition_piece_mass"
-                ],
-                "transition_piece_cost": modeling_options["turbine"]["costs"][
-                    "transition_piece_cost"
-                ],
-                "floating_substructure_cost": modeling_options["turbine"]["costs"][
-                    "floating_substructure_cost"
-                ],
+                "num_mooring_lines": modeling_options["costs"]["num_mooring_lines"],
+                "mooring_line_mass": modeling_options["costs"]["mooring_line_mass"],
+                "mooring_line_diameter": modeling_options["costs"]["mooring_line_diameter"],
+                "mooring_line_length": modeling_options["costs"]["mooring_line_length"],
+                "anchor_mass": modeling_options["costs"]["anchor_mass"],"transition_piece_mass": modeling_options["costs"]["transition_piece_mass"],
+                "transition_piece_cost": modeling_options["costs"]["transition_piece_cost"],
+                "floating_substructure_cost": modeling_options["costs"]["floating_substructure_cost"      ],
             }
         )
     # Add fixed-foundation (mooring) specific keys if applicable
