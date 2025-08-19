@@ -528,11 +528,10 @@ def FinanceSE_setup_latents(prob, modeling_options):
 
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
-        "turbine_number": int(modeling_options["farm"]["N_turbines"]),
-        "machine_rating": modeling_options["turbine"]["nameplate"]["power_rated"]
-        * 1.0e3,
-        "tcc_per_kW": modeling_options["turbine"]["costs"]["tcc_per_kW"],
-        "opex_per_kW": modeling_options["turbine"]["costs"]["opex_per_kW"],
+        "turbine_number": int(modeling_options["layout"]["N_turbines"]),
+        "machine_rating": modeling_options["costs"]["power_rated"] * 1.0e3,
+        "tcc_per_kW": modeling_options["costs"]["tcc_per_kW"],
+        "opex_per_kW": modeling_options["costs"]["opex_per_kW"],
     }
 
     set_values(prob, variable_map=variable_mapping)
