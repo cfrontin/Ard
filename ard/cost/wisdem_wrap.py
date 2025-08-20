@@ -402,25 +402,21 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
         "site_depth": modeling_options["site_depth"],
         "number_of_turbines": modeling_options["layout"]["N_turbines"],
         "number_of_blades": modeling_options["costs"]["num_blades"],
-        "hub_height": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["hub_height"],
-        "turbine_rotor_diameter": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["rotor_diameter"],
+        "hub_height": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+            "hub_height"
+        ],
+        "turbine_rotor_diameter": modeling_options["windIO_plant"]["wind_farm"][
+            "turbine"
+        ]["rotor_diameter"],
         "tower_length": modeling_options["costs"]["tower_length"],
         "tower_mass": modeling_options["costs"]["tower_mass"],
         "nacelle_mass": modeling_options["costs"]["nacelle_mass"],
         "blade_mass": modeling_options["costs"]["blade_mass"],
         "turbine_capex": modeling_options["costs"]["turbine_capex"],
-        "site_mean_windspeed": modeling_options["costs"][
-            "site_mean_windspeed"
-        ],
-        "turbine_rated_windspeed": modeling_options["costs"][
-            "turbine_rated_windspeed"
-        ],
-        "commissioning_cost_kW": modeling_options["costs"][
-            "commissioning_cost_kW"
-        ],
-        "decommissioning_cost_kW": modeling_options["costs"][
-            "decommissioning_cost_kW"
-        ],
+        "site_mean_windspeed": modeling_options["costs"]["site_mean_windspeed"],
+        "turbine_rated_windspeed": modeling_options["costs"]["turbine_rated_windspeed"],
+        "commissioning_cost_kW": modeling_options["costs"]["commissioning_cost_kW"],
+        "decommissioning_cost_kW": modeling_options["costs"]["decommissioning_cost_kW"],
         "plant_substation_distance": modeling_options["costs"][
             "plant_substation_distance"
         ],
@@ -431,28 +427,14 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
         "site_distance_to_landfall": modeling_options["costs"][
             "site_distance_to_landfall"
         ],
-        "port_cost_per_month": modeling_options["costs"][
-            "port_cost_per_month"
-        ],
-        "construction_insurance": modeling_options["costs"][
-            "construction_insurance"
-        ],
-        "construction_financing": modeling_options["costs"][
-            "construction_financing"
-        ],
+        "port_cost_per_month": modeling_options["costs"]["port_cost_per_month"],
+        "construction_insurance": modeling_options["costs"]["construction_insurance"],
+        "construction_financing": modeling_options["costs"]["construction_financing"],
         "contingency": modeling_options["costs"]["contingency"],
-        "site_auction_price": modeling_options["costs"][
-            "site_auction_price"
-        ],
-        "site_assessment_cost": modeling_options["costs"][
-            "site_assessment_cost"
-        ],
-        "construction_plan_cost": modeling_options["costs"][
-            "construction_plan_cost"
-        ],
-        "installation_plan_cost": modeling_options["costs"][
-            "installation_plan_cost"
-        ],
+        "site_auction_price": modeling_options["costs"]["site_auction_price"],
+        "site_assessment_cost": modeling_options["costs"]["site_assessment_cost"],
+        "construction_plan_cost": modeling_options["costs"]["construction_plan_cost"],
+        "installation_plan_cost": modeling_options["costs"]["installation_plan_cost"],
         "boem_review_cost": modeling_options["costs"]["boem_review_cost"],
     }
 
@@ -462,11 +444,20 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
             {
                 "num_mooring_lines": modeling_options["costs"]["num_mooring_lines"],
                 "mooring_line_mass": modeling_options["costs"]["mooring_line_mass"],
-                "mooring_line_diameter": modeling_options["costs"]["mooring_line_diameter"],
+                "mooring_line_diameter": modeling_options["costs"][
+                    "mooring_line_diameter"
+                ],
                 "mooring_line_length": modeling_options["costs"]["mooring_line_length"],
-                "anchor_mass": modeling_options["costs"]["anchor_mass"],"transition_piece_mass": modeling_options["costs"]["transition_piece_mass"],
-                "transition_piece_cost": modeling_options["costs"]["transition_piece_cost"],
-                "floating_substructure_cost": modeling_options["costs"]["floating_substructure_cost"      ],
+                "anchor_mass": modeling_options["costs"]["anchor_mass"],
+                "transition_piece_mass": modeling_options["costs"][
+                    "transition_piece_mass"
+                ],
+                "transition_piece_cost": modeling_options["costs"][
+                    "transition_piece_cost"
+                ],
+                "floating_substructure_cost": modeling_options["costs"][
+                    "floating_substructure_cost"
+                ],
             }
         )
     # Add fixed-foundation (mooring) specific keys if applicable
