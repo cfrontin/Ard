@@ -177,6 +177,7 @@ class OptiwindnetCollection(templates.CollectionTemplate):
 
         # pack and ship
         self.graph = G
+        discrete_outputs["graph"] = G  # TODO: remove for terse links, below!
         discrete_outputs["terse_links"] = terse_links
         discrete_outputs["length_cables"] = length_cables
         discrete_outputs["load_cables"] = load_cables
