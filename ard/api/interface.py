@@ -198,8 +198,19 @@ def set_up_system_recursive(
                 Driver = getattr(om, analysis_options["driver"]["name"])
                 prob.driver = Driver()
                 if "options" in analysis_options["driver"]:
-                    for option, value in analysis_options["driver"]["options"].items():
-                        prob.driver.options[option] = value
+                    for option, value_driver_option in analysis_options["driver"][
+                        "options"
+                    ].items():
+                        if option == "opt_settings":
+                            for (
+                                key_opt_setting,
+                                value_opt_setting,
+                            ) in value_driver_option.items():
+                                prob.driver.opt_settings[key_opt_setting] = (
+                                    value_opt_setting
+                                )
+                        else:
+                            prob.driver.options[option] = value_driver_option
 
                     # set design variables
             if "design_variables" in analysis_options:
