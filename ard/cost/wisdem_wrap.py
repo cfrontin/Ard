@@ -8,7 +8,6 @@ from wisdem.orbit.orbit_api import Orbit as Orbit_orig
 
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
-
 class LandBOSSEWithSpacingApproximations(om.Group):
     """
     OpenMDAO group that connects the SpacingApproximations component to the LandBOSSE component.
@@ -35,7 +34,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
         # Add the LandBOSSE component
         self.add_subsystem(
             "landbosse",
-            LandBOSSEArdComp(),
+            LandBOSSEGroup(modeling_options=self.options["modeling_options"]),
             promotes_inputs=[
                 "*",
                 (
@@ -61,114 +60,107 @@ class LandBOSSEWithSpacingApproximations(om.Group):
             "internal_row_spacing_rotor_diameters",
         )
 
+class LandBOSSEGroup(om.Group):
 
-class LandBOSSEArdComp(LandBOSSE_orig):
-    """
-    Wrapper for WISDEM's LandBOSSE BOS calculators.
-
-    A thin wrapper of `wisdem.landbosse.landbosse_omdao.landbosse.LandBOSSE`
-    that traps warning messages that are recognized not to be issues.
-
-    See: https://github.com/WISDEM/LandBOSSE
-    """
-
+    def initialize(self):
+        """Initialize the group and declare options."""
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
+    
     def setup(self):
-        """Setup of OM component."""
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        with warnings.catch_warnings():
-            return super().setup()
 
-    def setup_partials(self):
-        """Derivative setup for OM component."""
+        # add IVCs for landbosse
+        variable_mapping = LandBOSSE_setup_latents(modeling_options=self.options["modeling_options"])
 
-        # finite difference WISDEM tools for gradients
-        self.declare_partials(
-            [
+        # create source independent variable components for LandBOSSE inputs
+        for key, val in variable_mapping.items():
+            if key in ["num_turbines", "number_of_blades"]:
+                comp = om.IndepVarComp()
+                comp.add_discrete_output(name=key, val=val)
+                self.add_subsystem(f"IVC_landbosse_{key}", comp, promotes=["*"])
+            else:
+                self.add_subsystem(f"IVC_landbosse_{key}", om.IndepVarComp(key, val=val), promotes=["*"])
+
+        # add landbosse
+        self.add_subsystem("landbosse", LandBOSSE_orig(), promotes=[
+                "total_capex_kW",
                 "turbine_spacing_rotor_diameters",
                 "row_spacing_rotor_diameters",
             ],
-            [
-                "bos_capex_kW",
-                "total_capex",
-            ],
-            method="fd",
         )
 
-    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        """Computation for the OM component."""
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        with warnings.catch_warnings():
-            return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
+        # connect 
+        for key, val in variable_mapping.items():
+            self.connect(key, f"landbosse.{key}")
 
+class ORBITGroup(om.Group):
 
-class ORBIT(Orbit_orig):
-    """
-    Wrapper for WISDEM's ORBIT offshore BOS calculators.
-
-    A thin wrapper of `wisdem.orbit.api.wisdem`
-    that traps warning messages that are recognized not to be issues.
-
-    See: https://github.com/WISDEM/ORBIT
-    """
-
+    def initialize(self):
+        """Initialize the group and declare options."""
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
+    
     def setup(self):
-        """Setup of OM component."""
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        with warnings.catch_warnings():
-            return super().setup()
 
-    def setup_partials(self):
-        """Derivative setup for OM component."""
+        # add IVCs for landbosse
+        variable_mapping = ORBIT_setup_latents(modeling_options=self.options["modeling_options"])
 
-        # finite difference WISDEM tools for gradients
-        self.declare_partials(
-            [
+        # create source independent variable components for LandBOSSE inputs
+        for key, val in variable_mapping.items():
+            if key in ["num_turbines", "number_of_blades"]:
+                comp = om.IndepVarComp()
+                comp.add_discrete_output(name=key, val=val)
+                self.add_subsystem(f"IVC_orbit_{key}", comp, promotes=["*"])
+            else:
+                self.add_subsystem(f"IVC_orbit_{key}", om.IndepVarComp(key, val=val), promotes=["*"])
+
+        # add orbit #TODO check promotes
+        self.add_subsystem("orbit", Orbit_orig(), promotes=[
+                "total_capex_kW",
                 "turbine_spacing_rotor_diameters",
                 "row_spacing_rotor_diameters",
             ],
-            [
-                "bos_capex_kW",
-                "total_capex",
-                "installation_capex",
-            ],
-            method="fd",
         )
 
-    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        """Computation for the OM compoent."""
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        with warnings.catch_warnings():
-            return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
+        # connect 
+        for key, val in variable_mapping.items():
+            self.connect(key, f"orbit.{key}")
 
+class FinanceSEGroup(om.Group):
 
-class PlantFinance(PlantFinance_orig):
-    """
-    Wrapper for WISDEM's PlantFinanceSE calculators.
-
-    A thin wrapper of `wisdem.plant_financese.plant_finance.PlantFinance` that
-    traps warning messages that are recognized not to be issues.
-
-    See: https://github.com/WISDEM/WISDEM/tree/master/wisdem/plant_financese
-    """
-
+    def initialize(self):
+        """Initialize the group and declare options."""
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
+    
     def setup(self):
-        """Setup of OM component."""
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        with warnings.catch_warnings():
-            return super().setup()
 
-    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        """Computation for the OM compoent."""
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        with warnings.catch_warnings():
-            return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
+        # add IVCs for landbosse
+        variable_mapping = FinanceSE_setup_latents(modeling_options=self.options["modeling_options"])
 
+        # create source independent variable components for LandBOSSE inputs
+        for key, val in variable_mapping.items():
+            if key in ["num_turbines", "number_of_blades"]:
+                comp = om.IndepVarComp()
+                comp.add_discrete_output(name=key, val=val)
+                self.add_subsystem(f"IVC_financese_{key}", comp, promotes=["*"])
+            else:
+                self.add_subsystem(f"IVC_financese_{key}", om.IndepVarComp(key, val=val), promotes=["*"])
+
+        # add orbit #TODO check promotes
+        self.add_subsystem("financese", Orbit_orig(), promotes=[
+                "total_capex_kW",
+                "turbine_spacing_rotor_diameters",
+                "row_spacing_rotor_diameters",
+            ],
+        )
+
+        # connect 
+        for key, val in variable_mapping.items():
+            self.connect(key, f"financese.{key}")
 
 class TurbineCapitalCosts(om.ExplicitComponent):
     """
@@ -260,7 +252,7 @@ class OperatingExpenses(om.ExplicitComponent):
         outputs["opex"] = n_turbine * opex_per_kW * t_rating
 
 
-def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
+def LandBOSSE_setup_latents(modeling_options: dict) -> None:
     """
     A function to set up the LandBOSSE latent variables using modeling options.
 
@@ -350,9 +342,9 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
             "hub_height_meters": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["hub_height"],
-            "wind_shear_exponent": modeling_options["windIO_plant"]["site"][
-                "energy_resource"
-            ]["wind_resource"].get("shear", None),
+            # "wind_shear_exponent": modeling_options["windIO_plant"]["site"][
+            #     "energy_resource"
+            # ]["wind_resource"].get("shear", None),
             "rotor_diameter_m": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["rotor_diameter"],
@@ -380,10 +372,12 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
             ],
         }
     print(f"DEBUG!!!!! variable_mapping: {variable_mapping}")
-    set_values(prob, variable_map=variable_mapping)
+    # set_values(prob, variable_map=variable_mapping)
+
+    return variable_mapping
 
 
-def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
+def ORBIT_setup_latents(modeling_options: dict) -> None:
     """
     A function to set up the ORBIT latent variables using modeling options.
 
@@ -501,10 +495,11 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
     #     comp2promotion_map["orbit.orbit.transition_piece_cost"],
     #     modeling_options["turbine"]["costs"]["transition_piece_cost"])
 
-    set_values(prob, variable_map=variable_mapping)
+    # set_values(prob, variable_map=variable_mapping)
+    return variable_mapping
 
 
-def FinanceSE_setup_latents(prob, modeling_options):
+def FinanceSE_setup_latents(modeling_options):
     """
     A function to set up the FinanceSE latent variables using modeling options.
 
@@ -525,7 +520,9 @@ def FinanceSE_setup_latents(prob, modeling_options):
         "opex_per_kW": modeling_options["costs"]["opex_per_kW"],
     }
 
-    set_values(prob, variable_map=variable_mapping)
+    # set_values(prob, variable_map=variable_mapping)
+
+    return variable_mapping
 
 
 def set_values(prob, variable_map: dict) -> None:
