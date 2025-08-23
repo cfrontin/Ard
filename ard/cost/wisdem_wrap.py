@@ -8,6 +8,7 @@ from wisdem.orbit.orbit_api import Orbit as Orbit_orig
 
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
+
 class LandBOSSEWithSpacingApproximations(om.Group):
     """
     OpenMDAO group that connects the SpacingApproximations component to the LandBOSSE component.
@@ -60,6 +61,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
             "internal_row_spacing_rotor_diameters",
         )
 
+
 class LandBOSSEGroup(om.Group):
 
     def initialize(self):
@@ -67,11 +69,13 @@ class LandBOSSEGroup(om.Group):
         self.options.declare(
             "modeling_options", types=dict, desc="Ard modeling options"
         )
-    
+
     def setup(self):
 
         # add IVCs for landbosse
-        variable_mapping = LandBOSSE_setup_latents(modeling_options=self.options["modeling_options"])
+        variable_mapping = LandBOSSE_setup_latents(
+            modeling_options=self.options["modeling_options"]
+        )
 
         # create source independent variable components for LandBOSSE inputs
         for key, val in variable_mapping.items():
@@ -80,19 +84,29 @@ class LandBOSSEGroup(om.Group):
                 comp.add_discrete_output(name=key, val=val)
                 self.add_subsystem(f"IVC_landbosse_{key}", comp, promotes=["*"])
             else:
-                self.add_subsystem(f"IVC_landbosse_{key}", om.IndepVarComp(key, val=val), promotes=["*"])
+                self.add_subsystem(
+                    f"IVC_landbosse_{key}",
+                    om.IndepVarComp(key, val=val),
+                    promotes=["*"],
+                )
 
         # add landbosse
-        self.add_subsystem("landbosse", LandBOSSE_orig(), promotes=[
+        self.add_subsystem(
+            "landbosse",
+            LandBOSSE_orig(),
+            promotes=[
+                "total_capex",
                 "total_capex_kW",
+                "bos_capex_kW",
                 "turbine_spacing_rotor_diameters",
                 "row_spacing_rotor_diameters",
             ],
         )
 
-        # connect 
+        # connect
         for key, val in variable_mapping.items():
             self.connect(key, f"landbosse.{key}")
+
 
 class ORBITGroup(om.Group):
 
@@ -101,32 +115,42 @@ class ORBITGroup(om.Group):
         self.options.declare(
             "modeling_options", types=dict, desc="Ard modeling options"
         )
-    
+
     def setup(self):
 
         # add IVCs for landbosse
-        variable_mapping = ORBIT_setup_latents(modeling_options=self.options["modeling_options"])
+        variable_mapping = ORBIT_setup_latents(
+            modeling_options=self.options["modeling_options"]
+        )
 
         # create source independent variable components for LandBOSSE inputs
         for key, val in variable_mapping.items():
-            if key in ["num_turbines", "number_of_blades"]:
+            if key in ["number_of_turbines", "number_of_blades", "num_mooring_lines"]:
                 comp = om.IndepVarComp()
                 comp.add_discrete_output(name=key, val=val)
                 self.add_subsystem(f"IVC_orbit_{key}", comp, promotes=["*"])
             else:
-                self.add_subsystem(f"IVC_orbit_{key}", om.IndepVarComp(key, val=val), promotes=["*"])
+                self.add_subsystem(
+                    f"IVC_orbit_{key}", om.IndepVarComp(key, val=val), promotes=["*"]
+                )
 
-        # add orbit #TODO check promotes
-        self.add_subsystem("orbit", Orbit_orig(), promotes=[
+        # add orbit
+        self.add_subsystem(
+            "orbit",
+            Orbit_orig(),
+            promotes=[
+                "total_capex",
                 "total_capex_kW",
-                "turbine_spacing_rotor_diameters",
-                "row_spacing_rotor_diameters",
+                "bos_capex",
+                "plant_turbine_spacing",
+                "plant_row_spacing",
             ],
         )
 
-        # connect 
+        # connect
         for key, val in variable_mapping.items():
             self.connect(key, f"orbit.{key}")
+
 
 class FinanceSEGroup(om.Group):
 
@@ -135,32 +159,46 @@ class FinanceSEGroup(om.Group):
         self.options.declare(
             "modeling_options", types=dict, desc="Ard modeling options"
         )
-    
+
     def setup(self):
 
         # add IVCs for landbosse
-        variable_mapping = FinanceSE_setup_latents(modeling_options=self.options["modeling_options"])
+        variable_mapping = FinanceSE_setup_latents(
+            modeling_options=self.options["modeling_options"]
+        )
 
         # create source independent variable components for LandBOSSE inputs
         for key, val in variable_mapping.items():
-            if key in ["num_turbines", "number_of_blades"]:
+            if key in [
+                "turbine_number",
+            ]:
                 comp = om.IndepVarComp()
                 comp.add_discrete_output(name=key, val=val)
                 self.add_subsystem(f"IVC_financese_{key}", comp, promotes=["*"])
             else:
-                self.add_subsystem(f"IVC_financese_{key}", om.IndepVarComp(key, val=val), promotes=["*"])
+                self.add_subsystem(
+                    f"IVC_financese_{key}",
+                    om.IndepVarComp(key, val=val),
+                    promotes=["*"],
+                )
 
-        # add orbit #TODO check promotes
-        self.add_subsystem("financese", Orbit_orig(), promotes=[
-                "total_capex_kW",
-                "turbine_spacing_rotor_diameters",
-                "row_spacing_rotor_diameters",
+        # add financese #TODO check promotes
+        self.add_subsystem(
+            "financese",
+            PlantFinance_orig(),
+            promotes=[
+                "offset_tcc_per_kW",
+                "plant_aep_in",
+                "bos_per_kW",
+                # "tcc_per_kW",
+                "lcoe",
             ],
         )
 
-        # connect 
+        # connect
         for key, val in variable_mapping.items():
             self.connect(key, f"financese.{key}")
+
 
 class TurbineCapitalCosts(om.ExplicitComponent):
     """
@@ -371,8 +409,6 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
                 "interconnect_voltage_kV"
             ],
         }
-    print(f"DEBUG!!!!! variable_mapping: {variable_mapping}")
-    # set_values(prob, variable_map=variable_mapping)
 
     return variable_mapping
 
@@ -495,7 +531,6 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
     #     comp2promotion_map["orbit.orbit.transition_piece_cost"],
     #     modeling_options["turbine"]["costs"]["transition_piece_cost"])
 
-    # set_values(prob, variable_map=variable_mapping)
     return variable_mapping
 
 
@@ -520,68 +555,4 @@ def FinanceSE_setup_latents(modeling_options):
         "opex_per_kW": modeling_options["costs"]["opex_per_kW"],
     }
 
-    # set_values(prob, variable_map=variable_mapping)
-
     return variable_mapping
-
-
-def set_values(prob, variable_map: dict) -> None:
-    """
-    Set values in an OpenMDAO problem based on a mapping of variable names to values.
-
-    This function dynamically maps core variable names to their promoted names in the
-    OpenMDAO problem and sets their values using the provided `variable_map`.
-
-    Parameters
-    ----------
-    prob : openmdao.api.Problem
-        The OpenMDAO problem instance where the variables are to be set.
-    variable_map : dict
-        A dictionary mapping core variable names (keys) to their corresponding values
-        (values) that need to be set in the OpenMDAO problem.
-
-    Returns
-    -------
-    None
-    """
-
-    # # Get a map from the component variables to the promotion variables
-    promotion_map = {
-        v[0].split(".")[-1]: v[-1]["prom_name"]
-        for v in prob.model.list_vars(val=False, out_stream=None)
-    }
-
-    # Iterate over the mapping and set values in the OpenMDAO problem
-    for full_name in promotion_map:
-        prom_name = promotion_map[full_name]
-        core_name = prom_name.split(".")[-1]
-        if core_name in promotion_map:
-            try:
-                prob.set_val(prom_name, variable_map[core_name])
-            except:
-                print(
-                    f"{core_name} not provided in turbine input, using WISDEM default"
-                )
-
-    # # Get a map from the component variables to the promotion variables
-    # promotion_map = {
-    #     v[0]: v[-1]["prom_name"]
-    #     for v in prob.model.list_vars(val=False, out_stream=None)
-    # }
-
-    # # Iterate over the mapping and set values in the OpenMDAO problem
-    # for full_name in promotion_map:
-
-    #     prom_name = promotion_map[full_name]
-    #     core_name = prom_name.split(".")[-1]
-    #     # if "turbine_number" in full_name:
-    #     #     import pdb; pdb.set_trace()
-    #     if core_name in variable_map:
-    #         print(core_name)
-    #         try:
-    #             prob.set_val(full_name, variable_map[core_name])
-    #         except:
-    #             print(f"{core_name} not provided in Ard input, using WISDEM default")
-
-
-# ['financese.machine_rating', 'opex.machine_rating', 'orbit.orbit.turbine_rating', 'tcc.machine_rating']
