@@ -15,7 +15,7 @@ Moreover, the design of *one* of these aspects affects all the rest!
 `Ard` seeks to make plant-level design choices that can incorporate these different aspects _and their interactions_ to make wind energy projects more successful.
 
 ## Documentation
-The documentation organized as follows: 
+The documentation organized as follows:
 - **Getting Started**: helpful information to get you started using Ard, including installation instructions
 - **Tutorials**: example problems with solutions
 - **How-to Guides**: instructions on solving particular problems and using specific features of Ard
@@ -35,19 +35,29 @@ The components that achieve this can be assembled to either run a single top-dow
 ## Roadmap to future capabilities
 
 The future development of `Ard` is centered around two user cases:
-1) systems energy researchers who are focusing on one specific subdiscipline (e.g. layout strategies, social impacts, or aerodynamic modeling) but want to be able to easily keep track of how it impacts the entire value chain down to production, cost, and/or value of energy or even optimize with respect to it, and
-2) private industry researchers who are interested in how public-sector research results change when proprietary analysis tools are dropped in and coupled the other tools in a systems-level simulation.
+1) systems energy researchers who are focusing on one specific subdiscipline (e.g. layout strategies, social impacts, or aerodynamic modeling) but want to be able to easily keep track of how it impacts the entire value chain down to production, cost, and/or value of energy or even optimize with respect to these terminal metrics, and
+2) private industry researchers who are interested in how public-sector research results change when proprietary analysis tools are dropped in and coupled to the other tools in a systems-level simulation.
 
 `Ard` is being developed as a modular tool to enable these types of research queries.
 This starts from our research goals, which are that `Ard` should be:
-1) principled: fully documented, and adhering to best-practices for code development
-1) modular and extensible: choose the parts you want, skip the ones you don't, build yourself the ones we don't have
-1) effective: fully tested and testable at the unit and system level, and built with a derivative-forward approach
+1) principled
+   - fully documented
+   - adhering to best-practices for code development
+2) modular and extensible
+   - choose the parts you want
+   - skip the ones you don't
+   - build yourself the ones we don't have
+3) effective
+    - fully tested and testable at the unit and system level
+    - built with a forward-looking approach
+        - ready for derivatives and control of their approximation
+        - built to incorporate multi-fidelity approximation
+        - structured for extensibility to other advanced methods
 
 This, then, allows us to attempt to accomplish the technical goals of `Ard`, to:
 1) allow optimization of wind farm layouts for specific wind resource profiles
-1) target wholistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics
-1) naturally incorporate multi-fidelity analyses to efficiently integrate physics-resolving simulation
+2) target wholistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics
+3) naturally incorporate analyses across fidelities to efficiently integrate advanced simulation
 
 ---
 

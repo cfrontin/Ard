@@ -9,10 +9,10 @@
 The intent of `Ard` is to be a modular, full-stack multi-disciplinary optimization tool for wind farms.
 
 The problem with wind farms is that they are complicated, multi-disciplinary objects.
-They are aerodynamic machines, with complicated control systems, power electronic devices, social and political objects, and the core value (and cost) of complicated financial instruments.
-Moreover, the design of *one* of these aspects affects all the rest!
+They are aerodynamic machines (composed of complicated control systems, power electronic devices, etc.), social and political objects, and the core value generator (and cost) of complicated financial instruments.
+Moreover, the design of any *one* of these aspects affects all the rest!
 
-`Ard` seeks to make plant-level design choices that can incorporate these different aspects _and their interactions_ to make wind energy projects more successful.
+`Ard` seeks to enable plant-level design choices that can incorporate these different aspects _and their interactions_ to make wind energy projects more successful.
 
 ## Documentation
 Ard documentation is available at [https://wisdem.github.io/Ard/]()
