@@ -3,70 +3,31 @@ from pathlib import Path
 import numpy as np
 
 import floris
-import openmdao.api as om
-
-from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
+import windIO
 
 import ard
 import ard.utils.test_utils
-import ard.utils.io
-import ard.wind_query as wq
-
-# import ard.api.prototype as glue
+import ard.api.interface as glue
 import ard.cost.wisdem_wrap as cost_wisdem
-from ard.api import set_up_ard_model
+from ard.utils.io import load_yaml
 
 
 class TestLCOE_OFL_stack:
 
     def setup_method(self):
 
-        # create the wind query
-        wind_rose_wrg = floris.wind_data.WindRoseWRG(
-            Path(ard.__file__).parents[1] / "examples" / "data" / "wrg_example.wrg",
+        # load the Ard system input
+        path_ard_system = Path(__file__).parent / "inputs_offshore_monopile" / "ard_system.yaml"
+        input_dict = load_yaml(path_ard_system)
+
+        # get, validate, and load the windIO dict
+        windIOdict = input_dict["modeling_options"]["windIO_plant"]
+        windIO.validate(windIOdict, schema_type="plant/wind_energy_system")
+
+        # build an Ard model using the setup
+        self.prob = glue.set_up_ard_model(
+            input_dict=input_dict, root_data_path="inputs_onshore"
         )
-        wind_rose_wrg.set_wd_step(90.0)
-        wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
-        wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
-        wind_query = wq.WindQuery.from_FLORIS_WindData(wind_rose)
-
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
-            Path(ard.__file__).parents[1]
-            / "examples"
-            / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
-        )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
-        # set up the modeling options
-        self.modeling_options = {
-            "farm": {
-                "N_turbines": 25,
-                "spacing_primary": 7.0,
-                "spacing_secondary": 7.0,
-                "angle_orientation": 0.0,
-                "angle_skew": 0.0,
-            },
-            "wind_rose": wind_rose,
-            "site_depth": 50.0,
-            "turbine": data_turbine_spec,
-            "offshore": True,
-            "floating": True,
-        }
-
-        # create the OM problem
-        # self.prob = glue.create_setup_OM_problem(
-        #     modeling_options=self.modeling_options,
-        # )
-
-        input_dict = {
-            "system": "offshore_monopile_no_cable_design",
-            "modeling_options": self.modeling_options,
-            "analysis_options": {},
-        }
-
-        self.prob = set_up_ard_model(input_dict=input_dict)
 
     def test_model(self, subtests):
 

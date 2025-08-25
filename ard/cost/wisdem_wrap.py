@@ -507,18 +507,14 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
     else:
         variable_mapping.update(
             {
-                "monopile_mass": modeling_options["turbine"]["costs"]["monopile_mass"],
-                "monopile_cost": modeling_options["turbine"]["costs"]["monopile_cost"],
-                "monopile_length": modeling_options["turbine"]["geometry"][
-                    "monopile_length"
-                ],
-                "monopile_diameter": modeling_options["turbine"]["geometry"][
-                    "monopile_diameter"
-                ],
-                "transition_piece_mass": modeling_options["turbine"]["costs"][
+                "monopile_mass": modeling_options["costs"]["monopile_mass"],
+                "monopile_cost": modeling_options["costs"]["monopile_cost"],
+                "monopile_length": modeling_options["costs"]["monopile_length"],
+                "monopile_diameter": modeling_options["costs"]["monopile_diameter"],
+                "transition_piece_mass": modeling_options["costs"][
                     "transition_piece_mass"
                 ],
-                "transition_piece_cost": modeling_options["turbine"]["costs"][
+                "transition_piece_cost": modeling_options["costs"][
                     "transition_piece_cost"
                 ],
             }

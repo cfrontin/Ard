@@ -18,17 +18,44 @@ class TestMooringPacking:
     def setup_method(self):
 
         # specify the configuration/specification files to use
-        filename_turbine_spec = (
+        filename_turbine = (
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
-        )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
+            / "windIO-plant_turbine_IEA-22MW-284m-RWT.yaml"
+        )  # windIO turbine specification
+        data_windIO_turbine = ard.utils.io.load_yaml(filename_turbine)
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "windIO_plant": {
+                "name": "system test special",
+                "site": {
+                    "name": "system test site",
+                    "boundaries": {
+                        "polygons": [
+                            {
+                                "x": [-2.0, 2.0, 2.0, -2.0],
+                                "y": [-2.0, -2.0, 2.0, 2.0],
+                            },
+                        ],
+                    },
+                },
+                "wind_farm": {
+                    "turbine": data_windIO_turbine,
+                    "electrical_substations": [
+                        {
+                            "electrical_substation": {
+                                "coordinates": {
+                                    "x": [500.0],
+                                    "y": [500.0],
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+            "layout": {
                 "N_turbines": 4,
                 "N_substations": 1,
                 "spacing_primary": 7.0,
@@ -38,12 +65,9 @@ class TestMooringPacking:
                 "phi_platform": 0.0,
                 "x_turbines": np.zeros(4),
                 "y_turbines": np.zeros(4),
-                "x_substations": 500,
-                "y_substations": 500,
             },
-            "turbine": data_turbine_spec,
-            "offshore": True,
-            "floating": True,
+            "offshore": False,
+            "floating": False,
             "platform": {
                 "N_anchors": 3,
                 "min_mooring_line_length_m": 500.0,
@@ -135,7 +159,7 @@ class TestMooringPacking:
         self.prob.model.add_constraint(
             "spacing_constraint.turbine_spacing",
             units="m",
-            lower=3 * self.modeling_options["turbine"]["geometry"]["diameter_rotor"],
+            lower=3 * self.modeling_options["windIO_plant"]["wind_farm"]["turbine"]["rotor_diameter"],
         )
         self.prob.model.add_objective("optiwindnet_coll.total_length_cables")
 

@@ -93,6 +93,8 @@ modeling_options:
     # Fixed bottom configuration
     monopile_mass: 2097.21115974 # (t)
     monopile_cost: 4744119.28172591 # (USD)
+    monopile_length: 94. # (m)
+    monopile_diameter: 10. # (m) (max)
     tcc_per_kW: 1397.17046735 # (USD/kW)
     opex_per_kW: 110. # (USD/kWh)
 
