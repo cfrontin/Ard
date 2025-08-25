@@ -1,7 +1,7 @@
 type: group
 connections:
   - ["AEP_farm", "financese.plant_aep_in"]
-  - ["total_capex_kW", "financese.bos_per_kW"]
+  - ["landbosse.total_capex_kW", "financese.bos_per_kW"]
 systems:
   layout2aep:
     type: group
@@ -68,7 +68,7 @@ systems:
     type: component
     module: ard.cost.wisdem_wrap
     object: LandBOSSEWithSpacingApproximations
-    promotes: ["*"]
+    promotes: []
     kwargs:
       modeling_options:
   opex:
@@ -83,7 +83,7 @@ systems:
   financese:
     type: component
     module: ard.cost.wisdem_wrap
-    object: PlantFinance
+    object: FinanceSEGroup
     promotes: [
       "turbine_number",
       "machine_rating",
@@ -91,3 +91,5 @@ systems:
       "offset_tcc_per_kW",
       "opex_per_kW",
     ]
+    kwargs:
+      modeling_options:
