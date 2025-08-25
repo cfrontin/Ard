@@ -17,27 +17,42 @@ class TestORBITNoApproxBranch:
     def test_raise_error(self):
 
         # specify the configuration/specification files to use
-        filename_turbine_spec = (
+        filename_turbine = (
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
+            / "windIO-plant_turbine_IEA-22MW-284m-RWT.yaml"
         ).absolute()  # toolset generalized turbine specification
 
-        # load the turbine specification
-        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
         # set up the modeling options
+        windIO_plant = {
+            "site": {
+                "energy_resource": {
+                    "wind_resource": {
+                        "shear": 0.2,
+                    },
+                },
+            },
+            "wind_farm": {
+                "turbine": ard.utils.io.load_yaml(filename_turbine),
+                "electrical_substations": [{
+                    "electrical_substation": {
+                        "coordinates": {
+                            "x": [100.0],
+                            "y": [100.0],
+                        },
+                    },
+                }],
+            },
+        }
         modeling_options = {
-            "farm": {
+            "windIO_plant": windIO_plant,
+            "layout": {
                 "N_turbines": 7,
                 "N_substations": 1,
                 "x_turbines": np.linspace(-7.0 * 400.0, 7.0 * 400.0, 7),
                 "y_turbines": np.linspace(7.0 * 400.0, -7.0 * 400.0, 7),
-                "x_substations": np.array([0.1]),
-                "y_substations": np.array([0.1]),
             },
-            "turbine": data_turbine,
             "offshore": True,
             "floating": True,
             "platform": {
@@ -78,10 +93,8 @@ class TestORBITNoApproxBranch:
 
         orbit = model.add_subsystem(
             "orbit",
-            ocost.ORBITDetail(
+            ocost.ORBITDetailedGroup(
                 modeling_options=modeling_options,
-                floating=modeling_options["floating"],
-                approximate_branches=False,
             ),
             promotes=[
                 "x_turbines",
@@ -93,33 +106,41 @@ class TestORBITNoApproxBranch:
         model.connect("optiwindnet_coll.graph", "orbit.graph")
 
         model.set_input_defaults(
-            "x_turbines", modeling_options["farm"]["x_turbines"], units="km"
+            "x_turbines", modeling_options["layout"]["x_turbines"], units="km"
         )
         model.set_input_defaults(
-            "y_turbines", modeling_options["farm"]["y_turbines"], units="km"
+            "y_turbines", modeling_options["layout"]["y_turbines"], units="km"
         )
         model.set_input_defaults(
-            "x_substations", modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", [
+                li["electrical_substation"]["coordinates"]["x"]
+                for li in windIO_plant["wind_farm"]["electrical_substations"]
+            ], units="km"
         )
         model.set_input_defaults(
-            "y_substations", modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", [
+                li["electrical_substation"]["coordinates"]["y"]
+                for li in windIO_plant["wind_farm"]["electrical_substations"]
+            ], units="km"
         )
 
         prob = om.Problem(model)
         prob.setup()
 
-        # setup the latent variables for ORBIT and FinanceSE
-        ocost.ORBIT_setup_latents(prob, modeling_options)
-        # wcost.FinanceSE_setup_latents(prob, modeling_options)
-
-        prob.set_val("x_turbines", modeling_options["farm"]["x_turbines"], units="m")
-        prob.set_val("y_turbines", modeling_options["farm"]["y_turbines"], units="m")
+        prob.set_val("x_turbines", modeling_options["layout"]["x_turbines"], units="m")
+        prob.set_val("y_turbines", modeling_options["layout"]["y_turbines"], units="m")
 
         prob.set_val(
-            "x_substations", modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", [
+                li["electrical_substation"]["coordinates"]["x"]
+                for li in windIO_plant["wind_farm"]["electrical_substations"]
+            ], units="km"
         )
         prob.set_val(
-            "y_substations", modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", [
+                li["electrical_substation"]["coordinates"]["y"]
+                for li in windIO_plant["wind_farm"]["electrical_substations"]
+            ], units="km"
         )
 
         # this configuration should not work

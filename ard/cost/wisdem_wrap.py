@@ -6,6 +6,7 @@ from wisdem.plant_financese.plant_finance import PlantFinance as PlantFinance_or
 from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_orig
 from wisdem.orbit.orbit_api import Orbit as Orbit_orig
 
+# from ard.cost.orbit_wrap import ORBITDetail as OrbitDetail_orig
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
 
