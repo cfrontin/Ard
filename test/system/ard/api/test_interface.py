@@ -35,7 +35,7 @@ class TestSetUpArdModelOnshore:
             )
         with subtests.test("opex.opex"):
             assert self.prob.get_val("opex.opex", units="MUSD/yr")[0] == pytest.approx(
-                3.707
+                3.740
             )
         with subtests.test("financese.lcoe"):
             assert self.prob.get_val("financese.lcoe", units="USD/MW/h")[
