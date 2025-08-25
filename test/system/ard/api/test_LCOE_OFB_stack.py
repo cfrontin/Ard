@@ -35,7 +35,7 @@ class TestLCOE_OFB_stack:
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
+            / "windIO-plat_turbine_spec_IEA-22-284-RWT.yaml"
         )  # toolset generalized turbine specification
         data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 

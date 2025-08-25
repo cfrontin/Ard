@@ -9,11 +9,27 @@ from ard.api import set_up_ard_model
 import openmdao.api as om
 
 
+# get plot limits based on the farm boundaries
+def get_limits(windIOdict, lim_buffer=0.05):
+    x_lim = [
+        np.min(windIOdict["site"]["boundaries"]["polygons"][0]["x"])
+        - lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["x"]),
+        np.max(windIOdict["site"]["boundaries"]["polygons"][0]["x"])
+        + lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["x"]),
+    ]
+    y_lim = [
+        np.min(windIOdict["site"]["boundaries"]["polygons"][0]["y"])
+        - lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["y"]),
+        np.max(windIOdict["site"]["boundaries"]["polygons"][0]["y"])
+        + lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["y"]),
+    ]
+    return x_lim, y_lim
+
 def run_example():
 
     # load input
     input_dict = load_yaml("./inputs/ard_system.yaml")
-
+    
     # set up system
     prob = set_up_ard_model(input_dict=input_dict, root_data_path="inputs")
 
@@ -75,6 +91,27 @@ def run_example():
         print("\n\nRESULTS (opt):\n")
         pp.pprint(test_data)
         print("\n\n")
+
+
+    # get the turbine locations to plot
+    x_turbines = prob.get_val("x_turbines", units="km")
+    y_turbines = prob.get_val("y_turbines", units="km")
+
+    # make a plot
+    fig, ax = plt.subplots()
+    windIO_dict = input_dict["modeling_options"]["windIO_plant"]
+    ax.fill(
+        windIO_dict["site"]["boundaries"]["polygons"][0]["x"],
+        windIO_dict["site"]["boundaries"]["polygons"][0]["y"],
+        linestyle="--",
+        alpha=0.5,
+        fill=False,
+    )
+    ax.plot(x_turbines, y_turbines, "ok")
+    x_lim, y_lim = get_limits(windIO_dict)
+    ax.set_xlim(x_lim)
+    ax.set_ylim(y_lim)
+    plt.show()
 
 
 if __name__ == "__main__":

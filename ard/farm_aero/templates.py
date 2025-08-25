@@ -14,7 +14,7 @@ def create_windresource_from_windIO(
     """
     break out the windIO wind resource specification
     """
-
+    
     assert "site" in windIOdict  # make sure the site is specified
     assert "energy_resource" in windIOdict["site"]
     assert "wind_resource" in windIOdict["site"]["energy_resource"]

@@ -147,7 +147,7 @@ analysis_options:
     options:
       optimizer: "COBYLA"
       opt_settings:
-        rhobeg: 2.0
+        rhobeg: 200.0
       debug_print:
         - "desvars"
         - "ln_cons"

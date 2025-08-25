@@ -21,7 +21,7 @@ class TestORBITNoApproxBranch:
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
+            / "windIO-plant_turbine_IEA-22MW-284m-RWT.yaml"
         ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
@@ -133,7 +133,7 @@ class TestORBITNoApproxBranch:
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
+            / "windIO-plant_turbine_IEA-22MW-284m-RWT.yaml"
         ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
@@ -258,7 +258,7 @@ class TestORBITApproxBranch:
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-22-284-RWT.yaml"
+            / "windIO-plant_turbine_IEA-22MW-284m-RWT.yaml"
         ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
