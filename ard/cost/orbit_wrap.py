@@ -247,9 +247,9 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 modeling_options=self.modeling_options,
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
-                floating=self.options["floating"],
-                jacket=self.options["jacket"],
-                jacket_legs=self.options["jacket_legs"],
+                floating=self.modeling_options["floating"],
+                jacket=self.modeling_options.get("jacket", False),
+                jacket_legs=self.modeling_options.get("jacket_legs", False),
             ),
             promotes=["*"],
         )
@@ -320,6 +320,8 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         config["plant"] = {
             "layout": "custom",
             "num_turbines": int(discrete_inputs["number_of_turbines"]),
+            "turbine_spacing": inputs["plant_turbine_spacing"],
+            "row_spacing": inputs["plant_row_spacing"],
         }
 
         # switch to the custom array system design
@@ -379,9 +381,11 @@ class ORBITDetailedGroup(om.Group):
 
     def initialize(self):
         """Initialize the group and declare options."""
+        self.options.declare("case_title", default="working")
         self.options.declare(
             "modeling_options", types=dict, desc="Ard modeling options"
         )
+        self.options.declare("approximate_branches", default=False)
 
     def setup(self):
 
@@ -389,6 +393,8 @@ class ORBITDetailedGroup(om.Group):
         variable_mapping = ORBIT_setup_latents(
             modeling_options=self.options["modeling_options"]
         )
+
+        print(variable_mapping)
 
         # create source independent variable components for LandBOSSE inputs
         for key, val in variable_mapping.items():
@@ -404,7 +410,11 @@ class ORBITDetailedGroup(om.Group):
         # add orbit
         self.add_subsystem(
             "orbit",
-            ORBITDetail(),
+            ORBITDetail(
+                case_title=self.options["case_title"],
+                modeling_options=self.options["modeling_options"],
+                approximate_branches=self.options["approximate_branches"],
+            ),
             promotes=[
                 "total_capex",
                 "total_capex_kW",

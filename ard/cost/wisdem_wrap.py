@@ -138,7 +138,11 @@ class ORBITGroup(om.Group):
         # add orbit
         self.add_subsystem(
             "orbit",
-            Orbit_orig(),
+            Orbit_orig(
+                floating=self.modeling_options["floating"],
+                jacket=self.modeling_options.get("jacket", False),
+                jacket_legs=self.modeling_options.get("jacket_legs", 0),
+            ),
             promotes=[
                 "total_capex",
                 "total_capex_kW",
