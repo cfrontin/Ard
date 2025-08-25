@@ -3,8 +3,8 @@ site:
     name: Great wind farm
     boundaries:
         polygons:
-            - x: [3.0, 5.0, 5.0, 3.0, -3.0, -5.0, -5.0, -3.0]
-              y: [5.0, 3.0, -3.0, -5.0, -5.0, -3.0, 3.0, 5.0]
+            - x: [ 1.5,  3.0,  3.0,  1.5, -1.5, -3.0, -3.0, -1.5]
+              y: [ 3.0,  1.5, -1.5, -3.0, -3.0, -1.5,  1.5,  3.0]
     energy_resource:
         name: Great resource
         wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml

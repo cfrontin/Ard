@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+import openmdao.api as om
+
 import windIO
 
 from ard.utils.io import load_yaml
@@ -34,12 +36,13 @@ for i_t, (x_t, y_t) in enumerate(
 ):
     print(f"\t{i_t:03d}: ({x_t:.03f} km, {y_t:.03f} km)")
 print(f"AEP result: {prob.get_val('AEP_farm', units='GW*h')[0]} GWh")
+print(f"LCOE result: {prob.get_val('financese.lcoe', units='USD/MW/h')[0]} $/MWh")
 print(f"landuse result: {prob.get_val('landuse.area_tight', units='km**2')[0]} sq. km")
 print(
     f"total cable length: {prob.get_val('optiwindnet_coll.total_length_cables', units='km')[0]} km"
 )
 print(f"boundary distances: {prob.get_val('boundary_distances', units='km')}")
-
+# om.n2(prob)
 run_optimize = True
 if run_optimize:
     # run the driver
@@ -56,6 +59,7 @@ if run_optimize:
     ):
         print(f"\t{i_t:03d}: ({x_t:.03f} km, {y_t:.03f} km)")
     print(f"AEP result: {prob.get_val('AEP_farm', units='GW*h')[0]} GWh")
+    print(f"LCOE result: {prob.get_val('financese.lcoe', units='USD/MW/h')[0]} $/MWh")
     print(
         f"landuse result: {prob.get_val('landuse.area_tight', units='km**2')[0]} sq. km"
     )

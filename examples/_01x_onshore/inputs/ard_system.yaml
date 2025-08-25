@@ -4,8 +4,8 @@ modeling_options: &modeling_options
     N_turbines: 25
     N_substations: 1
     type: "gridfarm"
-    spacing_primary: 18.0
-    spacing_secondary: 18.0
+    spacing_primary: 7.0
+    spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
   floris:
@@ -130,7 +130,7 @@ system:
     financese:
       type: component
       module: ard.cost.wisdem_wrap
-      object: PlantFinance
+      object: FinanceSEGroup
       promotes: [
         "turbine_number",
         "machine_rating",
@@ -138,6 +138,8 @@ system:
         "offset_tcc_per_kW",
         "opex_per_kW",
       ]
+      kwargs:
+        modeling_options: *modeling_options
 
 analysis_options:
   driver:
@@ -145,34 +147,45 @@ analysis_options:
     options:
       optimizer: "COBYLA"
       opt_settings:
-        rhobeg: 500
+        rhobeg: 2.0
+      debug_print:
+        - "desvars"
+        - "ln_cons"
+        - "nl_cons"
+        - "objs"
 
   design_variables:
     spacing_primary:
       lower: 3.0
       upper: 20.0
+      scaler: 1.0
     spacing_secondary:
       lower: 3.0
       upper: 20.0
+      scaler: 1.0
     angle_orientation:
       lower: -180.0
       upper: 180.0
+      scaler: 0.10
     angle_skew:
       lower: -75.0
       upper: 180.0
+      scaler: 0.10
   constraints:
     boundary_distances:
       units: "km"
       upper: 0.0
+      scaler: 2.0
     spacing_constraint.turbine_spacing:
-      units: "m"
-      lower: 552.0
+      units: "km"
+      lower: 0.552
+      scaler: 0.2
   objective:
-    name: AEP_farm  # layout2aep.AEP_farm
-    options:
-      scaler: -1.0
-    # name: financese.lcoe
+    # name: AEP_farm  # layout2aep.AEP_farm
     # options:
-    #   scaler: 1.0
+    #   scaler: -1.0
+    name: financese.lcoe
+    options:
+      scaler: 0.02
   recorder:
     filepath: "cases.sql"
