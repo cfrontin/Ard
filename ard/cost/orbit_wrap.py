@@ -249,7 +249,7 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 approximate_branches=self.options["approximate_branches"],
                 floating=self.modeling_options["floating"],
                 jacket=self.modeling_options.get("jacket", False),
-                jacket_legs=self.modeling_options.get("jacket_legs", False),
+                jacket_legs=self.modeling_options.get("jacket_legs", 0),
             ),
             promotes=["*"],
         )
@@ -393,8 +393,6 @@ class ORBITDetailedGroup(om.Group):
         variable_mapping = ORBIT_setup_latents(
             modeling_options=self.options["modeling_options"]
         )
-
-        print(variable_mapping)
 
         # create source independent variable components for LandBOSSE inputs
         for key, val in variable_mapping.items():

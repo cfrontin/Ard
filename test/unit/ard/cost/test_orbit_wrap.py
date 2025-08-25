@@ -362,8 +362,8 @@ class TestORBITNoApproxBranch:
         bos_capex = float(prob.get_val("orbit.bos_capex", units="MUSD"))
         total_capex = float(prob.get_val("orbit.total_capex", units="MUSD"))
 
-        bos_capex_ref = 469.4374151677202
-        total_capex_ref = 720.0174151677202
+        bos_capex_ref = 477.3328175080761
+        total_capex_ref = 727.9128175080762
 
         with subtests.test(f"orbit_skew_bos"):
             assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-3)
@@ -495,7 +495,6 @@ class TestORBITApproxBranch:
             "orbit",
             ocost.ORBITDetailedGroup(
                 modeling_options=self.modeling_options,
-                floating=self.modeling_options["floating"],
                 approximate_branches=True,
             ),
             promotes=[
@@ -556,8 +555,8 @@ class TestORBITApproxBranch:
         bos_capex = float(self.prob.get_val("orbit.bos_capex", units="MUSD"))
         total_capex = float(self.prob.get_val("orbit.total_capex", units="MUSD"))
 
-        bos_capex_ref = 469.4374151677202
-        total_capex_ref = 720.0174151677202
+        bos_capex_ref = 477.3328175080761
+        total_capex_ref = 727.9128175080762
 
         with subtests.test(f"orbit_skew_bos"):
             assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-3)

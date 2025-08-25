@@ -184,7 +184,9 @@ class TestORBIT:
         )
         self.orbit = self.model.add_subsystem(
             "orbit",
-            wcost.ORBITGroup(modeling_options=self.modeling_options),
+            wcost.ORBITGroup(
+                modeling_options=self.modeling_options,
+            ),
         )
         self.model.connect(  # effective primary spacing for BOS
             "spacing_effective_primary", "orbit.plant_turbine_spacing"

@@ -139,9 +139,9 @@ class ORBITGroup(om.Group):
         self.add_subsystem(
             "orbit",
             Orbit_orig(
-                floating=self.modeling_options["floating"],
-                jacket=self.modeling_options.get("jacket", False),
-                jacket_legs=self.modeling_options.get("jacket_legs", 0),
+                floating=self.options["modeling_options"]["floating"],
+                jacket=self.options["modeling_options"].get("jacket", False),
+                jacket_legs=self.options["modeling_options"].get("jacket_legs", 0),
             ),
             promotes=[
                 "total_capex",
