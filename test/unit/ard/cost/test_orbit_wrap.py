@@ -35,14 +35,16 @@ class TestORBITNoApproxBranch:
             },
             "wind_farm": {
                 "turbine": ard.utils.io.load_yaml(filename_turbine),
-                "electrical_substations": [{
-                    "electrical_substation": {
-                        "coordinates": {
-                            "x": [100.0],
-                            "y": [100.0],
+                "electrical_substations": [
+                    {
+                        "electrical_substation": {
+                            "coordinates": {
+                                "x": [100.0],
+                                "y": [100.0],
+                            },
                         },
-                    },
-                }],
+                    }
+                ],
             },
         }
         modeling_options = {
@@ -152,16 +154,20 @@ class TestORBITNoApproxBranch:
             "y_turbines", modeling_options["layout"]["y_turbines"], units="km"
         )
         model.set_input_defaults(
-            "x_substations", [
+            "x_substations",
+            [
                 li["electrical_substation"]["coordinates"]["x"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
         model.set_input_defaults(
-            "y_substations", [
+            "y_substations",
+            [
                 li["electrical_substation"]["coordinates"]["y"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
 
         prob = om.Problem(model)
@@ -171,16 +177,20 @@ class TestORBITNoApproxBranch:
         prob.set_val("y_turbines", modeling_options["layout"]["y_turbines"], units="m")
 
         prob.set_val(
-            "x_substations", [
+            "x_substations",
+            [
                 li["electrical_substation"]["coordinates"]["x"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
         prob.set_val(
-            "y_substations", [
+            "y_substations",
+            [
                 li["electrical_substation"]["coordinates"]["y"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
 
         # this configuration should not work
@@ -208,14 +218,16 @@ class TestORBITNoApproxBranch:
             },
             "wind_farm": {
                 "turbine": ard.utils.io.load_yaml(filename_turbine),
-                "electrical_substations": [{
-                    "electrical_substation": {
-                        "coordinates": {
-                            "x": [100.0],
-                            "y": [100.0],
+                "electrical_substations": [
+                    {
+                        "electrical_substation": {
+                            "coordinates": {
+                                "x": [100.0],
+                                "y": [100.0],
+                            },
                         },
-                    },
-                }],
+                    }
+                ],
             },
         }
         modeling_options = {
@@ -326,16 +338,20 @@ class TestORBITNoApproxBranch:
             "y_turbines", modeling_options["layout"]["y_turbines"], units="km"
         )
         model.set_input_defaults(
-            "x_substations", [
+            "x_substations",
+            [
                 li["electrical_substation"]["coordinates"]["x"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
         model.set_input_defaults(
-            "y_substations", [
+            "y_substations",
+            [
                 li["electrical_substation"]["coordinates"]["y"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
 
         prob = om.Problem(model)
@@ -345,16 +361,20 @@ class TestORBITNoApproxBranch:
         prob.set_val("y_turbines", modeling_options["layout"]["y_turbines"], units="m")
 
         prob.set_val(
-            "x_substations", [
+            "x_substations",
+            [
                 li["electrical_substation"]["coordinates"]["x"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
         prob.set_val(
-            "y_substations", [
+            "y_substations",
+            [
                 li["electrical_substation"]["coordinates"]["y"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
 
         prob.run_model()
@@ -395,14 +415,16 @@ class TestORBITApproxBranch:
             },
             "wind_farm": {
                 "turbine": ard.utils.io.load_yaml(filename_turbine),
-                "electrical_substations": [{
-                    "electrical_substation": {
-                        "coordinates": {
-                            "x": [100.0],
-                            "y": [100.0],
+                "electrical_substations": [
+                    {
+                        "electrical_substation": {
+                            "coordinates": {
+                                "x": [100.0],
+                                "y": [100.0],
+                            },
                         },
-                    },
-                }],
+                    }
+                ],
             },
         }
         modeling_options = self.modeling_options = {
@@ -513,16 +535,20 @@ class TestORBITApproxBranch:
             "y_turbines", self.modeling_options["layout"]["y_turbines"], units="km"
         )
         self.model.set_input_defaults(
-            "x_substations", [
+            "x_substations",
+            [
                 li["electrical_substation"]["coordinates"]["x"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
         self.model.set_input_defaults(
-            "y_substations", [
+            "y_substations",
+            [
                 li["electrical_substation"]["coordinates"]["y"]
                 for li in windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
 
         self.prob = om.Problem(self.model)
@@ -538,16 +564,20 @@ class TestORBITApproxBranch:
         )
 
         self.prob.set_val(
-            "x_substations", [
+            "x_substations",
+            [
                 li["electrical_substation"]["coordinates"]["x"]
                 for li in self.windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
         self.prob.set_val(
-            "y_substations", [
+            "y_substations",
+            [
                 li["electrical_substation"]["coordinates"]["y"]
                 for li in self.windIO_plant["wind_farm"]["electrical_substations"]
-            ], units="km"
+            ],
+            units="km",
         )
 
         self.prob.run_model()
