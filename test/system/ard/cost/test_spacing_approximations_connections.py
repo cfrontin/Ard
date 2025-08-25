@@ -16,12 +16,6 @@ class TestLandBOSSEWithSpacingApproximations:
             / "data"
             / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
         )
-        # filename_windresource = (
-        #     Path(ard.__file__).parents[1]
-        #     / "examples"
-        #     / "data"
-        #     / "windIO-plant_wind-resource_wrg-example.yaml"
-        # )
 
         # set up the modeling options
         modeling_options = {
@@ -44,6 +38,23 @@ class TestLandBOSSEWithSpacingApproximations:
             },
             "layout": {
                 "N_turbines": 25,
+            },
+            "costs": {
+                "rated_power": 3.4,  # MW
+                "num_blades": 3,
+                "rated_thrust_N": 645645.83964671,
+                "gust_velocity_m_per_s": 52.5,
+                "blade_surface_area": 69.7974979,
+                "tower_mass": 620440.7337521,
+                "nacelle_mass": 101985.82836439,
+                "hub_mass": 8384.07517646,
+                "blade_mass": 14563.41339641,
+                "foundation_height": 0.0,
+                "commissioning_cost_kW": 44.0,
+                "decommissioning_cost_kW": 58.0,
+                "trench_len_to_substation_km": 50.0,
+                "distance_to_interconnect_mi": 4.97096954,
+                "interconnect_voltage_kV": 130.0,
             },
         }
         windIO_plant = modeling_options["windIO_plant"]
