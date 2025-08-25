@@ -24,7 +24,9 @@ class TestLCOE_LB_stack:
         windIO.validate(windIOdict, schema_type="plant/wind_energy_system")
 
         # build an Ard model using the setup
-        self.prob = glue.set_up_ard_model(input_dict=input_dict, root_data_path="inputs_onshore")
+        self.prob = glue.set_up_ard_model(
+            input_dict=input_dict, root_data_path="inputs_onshore"
+        )
 
     def test_model(self, subtests):
 
