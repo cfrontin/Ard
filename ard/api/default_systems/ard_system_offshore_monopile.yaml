@@ -66,7 +66,7 @@ systems:
       # "installation_capex",
     ]
     kwargs:
-      floating: true
+      modeling_options:
   opex:
     type: component
     module: ard.cost.wisdem_wrap
@@ -79,7 +79,7 @@ systems:
   financese:
     type: component
     module: ard.cost.wisdem_wrap
-    object: PlantFinance
+    object: FinanceSEGroup
     promotes: [
       "turbine_number",
       "machine_rating",
@@ -87,6 +87,8 @@ systems:
       "offset_tcc_per_kW",
       "opex_per_kW",
     ]
+    kwargs:
+      modeling_options:
 connections:
   - ["AEP_farm", "financese.plant_aep_in"]
   - ["orbit.total_capex_kW", "financese.bos_per_kW"]

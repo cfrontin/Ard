@@ -50,34 +50,6 @@ def write_yaml(filename, data):
         yaml.dump(data, file, sort_keys=False, encoding=None, default_flow_style=False)
 
 
-def load_turbine_spec(
-    filename_turbine_spec: PathLike,
-):
-    """
-    Utility to load turbine spec. files, & transform relative to absolute links.
-
-    Parameters
-    ----------
-    filename_turbine_spec : Pathlike
-        filename of a turbine specification to load
-
-    Returns
-    -------
-    dict
-        a turbine specification dictionary
-    """
-
-    filename_turbine_spec = Path(filename_turbine_spec)
-    dir_turbine_spec = filename_turbine_spec.parent
-    turbine_spec = load_yaml(filename_turbine_spec)
-    filename_powercurve = (
-        dir_turbine_spec / turbine_spec["performance_data_ccblade"]["power_thrust_csv"]
-    )
-    turbine_spec["performance_data_ccblade"]["power_thrust_csv"] = filename_powercurve
-
-    return turbine_spec
-
-
 def replace_key_value(
     target_dict: dict, target_key: str, new_value, replace_none_only=True
 ) -> dict:
