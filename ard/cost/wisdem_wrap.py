@@ -6,6 +6,7 @@ from wisdem.plant_financese.plant_finance import PlantFinance as PlantFinance_or
 from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_orig
 from wisdem.orbit.orbit_api import Orbit as Orbit_orig
 
+# from ard.cost.orbit_wrap import ORBITDetail as OrbitDetail_orig
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
 
@@ -137,11 +138,16 @@ class ORBITGroup(om.Group):
         # add orbit
         self.add_subsystem(
             "orbit",
-            Orbit_orig(),
+            Orbit_orig(
+                floating=self.options["modeling_options"]["floating"],
+                jacket=self.options["modeling_options"].get("jacket", False),
+                jacket_legs=self.options["modeling_options"].get("jacket_legs", 0),
+            ),
             promotes=[
                 "total_capex",
                 "total_capex_kW",
                 "bos_capex",
+                "installation_capex",
                 "plant_turbine_spacing",
                 "plant_row_spacing",
             ],
@@ -322,7 +328,9 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
 
         variable_mapping = {
             "num_turbines": modeling_options["layout"]["N_turbines"],
-            "turbine_rating_MW": modeling_options["costs"]["rated_power"],
+            "turbine_rating_MW": modeling_options["windIO_plant"]["wind_farm"][
+                "turbine"
+            ]["performance"]["rated_power"],
             "hub_height_meters": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["hub_height"],
@@ -345,7 +353,9 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
     elif any(key in modeling_options["costs"] for key in offshore_floating_keys):
         variable_mapping = {
             "num_turbines": modeling_options["layout"]["N_turbines"],
-            "turbine_rating_MW": modeling_options["costs"]["rated_power"],
+            "turbine_rating_MW": modeling_options["windIO_plant"]["wind_farm"][
+                "turbine"
+            ]["performance"]["rated_power"],
             "hub_height_meters": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["hub_height"],
@@ -376,7 +386,9 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
         # be used for BOS costs for offshore systems.
         variable_mapping = {
             "num_turbines": modeling_options["layout"]["N_turbines"],
-            "turbine_rating_MW": modeling_options["costs"]["rated_power"],
+            "turbine_rating_MW": modeling_options["windIO_plant"]["wind_farm"][
+                "turbine"
+            ]["performance"]["rated_power"],
             "hub_height_meters": modeling_options["windIO_plant"]["wind_farm"][
                 "turbine"
             ]["hub_height"],
@@ -428,7 +440,9 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
 
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
-        "turbine_rating": modeling_options["costs"]["rated_power"],
+        "turbine_rating": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+            "performance"
+        ]["rated_power"],
         "site_depth": modeling_options["site_depth"],
         "number_of_turbines": modeling_options["layout"]["N_turbines"],
         "number_of_blades": modeling_options["costs"]["num_blades"],
@@ -494,18 +508,14 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
     else:
         variable_mapping.update(
             {
-                "monopile_mass": modeling_options["turbine"]["costs"]["monopile_mass"],
-                "monopile_cost": modeling_options["turbine"]["costs"]["monopile_cost"],
-                "monopile_length": modeling_options["turbine"]["geometry"][
-                    "monopile_length"
-                ],
-                "monopile_diameter": modeling_options["turbine"]["geometry"][
-                    "monopile_diameter"
-                ],
-                "transition_piece_mass": modeling_options["turbine"]["costs"][
+                "monopile_mass": modeling_options["costs"]["monopile_mass"],
+                "monopile_cost": modeling_options["costs"]["monopile_cost"],
+                "monopile_length": modeling_options["costs"]["monopile_length"],
+                "monopile_diameter": modeling_options["costs"]["monopile_diameter"],
+                "transition_piece_mass": modeling_options["costs"][
                     "transition_piece_mass"
                 ],
-                "transition_piece_cost": modeling_options["turbine"]["costs"][
+                "transition_piece_cost": modeling_options["costs"][
                     "transition_piece_cost"
                 ],
             }
@@ -550,7 +560,10 @@ def FinanceSE_setup_latents(modeling_options):
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
         "turbine_number": int(modeling_options["layout"]["N_turbines"]),
-        "machine_rating": modeling_options["costs"]["rated_power"] * 1.0e3,
+        "machine_rating": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+            "performance"
+        ]["rated_power"]
+        * 1.0e3,
         "tcc_per_kW": modeling_options["costs"]["tcc_per_kW"],
         "opex_per_kW": modeling_options["costs"]["opex_per_kW"],
     }

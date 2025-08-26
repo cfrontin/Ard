@@ -15,9 +15,6 @@ class CollectionTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    windIO_plant : dict
-        the dictionary representation of a loaded and validated windIO
-        specification
 
     Inputs
     ------

@@ -1,7 +1,4 @@
 type: group
-connections:
-  - ["AEP_farm", "financese.plant_aep_in"]
-  - ["total_capex_kW", "financese.bos_per_kW"]
 systems:
   layout2aep:
     type: group
@@ -70,7 +67,9 @@ systems:
     type: component
     module: ard.cost.wisdem_wrap
     object: LandBOSSEWithSpacingApproximations
-    promotes: ["*"]
+    promotes: [
+      "total_length_cables",
+    ]
     kwargs:
       modeling_options:
   opex:
@@ -95,3 +94,6 @@ systems:
     ]
     kwargs:
       modeling_options:
+connections:
+  - ["AEP_farm", "financese.plant_aep_in"]
+  - ["landbosse.total_capex_kW", "financese.bos_per_kW"]
