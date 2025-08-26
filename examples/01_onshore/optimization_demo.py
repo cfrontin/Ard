@@ -1,29 +1,11 @@
 import pprint as pp
-
 import numpy as np
-import matplotlib.pyplot as plt
 
-import optiwindnet.plotting
 from ard.utils.io import load_yaml
 from ard.api import set_up_ard_model
+from ard.viz.layout import plot_layout
+
 import openmdao.api as om
-
-
-# get plot limits based on the farm boundaries
-def get_limits(windIOdict, lim_buffer=0.05):
-    x_lim = [
-        np.min(windIOdict["site"]["boundaries"]["polygons"][0]["x"])
-        - lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["x"]),
-        np.max(windIOdict["site"]["boundaries"]["polygons"][0]["x"])
-        + lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["x"]),
-    ]
-    y_lim = [
-        np.min(windIOdict["site"]["boundaries"]["polygons"][0]["y"])
-        - lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["y"]),
-        np.max(windIOdict["site"]["boundaries"]["polygons"][0]["y"])
-        + lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["y"]),
-    ]
-    return x_lim, y_lim
 
 def run_example():
 
@@ -60,7 +42,7 @@ def run_example():
     pp.pprint(test_data)
     print("\n\n")
 
-    optimize = True  # set to False to skip optimization
+    optimize = False  # set to False to skip optimization
 
     if optimize:
 
@@ -92,27 +74,7 @@ def run_example():
         pp.pprint(test_data)
         print("\n\n")
 
-
-    # get the turbine locations to plot
-    x_turbines = prob.get_val("x_turbines", units="km")
-    y_turbines = prob.get_val("y_turbines", units="km")
-
-    # make a plot
-    fig, ax = plt.subplots()
-    windIO_dict = input_dict["modeling_options"]["windIO_plant"]
-    ax.fill(
-        windIO_dict["site"]["boundaries"]["polygons"][0]["x"],
-        windIO_dict["site"]["boundaries"]["polygons"][0]["y"],
-        linestyle="--",
-        alpha=0.5,
-        fill=False,
-    )
-    ax.plot(x_turbines, y_turbines, "ok")
-    x_lim, y_lim = get_limits(windIO_dict)
-    ax.set_xlim(x_lim)
-    ax.set_ylim(y_lim)
-    plt.show()
-
+    plot_layout(prob, input_dict=input_dict, show_image=True, include_cable_routing=False)
 
 if __name__ == "__main__":
 
