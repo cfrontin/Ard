@@ -30,7 +30,7 @@ modeling_options:
             0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.0,
           ]
-      turbine: !include ../../../../../examples/data/windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml
+      turbine: !include ../../../../../examples/data/windIO-plant_turbine_IEA-22MW-284m-RWT.yaml
       electrical_substations:
         - electrical_substation:
             coordinates:

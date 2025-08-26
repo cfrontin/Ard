@@ -33,10 +33,6 @@ class TestLCOE_OFL_stack:
 
     def test_model(self, subtests):
 
-        # setup the latent variables for ORBIT and FinanceSE
-        cost_wisdem.ORBIT_setup_latents(self.prob, self.modeling_options)
-        cost_wisdem.FinanceSE_setup_latents(self.prob, self.modeling_options)
-
         # set up the working/design variables
         self.prob.set_val("spacing_primary", 7.0)
         self.prob.set_val("spacing_secondary", 7.0)

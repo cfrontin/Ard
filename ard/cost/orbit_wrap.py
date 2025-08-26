@@ -417,6 +417,7 @@ class ORBITDetailedGroup(om.Group):
                 "total_capex",
                 "total_capex_kW",
                 "bos_capex",
+                "installation_capex",
                 "graph",
                 "x_turbines",
                 "y_turbines",

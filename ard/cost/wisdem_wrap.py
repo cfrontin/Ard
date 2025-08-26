@@ -147,6 +147,7 @@ class ORBITGroup(om.Group):
                 "total_capex",
                 "total_capex_kW",
                 "bos_capex",
+                "installation_capex",
                 "plant_turbine_spacing",
                 "plant_row_spacing",
             ],
