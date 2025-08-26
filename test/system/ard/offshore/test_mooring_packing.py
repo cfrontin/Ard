@@ -159,7 +159,10 @@ class TestMooringPacking:
         self.prob.model.add_constraint(
             "spacing_constraint.turbine_spacing",
             units="m",
-            lower=3 * self.modeling_options["windIO_plant"]["wind_farm"]["turbine"]["rotor_diameter"],
+            lower=3
+            * self.modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                "rotor_diameter"
+            ],
         )
         self.prob.model.add_objective("optiwindnet_coll.total_length_cables")
 

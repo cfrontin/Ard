@@ -17,7 +17,9 @@ class TestLCOE_OFL_stack:
     def setup_method(self):
 
         # load the Ard system input
-        path_ard_system = Path(__file__).parent / "inputs_offshore_monopile" / "ard_system.yaml"
+        path_ard_system = (
+            Path(__file__).parent / "inputs_offshore_monopile" / "ard_system.yaml"
+        )
         input_dict = load_yaml(path_ard_system)
 
         # get, validate, and load the windIO dict
@@ -73,6 +75,3 @@ class TestLCOE_OFL_stack:
         for key, value in test_data.items():
             with subtests.test(key=key):
                 assert np.isclose(value, pyrite_data[key], rtol=5e-3)
-
-
-#
