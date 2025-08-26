@@ -280,6 +280,11 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
         #   - farm and turbine powers
         #   - turbine thrusts
         self.add_output(
+            "AEP_farm",
+            0.0,
+            units="W*h",
+        )
+        self.add_output(
             "power_farm",
             np.zeros((self.N_wind_conditions,)),
             units="W",

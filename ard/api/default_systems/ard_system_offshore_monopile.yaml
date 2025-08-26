@@ -59,7 +59,7 @@ systems:
   orbit:
     type: component
     module: ard.cost.wisdem_wrap
-    object: ORBIT
+    object: ORBITGroup
     promotes: [
       ["plant_turbine_spacing", "spacing_effective_primary"],
       ["plant_row_spacing", "spacing_effective_secondary"],
