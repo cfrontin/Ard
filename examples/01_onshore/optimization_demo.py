@@ -26,7 +26,7 @@ def run_example():
     test_data = {
         "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
         "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
-        "BOS_val": float(prob.get_val("total_capex", units="MUSD")[0]),
+        "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
         "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
         "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
         "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
@@ -74,7 +74,7 @@ def run_example():
         pp.pprint(test_data)
         print("\n\n")
 
-    plot_layout(prob, input_dict=input_dict, show_image=True, include_cable_routing=False)
+    plot_layout(prob, input_dict=input_dict, show_image=True, include_cable_routing=True)
 
 if __name__ == "__main__":
 
