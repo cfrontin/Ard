@@ -1,19 +1,12 @@
 modeling_options: &modeling_options
-  farm:
+  windIO_plant: !include windio.yaml
+  layout:
     N_turbines: 25
     N_substations: 1
     spacing_primary: 7.0
     spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
-    x_substations: 0.1
-    y_substations: 0.1
-  wind_rose:
-    file: wrg_example.wrg
-    wd_step: 90.0
-    wind_speeds: [5.0, 10.0, 15.0, 20.0]
-    point: [0.0, 0.0]
-  turbine: !include turbine_spec_IEA-22-284-RWT.yaml
   platform:
     N_anchors: 3
     min_mooring_line_length_m: 500.0
@@ -29,117 +22,53 @@ modeling_options: &modeling_options
       topology: "radial"  # "radial", "branched"
       feeder_route: "segmented"
       feeder_limit: "unlimited"
+  costs:
+    num_blades: 3
+    tower_mass: 1574.04487111 # (t)
+    tower_length: 149.386 # (m)
+    nacelle_mass: 849.1432357 # (t)
+    blade_mass: 83.30831171 # (t)
+    turbine_capex: 1397.17046735 # (USD/kW)
+    site_mean_windspeed: 10. # (m/s)
+    turbine_rated_windspeed: 11.13484394 # (m/s)
+    commissioning_cost_kW: 44. # ($/kW)
+    decommissioning_cost_kW: 58. # ($/kW)
+    plant_substation_distance: 1. # (km)
+    interconnection_distance: 8.5 # (km)
+    site_distance: 115.  # km
+    site_distance_to_landfall: 50.  # km
+    port_cost_per_month: 2000000.0 # $/mo
+    construction_insurance: 44.  # $/kW
+    construction_financing: 183. # $/kW
+    contingency: 316.  # $/kW
+    site_auction_price: 100000000.0  # $
+    site_assessment_cost: 50000000.0  # $
+    construction_plan_cost: 250000.0  # $
+    installation_plan_cost: 1000000.0  # $
+    boem_review_cost: 0.0  # $
+
+    transition_piece_mass: 100. # (ton)
+    transition_piece_cost: 0. # (USD)
+
+    # Fixed bottom configuration
+    monopile_mass: 2097.21115974 # (t)
+    monopile_cost: 4744119.28172591 # (USD)
+    monopile_length: 94. # (m)
+    monopile_diameter: 10. # (m) (max)
+    tcc_per_kW: 1397.17046735 # (USD/kW)
+    opex_per_kW: 110. # (USD/kWh)
+
+    # Floating configuration
+    num_mooring_lines: 3 # (-)
+    mooring_line_mass: 843225.1875 # (kg)
+    mooring_line_diameter: 0.225 # (m)
+    mooring_line_length: 837. # (m)
+    anchor_mass: 0. # (kg)
+    floating_substructure_cost: 11803978.242949858 # (USD)
   offshore: true
   floating: true
 
-system:
-  type: group
-  systems:
-    layout2aep:
-      type: group
-      approx_totals:
-        method: "fd"
-        step: 1.0E-3
-        form: "central"
-        step_calc: "rel_avg"
-      promotes: ["*"]
-      systems:
-        layout:
-          type: component
-          module: ard.layout.gridfarm
-          object: GridFarmLayout
-          promotes: ["*"]
-          kwargs:
-            modeling_options: *modeling_options
-        aepFLORIS:
-          type: component
-          module: ard.farm_aero.floris
-          object: FLORISAEP
-          promotes: ["x_turbines", "y_turbines", "AEP_farm"]
-          kwargs:
-            modeling_options: *modeling_options
-            case_title: "default"
-            data_path: "inputs"
-    landuse:
-      type: component
-      module: ard.layout.gridfarm
-      object: GridFarmLanduse
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
-    collection:
-      type: component
-      module: ard.collection
-      object: OptiwindnetCollection
-      promotes: ["x_turbines", "y_turbines"]
-      kwargs:
-        modeling_options: *modeling_options
-    mooring_design:
-      type: component
-      module: ard.offshore.mooring_design_constant_depth
-      object: ConstantDepthMooringDesign
-      promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors", "phi_platform"]
-      kwargs:
-        modeling_options: *modeling_options
-        wind_query:
-    mooring_constraint:
-      type: component
-      module: ard.offshore.mooring_constraint
-      object: MooringConstraint
-      promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors"]
-      kwargs:
-        modeling_options: *modeling_options
-    spacing_constraint:
-      type: component
-      module: ard.layout.spacing
-      object: TurbineSpacing
-      promotes: ["x_turbines", "y_turbines"]
-      kwargs:
-        modeling_options: *modeling_options
-    tcc:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: TurbineCapitalCosts
-      promotes: [
-        "turbine_number",
-        "machine_rating",
-        "tcc_per_kW",
-        "offset_tcc_per_kW",
-      ]
-    orbit:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: ORBIT
-      promotes: [
-        ["plant_turbine_spacing", "spacing_effective_primary"],
-        ["plant_row_spacing", "spacing_effective_secondary"],
-        # "installation_capex",
-      ]
-      kwargs:
-        floating: true
-    opex:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: OperatingExpenses
-      promotes: [
-        "turbine_number",
-        "machine_rating",
-        "opex_per_kW"
-      ]
-    financese:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: PlantFinance
-      promotes: [
-        "turbine_number",
-        "machine_rating",
-        "tcc_per_kW",
-        "offset_tcc_per_kW",
-        "opex_per_kW",
-      ]
-  connections:
-    - ["AEP_farm", "financese.plant_aep_in"]
-    - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
+system: "offshore_floating"
 
 analysis_options:
   driver:

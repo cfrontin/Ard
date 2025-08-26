@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import openmdao.api as om
 
 import optiwindnet.plotting
+import windIO
 from ard.utils.io import load_yaml
 from ard.api import set_up_ard_model
 
@@ -14,6 +15,10 @@ def run_example():
 
     # load input
     input_dict = load_yaml("./inputs/ard_system.yaml")
+
+    # windIO dict
+    windIO_dict = input_dict["modeling_options"]["windIO_plant"]
+    windIO.validate(windIO_dict, schema_type="plant/wind_energy_system")
 
     # set up system
     prob = set_up_ard_model(
@@ -24,8 +29,8 @@ def run_example():
     # run the model
     prob.run_model()
 
+    # visualize model
     if False:
-        # visualize model
         om.n2(prob)
 
     # collapse the test result data

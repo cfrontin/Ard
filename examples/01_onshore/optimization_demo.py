@@ -7,11 +7,12 @@ from ard.viz.layout import plot_layout
 
 import openmdao.api as om
 
+
 def run_example():
 
     # load input
     input_dict = load_yaml("./inputs/ard_system.yaml")
-    
+
     # set up system
     prob = set_up_ard_model(input_dict=input_dict, root_data_path="inputs")
 
@@ -74,7 +75,10 @@ def run_example():
         pp.pprint(test_data)
         print("\n\n")
 
-    plot_layout(prob, input_dict=input_dict, show_image=True, include_cable_routing=True)
+    plot_layout(
+        prob, input_dict=input_dict, show_image=True, include_cable_routing=True
+    )
+
 
 if __name__ == "__main__":
 
