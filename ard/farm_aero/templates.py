@@ -14,7 +14,7 @@ def create_windresource_from_windIO(
     """
     break out the windIO wind resource specification
     """
-
+    
     assert "site" in windIOdict  # make sure the site is specified
     assert "energy_resource" in windIOdict["site"]
     assert "wind_resource" in windIOdict["site"]["energy_resource"]
@@ -273,6 +273,11 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
         # add the outputs we want for a batched power analysis:
         #   - farm and turbine powers
         #   - turbine thrusts
+        self.add_output(
+            "AEP_farm",
+            0.0,
+            units="W*h",
+        )
         self.add_output(
             "power_farm",
             np.zeros((self.N_wind_conditions,)),

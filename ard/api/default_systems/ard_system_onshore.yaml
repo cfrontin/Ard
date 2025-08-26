@@ -25,11 +25,13 @@ systems:
           modeling_options:
           data_path:
           case_title: "default"
-    approx_totals:
-      method: "fd"
-      step: 1.0E-3
-      form: "central"
-      step_calc: "rel_avg"
+  boundary:
+    type: component
+    module: ard.layout.boundary
+    object: FarmBoundaryDistancePolygon
+    promotes: ["*"]
+    kwargs:
+      modeling_options:
   landuse:
     type: component
     module: ard.layout.gridfarm

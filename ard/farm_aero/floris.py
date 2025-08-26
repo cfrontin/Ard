@@ -308,6 +308,7 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
+        outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
         outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)
         outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
         outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
