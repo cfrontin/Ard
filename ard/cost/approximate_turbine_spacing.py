@@ -50,10 +50,10 @@ class SpacingApproximations(om.ExplicitComponent):
 
     def setup_partials(self):
         """Declare partial derivatives."""
-        N_turbines = self.options["modeling_options"]["farm"]["N_turbines"]
-        rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"][
-            "diameter_rotor"
-        ]
+        N_turbines = self.options["modeling_options"]["layout"]["N_turbines"]
+        rotor_diameter_m = self.options["modeling_options"]["windIO_plant"][
+            "wind_farm"
+        ]["turbine"]["rotor_diameter"]
 
         # Partial derivative of primary_turbine_spacing_diameters w.r.t. total_length_cables are constant
         const_partial = 1.0 / (rotor_diameter_m * N_turbines)
@@ -71,10 +71,10 @@ class SpacingApproximations(om.ExplicitComponent):
     def compute(self, inputs, outputs):
         """Compute the turbine spacing."""
         total_length_cables = inputs["total_length_cables"]
-        N_turbines = self.options["modeling_options"]["farm"]["N_turbines"]
-        rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"][
-            "diameter_rotor"
-        ]
+        N_turbines = self.options["modeling_options"]["layout"]["N_turbines"]
+        rotor_diameter_m = self.options["modeling_options"]["windIO_plant"][
+            "wind_farm"
+        ]["turbine"]["rotor_diameter"]
 
         # Calculate turbine and row spacing
         outputs["primary_turbine_spacing_diameters"] = total_length_cables / (

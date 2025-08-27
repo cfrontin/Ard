@@ -1,19 +1,18 @@
-system: "offshore_monopile"
+system: "onshore"
 
 modeling_options:
   windIO_plant:
-    name: "OFB system test plant"
+    name: "LB system test plant"
     site:
-      name: "OFB system test site"
+      name: "LB system test site"
       boundaries:
         polygons:
           - x: [5.0, 5.0, -5.0, -5.0]
-            y: [5.0, -5.0, -5.0, 5.0]
       energy_resource:
-        name: "OFB system test resource"
+        name: "LB system test resource"
         wind_resource: !include ../../../../../examples/data/windIO-plant_wind-resource_wrg-example.yaml
     wind_farm:
-      name: "OFB system test farm"
+      name: "LB system test farm"
       layouts:
         coordinates:
           x: [
@@ -30,7 +29,7 @@ modeling_options:
             0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.0,
           ]
-      turbine: !include ../../../../../examples/data/windIO-plant_turbine_IEA-22MW-284m-RWT.yaml
+      turbine: !include ../../../../../examples/data/windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml
       electrical_substations:
         - electrical_substation:
             coordinates:
@@ -57,51 +56,25 @@ modeling_options:
       feeder_route: "segmented"
       feeder_limit: "unlimited"
   costs:
+    rated_power: 3400000.0  # W
     num_blades: 3
-    tower_mass: 1574.04487111 # (tonne)
-    tower_length: 149.386 # (m)
-    nacelle_mass: 849.1432357 # (tonne)
-    blade_mass: 83.30831171 # (tonne)
-    turbine_capex: 1397.17046735 # (USD/kW)
-    site_mean_windspeed: 10. # (m/s)
-    turbine_rated_windspeed: 11.13484394 # (m/s)
-    commissioning_cost_kW: 44. # (USD/kW)
-    decommissioning_cost_kW: 58. # (USD/kW)
-    plant_substation_distance: 1. # (km)
-    interconnection_distance: 8.5 # (km)
-    site_distance: 115.  # (km)
-    site_distance_to_landfall: 50.  # (km)
-    port_cost_per_month: 2000000.0 # (USD/mo)
-    construction_insurance: 44.  # (USD/kW)
-    construction_financing: 183. # (USD/kW)
-    contingency: 316.  # (USD/kW)
-    site_auction_price: 100000000.0  # (USD)
-    site_assessment_cost: 50000000.0  # (USD)
-    construction_plan_cost: 250000.0  # (USD)
-    installation_plan_cost: 1000000.0  # (USD)
-    boem_review_cost: 0.0  # (USD)
-
-    transition_piece_mass: 100. # (tonne)
-    transition_piece_cost: 0. # (USD)
-
-    # Fixed bottom configuration
-    monopile_mass: 2097.21115974 # (tonne)
-    monopile_cost: 4744119.28172591 # (USD)
-    monopile_length: 94. # (m)
-    monopile_diameter: 10. # (m) (max)
-    tcc_per_kW: 1397.17046735 # (USD/kW)
-    opex_per_kW: 110. # (USD/kWh)
-
-    # Floating configuration
-    num_mooring_lines: 3 # (-)
-    mooring_line_mass: 843225.1875 # (kg)
-    mooring_line_diameter: 0.225 # (m)
-    mooring_line_length: 837. # (m)
-    anchor_mass: 0. # (kg)
-    floating_substructure_cost: 11803978.242949858 # (USD)
-  offshore: true
+    rated_thrust_N: 645645.83964671
+    gust_velocity_m_per_s: 52.5
+    blade_surface_area: 69.7974979
+    tower_mass: 620.4407337521
+    nacelle_mass: 101.98582836439
+    hub_mass: 8.38407517646
+    blade_mass: 14.56341339641
+    foundation_height: 0.0
+    commissioning_cost_kW: 44.0
+    decommissioning_cost_kW: 58.0
+    trench_len_to_substation_km: 50.0
+    distance_to_interconnect_mi: 4.97096954
+    interconnect_voltage_kV: 130.0
+    tcc_per_kW: 1300.00  # (USD/kW)
+    opex_per_kW: 44.00  # (USD/kWh)
+  offshore: false
   floating: false
-  site_depth: 50.0
 
 analysis_options:
   driver:
@@ -131,4 +104,3 @@ analysis_options:
       scaler: 1.0
   recorder:
     filepath: "cases.sql"
-
