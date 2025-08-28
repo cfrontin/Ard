@@ -207,7 +207,7 @@ class ORBITDetail(orbit_wisdem.Orbit):
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
-        self.options.declare("override_mooring_lines", default=True)
+        self.options.declare("override_mooring_lines", default=False)
 
     def setup(self):
         """Define all input variables from all models."""
@@ -252,7 +252,9 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 modeling_options=self.modeling_options,
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
-                override_mooring_lines=self.modeling_options["costs"].get("override_mooring_lines"),
+                override_mooring_lines=self.modeling_options["costs"].get(
+                    "override_mooring_lines", False,
+                ),
                 floating=self.modeling_options["floating"],
                 jacket=self.modeling_options.get("jacket"),
                 jacket_legs=self.modeling_options.get("jacket_legs"),
@@ -272,7 +274,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
-        self.options.declare("override_mooring_lines", default=True)
+        self.options.declare("override_mooring_lines", default=False)
 
     def setup(self):
         """Define all the inputs."""

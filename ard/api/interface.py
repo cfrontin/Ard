@@ -208,8 +208,12 @@ def set_up_system_recursive(
                     if "generator" in analysis_options["driver"]:
                         if type(analysis_options["driver"]["generator"]) == dict:
                             gen_dict = analysis_options["driver"]["generator"]
-                            generator = getattr(om, gen_dict["name"])(**gen_dict["args"])
-                        elif isinstance(analysis_options["driver"]["generator"], DOEGenerator):
+                            generator = getattr(om, gen_dict["name"])(
+                                **gen_dict["args"]
+                            )
+                        elif isinstance(
+                            analysis_options["driver"]["generator"], DOEGenerator
+                        ):
                             generator = analysis_options["driver"]["generator"]
                         else:
                             raise NotImplementedError(

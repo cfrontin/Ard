@@ -11,8 +11,6 @@ import ard.api.interface as glue
 import ard.cost.wisdem_wrap as cost_wisdem
 from ard.utils.io import load_yaml
 
-from ard.utils.io import load_yaml
-
 
 class TestLCOE_OFL_stack:
 
@@ -79,11 +77,16 @@ class TestLCOE_OFL_stack_detailed_mooring:
 
     def setup_method(self):
 
+        # get the input paths and load
         root_path = Path(__file__).parent.absolute()
         input_path = Path(root_path, "./inputs_offshore_floating_detailed_mooring/")
         input_dict = load_yaml(Path(input_path, "ard_system.yaml"))
 
-        self.prob = set_up_ard_model(input_dict=input_dict, root_data_path=input_path)
+        # set up system
+        self.prob = glue.set_up_ard_model(
+            input_dict=input_dict,
+            root_data_path=input_path,
+        )
 
     def test_model(self, subtests):
 
@@ -112,13 +115,10 @@ class TestLCOE_OFL_stack_detailed_mooring:
             / "test_LCOE_OFL_stack_detailed_mooring_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file
             # rtol_val=5e-3,  # Temporarily disabled; adjust tolerance for validation if needed
-            load_only=True,
+            # load_only=True,
         )
 
-        # Validate each key-value pair using subtests
-        for key, value in test_data.items():
-            with subtests.test(key=key):
-                assert np.isclose(value, pyrite_data[key], rtol=5e-3)
-
-
-#
+        # # Validate each key-value pair using subtests
+        # for key, value in test_data.items():
+        #     with subtests.test(key=key):
+        #         assert np.isclose(value, pyrite_data[key], rtol=5e-3)

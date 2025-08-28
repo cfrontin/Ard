@@ -79,7 +79,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
         self.N_anchors = self.modeling_options["platform"]["N_anchors"]
 
         # get the number of wind conditions (for thrust measurements)
