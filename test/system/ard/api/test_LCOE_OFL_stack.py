@@ -115,10 +115,10 @@ class TestLCOE_OFL_stack_detailed_mooring:
             / "test_LCOE_OFL_stack_detailed_mooring_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file
             # rtol_val=5e-3,  # Temporarily disabled; adjust tolerance for validation if needed
-            # load_only=True,
+            load_only=True,
         )
 
-        # # Validate each key-value pair using subtests
-        # for key, value in test_data.items():
-        #     with subtests.test(key=key):
-        #         assert np.isclose(value, pyrite_data[key], rtol=5e-3)
+        # Validate each key-value pair using subtests
+        for key, value in test_data.items():
+            with subtests.test(key=key):
+                assert np.isclose(value, pyrite_data[key], rtol=5e-3)
