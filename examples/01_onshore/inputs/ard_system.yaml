@@ -1,21 +1,18 @@
 system: "onshore"
 
 modeling_options:
-  farm:
+  windIO_plant: !include windio.yaml
+  layout:
+    type: "gridfarm"
     N_turbines: 25
     N_substations: 1
     spacing_primary: 7.0
     spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
-    x_substations: 100
-    y_substations: 100
-  wind_rose:
-    file: wrg_example.wrg
-    wd_step: 90.0
-    wind_speeds: [5.0, 10.0, 15.0, 20.0]
-    point: [0.0, 0.0]
-  turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
+  floris:
+    peak_shaving_fraction: 0.2
+    peak_shaving_TI_threshold: 0.0
   collection:
     max_turbines_per_string: 8
     solver_name: "highs"
@@ -23,34 +20,61 @@ modeling_options:
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: "branched"
+      topology: "radial"  # "radial", "branched"
       feeder_route: "segmented"
       feeder_limit: "unlimited"
   offshore: false
   floating: false
+  costs:
+    rated_power: 3400000.0  # W
+    num_blades: 3
+    rated_thrust_N: 645645.83964671
+    gust_velocity_m_per_s: 52.5
+    blade_surface_area: 69.7974979
+    tower_mass: 620.4407337521
+    nacelle_mass: 101.98582836439
+    hub_mass: 8.38407517646
+    blade_mass: 14.56341339641
+    foundation_height: 0.0
+    commissioning_cost_kW: 44.0
+    decommissioning_cost_kW: 58.0
+    trench_len_to_substation_km: 50.0
+    distance_to_interconnect_mi: 4.97096954
+    interconnect_voltage_kV: 130.0
+    tcc_per_kW: 1300.00  # (USD/kW)
+    opex_per_kW: 44.00  # (USD/kWh)
 
 analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
       optimizer: "COBYLA"
+      opt_settings:
+        rhobeg: 2.0
+      debug_print:
+        - "desvars"
+        - "objs"
   design_variables:
     spacing_primary:
-      lower: 3.0
-      upper: 10.0
+      lower:  3.0
+      upper: 20.0
     spacing_secondary:
-      lower: 3.0
-      upper: 10.0
+      lower:  3.0
+      upper: 20.0
     angle_orientation:
       lower: -180.0
-      upper: 180.0
+      upper:  180.0
     angle_skew:
-      lower: -75.0
-      upper: 180.0
+      lower: -45.0
+      upper:  45.0
   constraints:
+    boundary_distances:
+      units: "km"
+      upper: 0.0
+      scaler: 2.0
     spacing_constraint.turbine_spacing:
-      units: "m"
-      lower: 552
+      units: "km"
+      lower: 0.552
   objective:
     name: financese.lcoe
     options:

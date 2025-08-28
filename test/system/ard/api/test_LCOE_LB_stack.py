@@ -1,70 +1,34 @@
 from pathlib import Path
 
 import numpy as np
-import pytest
-import floris
-import openmdao.api as om
 
-from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
+import windIO
 
 import ard
 import ard.utils.test_utils
-import ard.utils.io
-import ard.wind_query as wq
+from ard.utils.io import load_yaml
 
 import ard.api.interface as glue
-import ard.cost.wisdem_wrap as cost_wisdem
 
 
 class TestLCOE_LB_stack:
 
     def setup_method(self):
 
-        # create the wind query
-        wind_path = Path(__file__).parent / "inputs_onshore" / "wrg_example.wrg"
+        # load the Ard system input
+        path_ard_system = Path(__file__).parent / "inputs_onshore" / "ard_system.yaml"
+        input_dict = load_yaml(path_ard_system)
 
-        wind_rose_wrg = floris.wind_data.WindRoseWRG(wind_path)
-        wind_rose_wrg.set_wd_step(90.0)
-        wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
-        wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
+        # get, validate, and load the windIO dict
+        windIOdict = input_dict["modeling_options"]["windIO_plant"]
+        windIO.validate(windIOdict, schema_type="plant/wind_energy_system")
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
-            Path(__file__).parent
-            / "inputs_onshore"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
-        # set up the modeling options
-        self.modeling_options = {
-            "farm": {
-                "N_turbines": 25,
-                "spacing_primary": 7.0,
-                "spacing_secondary": 7.0,
-                "angle_orientation": 0.0,
-                "angle_skew": 0.0,
-            },
-            "wind_rose": wind_rose,
-            "turbine": data_turbine_spec,
-            "offshore": False,
-        }
-
-        input_dict = {
-            "system": "onshore_no_cable_design",
-            "modeling_options": self.modeling_options,
-            "analysis_options": {},
-        }
-
-        self.prob = glue.set_up_ard_model(input_dict=input_dict)
+        # build an Ard model using the setup
+        self.prob = glue.set_up_ard_model(
+            input_dict=input_dict, root_data_path="inputs_onshore"
+        )
 
     def test_model(self, subtests):
-
-        # setup the latent variables for LandBOSSE and FinanceSE
-        cost_wisdem.LandBOSSE_setup_latents(self.prob, self.modeling_options)
-        cost_wisdem.FinanceSE_setup_latents(self.prob, self.modeling_options)
-
-        # set up the working/design variables
 
         # run the model
         self.prob.run_model()
