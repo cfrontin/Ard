@@ -5,6 +5,8 @@ import warnings
 import numpy as np
 import pandas as pd
 
+import openmdao.api as om
+
 import wisdem.orbit.orbit_api as orbit_wisdem
 
 from ORBIT.core.library import default_library
@@ -212,8 +214,8 @@ class ORBITDetail(orbit_wisdem.Orbit):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
-        self.N_substations = self.modeling_options["farm"]["N_substations"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
+        self.N_substations = self.modeling_options["layout"]["N_substations"]
 
         self.set_input_defaults("wtiv", "example_wtiv")
         self.set_input_defaults("feeder", "example_feeder")
@@ -250,10 +252,10 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 modeling_options=self.modeling_options,
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
-                override_mooring_lines=self.options["override_mooring_lines"],
-                floating=self.options["floating"],
-                jacket=self.options["jacket"],
-                jacket_legs=self.options["jacket_legs"],
+                override_mooring_lines=self.modeling_options["override_mooring_lines"],
+                floating=self.modeling_options["floating"],
+                jacket=self.modeling_options.get("jacket"),
+                jacket_legs=self.modeling_options.get("jacket_legs"),
             ),
             promotes=["*"],
         )
@@ -280,8 +282,8 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
-        self.N_substations = self.modeling_options["farm"]["N_substations"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
+        self.N_substations = self.modeling_options["layout"]["N_substations"]
 
         # bring in collection system design
         self.add_discrete_input("graph", None)
@@ -325,6 +327,8 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         config["plant"] = {
             "layout": "custom",
             "num_turbines": int(discrete_inputs["number_of_turbines"]),
+            "turbine_spacing": inputs["plant_turbine_spacing"],
+            "row_spacing": inputs["plant_row_spacing"],
         }
 
         # override the mooring line values
@@ -387,3 +391,62 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             discrete_inputs,
             discrete_outputs,
         )
+
+
+class ORBITDetailedGroup(om.Group):
+    """wrapper for ORBIT-WISDEM Fixed Substructure API, allowing manual IVC incorporation"""
+
+    def initialize(self):
+        """Initialize the group and declare options."""
+        self.options.declare("case_title", default="working")
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
+        self.options.declare("approximate_branches", default=False)
+
+    def setup(self):
+
+        # add IVCs for landbosse
+        variable_mapping = ORBIT_setup_latents(
+            modeling_options=self.options["modeling_options"]
+        )
+
+        # create source independent variable components for LandBOSSE inputs
+        for key, meta in variable_mapping.items():
+            if key in ["number_of_turbines", "number_of_blades", "num_mooring_lines"]:
+                comp = om.IndepVarComp()
+                comp.add_discrete_output(name=key, val=meta["val"])
+                self.add_subsystem(f"IVC_orbit_{key}", comp, promotes=["*"])
+            else:
+                self.add_subsystem(
+                    f"IVC_orbit_{key}",
+                    om.IndepVarComp(key, val=meta["val"], units=meta["units"]),
+                    promotes=["*"],
+                )
+
+        # add orbit
+        self.add_subsystem(
+            "orbit",
+            ORBITDetail(
+                case_title=self.options["case_title"],
+                modeling_options=self.options["modeling_options"],
+                approximate_branches=self.options["approximate_branches"],
+            ),
+            promotes=[
+                "total_capex",
+                "total_capex_kW",
+                "bos_capex",
+                "installation_capex",
+                "graph",
+                "x_turbines",
+                "y_turbines",
+                "x_substations",
+                "y_substations",
+                # "plant_turbine_spacing",
+                # "plant_row_spacing",
+            ],
+        )
+
+        # connect
+        for key in variable_mapping.keys():
+            self.connect(key, f"orbit.{key}")

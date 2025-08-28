@@ -7,6 +7,7 @@ from ard.cost.wisdem_wrap import (
     ORBIT_setup_latents,
     FinanceSE_setup_latents,
 )
+import windIO
 from ard import ASSET_DIR
 from typing import Union
 
@@ -95,6 +96,10 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         replace_none_only=True,
     )
 
+    # validate windIO dictionary
+    windIO_dict = input_dict["modeling_options"]["windIO_plant"]
+    windIO.validate(windIO_dict, schema_type="plant/wind_energy_system")
+
     # set up the openmdao problem
     prob = set_up_system_recursive(
         input_dict=input_dict["system"],
@@ -157,8 +162,6 @@ def set_up_system_recursive(
                 _depth=_depth + 1,
             )
         if "approx_totals" in input_dict:
-            print(input_dict["approx_totals"])
-            # import pdb; pdb.set_trace()
             print(f"\tActivating approximate totals on {system_name}")
             group.approx_totals(**input_dict["approx_totals"])
 
@@ -219,8 +222,19 @@ def set_up_system_recursive(
 
                 # handle the options now
                 if "options" in analysis_options["driver"]:
-                    for option, value in analysis_options["driver"]["options"].items():
-                        prob.driver.options[option] = value
+                    for option, value_driver_option in analysis_options["driver"][
+                        "options"
+                    ].items():
+                        if option == "opt_settings":
+                            for (
+                                key_opt_setting,
+                                value_opt_setting,
+                            ) in value_driver_option.items():
+                                prob.driver.opt_settings[key_opt_setting] = (
+                                    value_opt_setting
+                                )
+                        else:
+                            prob.driver.options[option] = value_driver_option
 
                     # set design variables
             if "design_variables" in analysis_options:
@@ -250,23 +264,5 @@ def set_up_system_recursive(
                     prob.driver.add_recorder(recorder)
 
         prob.setup()
-
-    if _depth == 0:
-        # setup the latent variables for LandBOSSE/ORBIT and FinanceSE
-        if any(
-            "orbit" in var[0]
-            for var in prob.model.list_vars(val=False, out_stream=None)
-        ):
-            ORBIT_setup_latents(prob, modeling_options)
-        if any(
-            "landbosse" in var[0]
-            for var in prob.model.list_vars(val=False, out_stream=None)
-        ):
-            LandBOSSE_setup_latents(prob, modeling_options)
-        if any(
-            "financese" in var[0]
-            for var in prob.model.list_vars(val=False, out_stream=None)
-        ):
-            FinanceSE_setup_latents(prob, modeling_options)
 
     return prob

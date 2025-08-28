@@ -19,28 +19,28 @@ class TestSetUpArdModelOnshore:
     def test_onshore_default_system_aep(self, subtests):
         with subtests.test("AEP_farm"):
             assert self.prob.get_val("AEP_farm", units="GW*h")[0] == pytest.approx(
-                340.823649
+                384.60118796404765
             )
         with subtests.test("tcc.tcc"):
             assert self.prob.get_val("tcc.tcc", units="MUSD")[0] == pytest.approx(
-                109.525
+                110.500000
             )
         with subtests.test("BOS capex (landbosse.bos_capex)"):
-            assert self.prob.get_val("bos_capex_kW", units="MUSD/GW")[
+            assert self.prob.get_val("landbosse.bos_capex_kW", units="MUSD/GW")[
                 0
-            ] == pytest.approx(391.511636)
+            ] == pytest.approx(388.37965962436397)
         with subtests.test("BOS capex (landbosse.total_capex)"):
-            assert self.prob.get_val("total_capex", units="MUSD")[0] == pytest.approx(
-                41.57835529481917
-            )
+            assert self.prob.get_val("landbosse.total_capex", units="MUSD")[
+                0
+            ] == pytest.approx(41.68227106807093)
         with subtests.test("opex.opex"):
             assert self.prob.get_val("opex.opex", units="MUSD/yr")[0] == pytest.approx(
-                3.707
+                3.740
             )
         with subtests.test("financese.lcoe"):
             assert self.prob.get_val("financese.lcoe", units="USD/MW/h")[
                 0
-            ] == pytest.approx(44.127664498311255)
+            ] == pytest.approx(39.400997200044735)
 
 
 class TestSetUpArdModelOffshoreMonopile:
@@ -62,7 +62,7 @@ class TestSetUpArdModelOffshoreMonopile:
 
         with subtests.test("AEP_farm"):
             assert self.prob.get_val("AEP_farm", units="GW*h")[0] == pytest.approx(
-                1829.994304
+                2152.5162831487964
             )
         with subtests.test("tcc.tcc"):
             assert self.prob.get_val("tcc.tcc", units="MUSD")[0] == pytest.approx(
@@ -71,7 +71,7 @@ class TestSetUpArdModelOffshoreMonopile:
         with subtests.test("BOS capex (orbit.total_capex_kW)"):
             assert self.prob.get_val("orbit.total_capex_kW", units="MUSD/GW")[
                 0
-            ] == pytest.approx(2602.633100)
+            ] == pytest.approx(2307.6532360162337)
         with subtests.test("opex.opex"):
             assert self.prob.get_val("opex.opex", units="MUSD/yr")[0] == pytest.approx(
                 60.5
@@ -79,7 +79,7 @@ class TestSetUpArdModelOffshoreMonopile:
         with subtests.test("financese.lcoe"):
             assert self.prob.get_val("financese.lcoe", units="USD/MW/h")[
                 0
-            ] == pytest.approx(123.219999)
+            ] == pytest.approx(99.10446644881932)
 
 
 class TestSetUpArdModelOffshoreFloating:
@@ -101,7 +101,7 @@ class TestSetUpArdModelOffshoreFloating:
 
         with subtests.test("AEP_farm"):
             assert self.prob.get_val("AEP_farm", units="GW*h")[0] == pytest.approx(
-                1829.994304
+                2152.5162831487964
             )
         with subtests.test("tcc.tcc"):
             assert self.prob.get_val("tcc.tcc", units="MUSD")[0] == pytest.approx(
@@ -118,4 +118,4 @@ class TestSetUpArdModelOffshoreFloating:
         with subtests.test("financese.lcoe"):
             assert self.prob.get_val("financese.lcoe", units="USD/MW/h")[
                 0
-            ] == pytest.approx(125.245983)
+            ] == pytest.approx(106.4797690940818)
