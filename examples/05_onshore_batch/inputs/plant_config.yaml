@@ -7,17 +7,6 @@ site:
   elevation_m: 439.0
   time_zone: -5
 
-  # array of polygons defining boundaries with x/y coords
-  boundaries: [
-    {
-      x: [0.0, 1000.0, 1000.0, 0.0],
-      y: [0.0, 0.0, 100.0, 1000.0],
-    },
-    {
-      x: [2000.0, 2500.0, 2000.0],
-      y: [2000.0, 2000.0, 2500.0],
-    }
-  ]
   resources:
     wind_resource:
       source: "open-meteo"
