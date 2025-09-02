@@ -8,6 +8,7 @@ import openmdao.api as om
 import optiwindnet.plotting
 from ard.utils.io import load_yaml
 from ard.api import set_up_ard_model
+from ard.viz.layout import plot_layout
 
 
 def run_example():
@@ -51,15 +52,13 @@ def run_example():
     pp.pprint(test_data)
     print("\n\n")
 
-    optimize = False  # set to False to skip optimization
+    optimize = True  # set to False to skip optimization
 
     if optimize:
 
         # run the optimization
         prob.run_driver()
         prob.cleanup()
-
-        prob.check_totals(compact_print=True, show_only_incorrect=True)
 
         # collapse the test result data
         test_data = {
@@ -117,17 +116,30 @@ def run_example():
 
         # Plot the convergence
         plt.figure(figsize=(8, 6))
-        plt.plot(iterations, objective_values, marker="o", label="Objective (LCOE)")
-        plt.xlabel("Iteration")
-        plt.ylabel("Objective Value (Total Cable Length (m))")
-        plt.title("Convergence Plot")
+        plt.plot(
+            iterations,
+            np.array(objective_values)
+            * input_dict["analysis_options"]["objective"]
+            .get("options", {})
+            .get("scaler", 1.0),
+            marker="o",
+            label=f"objective ({input_dict['analysis_options']['objective'].get('name')})",
+        )
+        plt.xlabel("Iteration number (-)")
+        plt.ylabel(
+            f"Objective value ({input_dict['analysis_options']['objective'].get('name')})"
+        )
         plt.legend()
         plt.grid()
         plt.show()
 
-    optiwindnet.plotting.gplot(prob.model.collection.graph)
-
-    plt.show()
+    plot_layout(
+        prob,
+        input_dict=input_dict,
+        show_image=True,
+        include_cable_routing=False,
+        include_mooring_system=True,
+    )
 
 
 if __name__ == "__main__":

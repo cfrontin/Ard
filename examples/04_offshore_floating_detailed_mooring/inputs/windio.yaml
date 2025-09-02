@@ -1,0 +1,48 @@
+name: Sirkis, et al., 2025; Gulf of Maine setup
+site:
+    name: Gulf of Maine wind site
+    boundaries:
+        polygons:
+            - x:
+                - -4.28915972849
+                -  2.91357515869
+                -  2.94484198914
+                - -1.25675796844
+                - -1.27499236987
+                - -4.27612733396
+                - -4.28915972849
+              y:
+                -  3.10106990599
+                -  3.13235540822
+                - -4.07039818569
+                - -4.08862633388
+                -  0.11296726578
+                -  0.09993817108
+                -  3.10106990599
+    energy_resource:
+        name: Ard Example 04 offshore energy resource
+        wind_resource: !include windIO-plant_wind-resource_GulfOfMaine.yaml
+wind_farm:
+    name: Ard Example 04 offshore wind farm
+    layouts:
+        coordinates:
+            x: [
+                -2500.0, -1250.0,     0.0,  1250.0,  2500.0,
+                -2500.0, -1250.0,     0.0,  1250.0,  2500.0,
+                # -2500.0, -1250.0,     0.0,  1250.0,  2500.0,
+                # -2500.0, -1250.0,     0.0,  1250.0,  2500.0,
+                # -2500.0, -1250.0,     0.0,  1250.0,  2500.0
+            ]
+            y: [
+                -2500.0, -2500.0, -2500.0, -2500.0, -2500.0,
+                -1250.0, -1250.0, -1250.0, -1250.0, -1250.0,
+                #     0.0,     0.0,     0.0,     0.0,     0.0,
+                #  1250.0,  1250.0,  1250.0,  1250.0,  1250.0,
+                #  2500.0,  2500.0,  2500.0,  2500.0,  2500.0
+            ]
+    turbine: !include ../../data/windIO-plant_turbine_IEA-15MW-240m-RWT.yaml
+    electrical_substations:
+        - electrical_substation:
+            coordinates:
+                x: [100.0]
+                y: [100.0]

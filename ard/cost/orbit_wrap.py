@@ -253,7 +253,8 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
                 override_mooring_lines=self.modeling_options["costs"].get(
-                    "override_mooring_lines", False,
+                    "override_mooring_lines",
+                    False,
                 ),
                 floating=self.modeling_options["floating"],
                 jacket=self.modeling_options.get("jacket"),
