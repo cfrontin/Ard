@@ -73,9 +73,9 @@ def create_FLORIS_turbine_from_windIO(
                 "Reconciliation has not been implemented yet."
             )
         tdd["wind_speed"] = wind_speeds_power_curve
-        tdd["power"] = (
-            values_power_curve / 1e3
-        )  # windIO data comes in in W and FLORIS takes kW
+        tdd["power"] = [
+            v / 1.0e3 for v in values_power_curve
+        ]  # windIO data comes in in W and FLORIS takes kW
         tdd["thrust_coefficient"] = values_Ct_curve
     elif all(
         val in windIOturbine["performance"]
@@ -238,7 +238,15 @@ class FLORISFarmComponent:
         """Get the turbine thrusts of a FLORIS farm at each wind condition."""
         # FLORIS computes the thrust precursors, compute and return thrust
         # use pure FLORIS to get these values for consistency
-        CT_turbines = self.fmodel.get_turbine_thrust_coefficients()
+
+        # prepare to unpack thrust data that is not pre-computed in FLORIS
+        CT_turbines = np.full(
+            (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
+            0.0,
+        )
+        CT_turbines[self.fmodel.wind_data.non_zero_freq_mask, :] = (
+            self.fmodel.get_turbine_thrust_coefficients()
+        )
         V_turbines = self.fmodel.turbine_average_velocities
         rho_floris = self.fmodel.core.flow_field.air_density
         A_floris = np.pi * self.fmodel.core.farm.rotor_diameters**2 / 4
