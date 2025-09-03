@@ -203,7 +203,7 @@ analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: "COBYLA"
+      optimizer: COBYLA
   design_variables:
     spacing_primary:
       lower:  3.0

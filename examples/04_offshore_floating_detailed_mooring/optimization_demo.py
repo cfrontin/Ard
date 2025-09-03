@@ -13,7 +13,8 @@ from ard.viz.layout import plot_layout
 def run_example():
 
     # load input
-    input_dict = load_yaml("./inputs/ard_system.yaml")
+    mod = True
+    input_dict = load_yaml(f"./inputs/ard_system{"_mod" if mod else ""}.yaml")
 
     # set up system
     prob = set_up_ard_model(
