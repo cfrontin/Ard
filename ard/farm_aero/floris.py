@@ -244,12 +244,25 @@ class FLORISFarmComponent:
             (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
             0.0,
         )
+        V_turbines = np.full(
+            (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
+            0.0,
+        )
+        A_floris = np.full(
+            (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
+            0.0,
+        )
+
         CT_turbines[self.fmodel.wind_data.non_zero_freq_mask, :] = (
             self.fmodel.get_turbine_thrust_coefficients()
         )
-        V_turbines = self.fmodel.turbine_average_velocities
+        V_turbines[self.fmodel.wind_data.non_zero_freq_mask, :] = (
+            self.fmodel.turbine_average_velocities
+        )
         rho_floris = self.fmodel.core.flow_field.air_density
-        A_floris = np.pi * self.fmodel.core.farm.rotor_diameters**2 / 4
+        A_floris[self.fmodel.wind_data.non_zero_freq_mask, :] = (
+            np.pi * self.fmodel.core.farm.rotor_diameters**2 / 4
+        )
 
         thrust_turbines = CT_turbines * (0.5 * rho_floris * A_floris * V_turbines**2)
         return thrust_turbines.T
