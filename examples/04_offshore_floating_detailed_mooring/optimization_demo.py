@@ -22,12 +22,27 @@ def run_example():
         root_data_path="inputs",
     )
 
-    # run the model
-    prob.run_model()
+    prob.model.set_input_defaults(
+        "x_turbines",
+        input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"][
+            "coordinates"
+        ]["x"],
+        units="m",
+    )
+    prob.model.set_input_defaults(
+        "y_turbines",
+        input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"][
+            "coordinates"
+        ]["y"],
+        units="m",
+    )
 
     if False:
         # visualize model
         om.n2(prob)
+
+    # run the model
+    prob.run_model()
 
     # collapse the test result data
     test_data = {
@@ -62,10 +77,12 @@ def run_example():
 
         # collapse the test result data
         test_data = {
-            "spacing_primary": float(prob.get_val("spacing_primary")[0]),
-            "spacing_secondary": float(prob.get_val("spacing_secondary")[0]),
-            "angle_orientation": float(prob.get_val("angle_orientation")[0]),
-            "angle_skew": float(prob.get_val("angle_skew")[0]),
+            "x_turbines": prob.get_val("x_turbines", units="km"),
+            "y_turbines": prob.get_val("y_turbines", units="km"),
+            # "spacing_primary": float(prob.get_val("spacing_primary")[0]),
+            # "spacing_secondary": float(prob.get_val("spacing_secondary")[0]),
+            # "angle_orientation": float(prob.get_val("angle_orientation")[0]),
+            # "angle_skew": float(prob.get_val("angle_skew")[0]),
             "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
             "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
             "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
