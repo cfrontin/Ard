@@ -240,6 +240,7 @@ class FLORISFarmComponent:
         # use pure FLORIS to get these values for consistency
 
         # prepare to unpack thrust data that is not pre-computed in FLORIS
+        # derived from FLORIS's floris_model.py:564 at a6fc5d35aa32614edc450dc399c42af60a816887
         CT_turbines = np.full(
             (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
             0.0,
