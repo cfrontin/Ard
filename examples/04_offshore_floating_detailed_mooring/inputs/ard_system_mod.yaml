@@ -3,10 +3,10 @@ modeling_options: &modeling_options
   layout:
     N_turbines: 10
     N_substations: 1
-    spacing_primary: 3.0
-    spacing_secondary: 3.0
-    angle_orientation: 0.0
-    angle_skew: 0.0
+    # spacing_primary: 3.0
+    # spacing_secondary: 3.0
+    # angle_orientation: 0.0
+    # angle_skew: 0.0
   platform:
     N_anchors: 3
     min_mooring_line_length_m: 500.0
@@ -82,38 +82,64 @@ modeling_options: &modeling_options
 system:
   type: group
   systems:
-    layout2aep:
-      type: group
-      promotes: ["*"]
-      approx_totals:
-        method: "fd"
-        step: 1.0E-3
-        form: "central"
-        step_calc: "rel_avg"
-      systems:
-        layout:
-          type: component
-          module: ard.layout.gridfarm
-          object: GridFarmLayout
-          promotes: ["*"]
-          kwargs:
-            modeling_options: *modeling_options
-        aepFLORIS:
-          type: component
-          module: ard.farm_aero.floris
-          object: FLORISAEP
-          promotes: ["x_turbines", "y_turbines", "AEP_farm"]
-          kwargs:
-            modeling_options: *modeling_options
-            case_title: "offshore-floating"
-            data_path:
+    # layout2aep:
+    #   type: group
+    #   promotes: ["*"]
+    #   approx_totals:
+    #     method: "fd"
+    #     step: 1.0E-3
+    #     form: "central"
+    #     step_calc: "rel_avg"
+    #   systems:
+    #     layout:
+    #       type: component
+    #       module: ard.layout.gridfarm
+    #       object: GridFarmLayout
+    #       promotes: ["*"]
+    #       kwargs:
+    #         modeling_options: *modeling_options
+    #     aepFLORIS:
+    #       type: component
+    #       module: ard.farm_aero.floris
+    #       object: FLORISAEP
+    #       promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+    #       kwargs:
+    #         modeling_options: *modeling_options
+    #         case_title: "offshore-floating"
+    #         data_path:
+    aepFLORIS:
+      type: component
+      module: ard.farm_aero.floris
+      object: FLORISAEP
+      promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+      kwargs:
+        modeling_options: *modeling_options
+        case_title: "offshore-floating"
+        data_path:
+    spacing_approx:
+      type: component
+      module: ard.cost.approximate_turbine_spacing
+      object: SpacingApproximations
+      promotes:
+        - "total_length_cables"
+        - ["primary_turbine_spacing_diameters", "spacing_primary"]
+        - ["secondary_turbine_spacing_diameters", "spacing_secondary"]
+      kwargs:
+        modeling_options: *modeling_options
     landuse:
       type: component
-      module: ard.layout.gridfarm
-      object: GridFarmLanduse
+      module: ard.layout.fullfarm
+      object: FullFarmLanduse
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
+    # landuse:
+    #   type: component
+    #   module: ard.layout.gridfarm
+    #   object: GridFarmLanduse
+    #   promotes: ["*"]
+    #   kwargs:
+    #     modeling_options: *modeling_options
     collection:
       type: component
       module: ard.collection
@@ -205,22 +231,32 @@ analysis_options:
     options:
       optimizer: "COBYLA"
   design_variables:
-    spacing_primary:
-      lower:  3.0
-      upper: 10.0
-      scaler: 1.0
-    spacing_secondary:
-      lower:  3.0
-      upper: 10.0
-      scaler: 1.0
-    angle_orientation:
-      lower: -180.0
-      upper:  180.0
-      scaler: 0.0277777  # 1/36.0
-    angle_skew:
-      lower: -45.0
-      upper:  45.0
-      scaler: 0.111111
+    x_turbines:
+      units: "m"
+      lower: -7000.0
+      upper:  7000.0
+      scaler: 0.0005897339121  # 1/(7*D_rotor)
+    y_turbines:
+      units: "m"
+      lower: -7000.0
+      upper:  7000.0
+      scaler: 0.0005897339121  # 1/(7*D_rotor)
+    # spacing_primary:
+    #   lower:  3.0
+    #   upper: 10.0
+    #   scaler: 1.0
+    # spacing_secondary:
+    #   lower:  3.0
+    #   upper: 10.0
+    #   scaler: 1.0
+    # angle_orientation:
+    #   lower: -180.0
+    #   upper:  180.0
+    #   scaler: 0.0277777  # 1/36.0
+    # angle_skew:
+    #   lower: -45.0
+    #   upper:  45.0
+    #   scaler: 0.111111
     phi_platform:
       lower: -30.0
       upper:  30.0
@@ -229,18 +265,19 @@ analysis_options:
     mooring_constraint.mooring_spacing:
       units: "m"
       lower: 50.0
-      scaler: 242.24  # D_rotor
+      scaler: 0.004128137384  # 1/D_rotor
     spacing_constraint.turbine_spacing:
       units: "m"
-      lower: 726.72  # 3*D_rotor
-      scaler: 242.24  # D_rotor
+      lower: 0.001376045795  # 1/(3*D_rotor)
+      scaler: 0.004128137384  # 1/D_rotor
     boundary_distances:
       units: "m"
-      lower: 0.0
-      scaler: 242.24  # D_rotor
+      upper: 0.0
+      scaler: 0.004128137384  # 1/D_rotor
   objective:
-    name: AEP_farm
+    name: financese.lcoe
     options:
-      scaler: -1.0e-12
+      scaler: 1.0
+      # scaler: -1.0e-12
   recorder:
     filepath: opt_results.sql

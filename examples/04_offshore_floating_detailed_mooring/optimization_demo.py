@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 import openmdao.api as om
 
-import optiwindnet.plotting
 from ard.utils.io import load_yaml
 from ard.api import set_up_ard_model
 from ard.viz.layout import plot_layout
