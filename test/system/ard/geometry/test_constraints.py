@@ -39,8 +39,8 @@ class TestConstraints:
                     "boundaries": {
                         "polygons": [
                             {
-                                "x": [-2.0, 2.0, 2.0, -2.0],
-                                "y": [-2.0, -2.0, 2.0, 2.0],
+                                "x": [-2000.0, 2000.0, 2000.0, -2000.0],
+                                "y": [-2000.0, -2000.0, 2000.0, 2000.0],
                             },
                         ],
                     },
@@ -99,7 +99,7 @@ class TestConstraints:
 
             # load validation data from pyrite file using ard.utils.io
             validation_data = {
-                "boundary_distances": self.prob.get_val("boundary_distances"),
+                "boundary_distances": self.prob.get_val("boundary_distances", units="km"),
             }
             with subtests.test(f"boundary_violations pyrite validation at {spacing}D"):
                 ard.utils.test_utils.pyrite_validator(
@@ -122,7 +122,7 @@ class TestConstraints:
 
         # configure the driver
         self.prob.driver = om.ScipyOptimizeDriver(optimizer="SLSQP")
-        self.prob.driver.options["maxiter"] = 10  # short run
+        self.prob.driver.options["maxiter"] = 20  # short run
 
         # setup the problem
         self.prob.setup()
@@ -136,8 +136,8 @@ class TestConstraints:
         # after 10 iterations, should have near-zero boundary distances
         with subtests.test("boundary distances near zero"):
             assert np.all(
-                np.isclose(self.prob.get_val("boundary_distances"), 0.0)
-                | (self.prob.get_val("boundary_distances") < 0.0)
+                np.isclose(self.prob.get_val("boundary_distances", units="km"), 0.0)
+                | (self.prob.get_val("boundary_distances", units="km") < 0.0)
             )
 
         # make sure the target spacing matches well
