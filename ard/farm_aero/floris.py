@@ -240,32 +240,19 @@ class FLORISFarmComponent:
         # use pure FLORIS to get these values for consistency
 
         # prepare to unpack thrust data that is not pre-computed in FLORIS
-        # derived from FLORIS's floris_model.py:564 at a6fc5d35aa32614edc450dc399c42af60a816887
-        CT_turbines = np.full(
-            (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
-            0.0,
-        )
-        V_turbines = np.full(
-            (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
-            0.0,
-        )
-        A_floris = np.full(
-            (len(self.fmodel.wind_data.wd_flat), self.fmodel.core.farm.n_turbines),
-            0.0,
-        )
-
-        CT_turbines[self.fmodel.wind_data.non_zero_freq_mask, :] = (
-            self.fmodel.get_turbine_thrust_coefficients()
-        )
-        V_turbines[self.fmodel.wind_data.non_zero_freq_mask, :] = (
-            self.fmodel.turbine_average_velocities
-        )
+        CT_turbines = self.fmodel.get_turbine_thrust_coefficients()
+        V_turbines = self.fmodel.turbine_average_velocities
         rho_floris = self.fmodel.core.flow_field.air_density
-        A_floris[self.fmodel.wind_data.non_zero_freq_mask, :] = (
-            np.pi * self.fmodel.core.farm.rotor_diameters**2 / 4
-        )
+        A_floris = np.pi * self.fmodel.core.farm.rotor_diameters**2 / 4
 
-        thrust_turbines = CT_turbines * (0.5 * rho_floris * A_floris * V_turbines**2)
+        # unpacking procedure
+        # from FLORIS's floris_model.py:564 at a6fc5d35aa32614edc450dc399c42af60a816887
+        thrust_turbines = np.full(
+            (len(self.fmodel.wind_data.wind_directions), self.fmodel.core.farm.n_turbines),
+            0.0,
+        )
+        thrust_turbines[self.fmodel.wind_data.non_zero_freq_mask, :] = CT_turbines * (0.5 * rho_floris * A_floris * V_turbines**2)
+
         return thrust_turbines.T
 
     def dump_floris_yamlfile(self, dir_output=None):
