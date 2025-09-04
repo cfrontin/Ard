@@ -82,31 +82,6 @@ modeling_options: &modeling_options
 system:
   type: group
   systems:
-    # layout2aep:
-    #   type: group
-    #   promotes: ["*"]
-    #   approx_totals:
-    #     method: "fd"
-    #     step: 1.0E-3
-    #     form: "central"
-    #     step_calc: "rel_avg"
-    #   systems:
-    #     layout:
-    #       type: component
-    #       module: ard.layout.gridfarm
-    #       object: GridFarmLayout
-    #       promotes: ["*"]
-    #       kwargs:
-    #         modeling_options: *modeling_options
-    #     aepFLORIS:
-    #       type: component
-    #       module: ard.farm_aero.floris
-    #       object: FLORISAEP
-    #       promotes: ["x_turbines", "y_turbines", "AEP_farm"]
-    #       kwargs:
-    #         modeling_options: *modeling_options
-    #         case_title: "offshore-floating"
-    #         data_path:
     aepFLORIS:
       type: component
       module: ard.farm_aero.floris
@@ -133,13 +108,6 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-    # landuse:
-    #   type: component
-    #   module: ard.layout.gridfarm
-    #   object: GridFarmLanduse
-    #   promotes: ["*"]
-    #   kwargs:
-    #     modeling_options: *modeling_options
     collection:
       type: component
       module: ard.collection
@@ -229,7 +197,7 @@ analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: "COBYLA"
+      optimizer: SLSQP
   design_variables:
     x_turbines:
       units: "m"
@@ -241,22 +209,6 @@ analysis_options:
       lower: -7000.0
       upper:  7000.0
       scaler: 0.0005897339121  # 1/(7*D_rotor)
-    # spacing_primary:
-    #   lower:  3.0
-    #   upper: 10.0
-    #   scaler: 1.0
-    # spacing_secondary:
-    #   lower:  3.0
-    #   upper: 10.0
-    #   scaler: 1.0
-    # angle_orientation:
-    #   lower: -180.0
-    #   upper:  180.0
-    #   scaler: 0.0277777  # 1/36.0
-    # angle_skew:
-    #   lower: -45.0
-    #   upper:  45.0
-    #   scaler: 0.111111
     phi_platform:
       lower: -30.0
       upper:  30.0
@@ -277,7 +229,6 @@ analysis_options:
   objective:
     name: financese.lcoe
     options:
-      scaler: 1.0
-      # scaler: -1.0e-12
+      scaler: 0.01
   recorder:
     filepath: opt_results.sql
