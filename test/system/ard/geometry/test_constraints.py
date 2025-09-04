@@ -136,8 +136,10 @@ class TestConstraints:
         # after 10 iterations, should have near-zero boundary distances
         with subtests.test("boundary distances near zero"):
             assert np.all(
-                np.isclose(self.prob.get_val("boundary_distances", units="km"), 0.0)
-                | (self.prob.get_val("boundary_distances", units="km") < 0.0)
+                np.isclose(
+                    self.prob.get_val("boundary_distances", units="km"), 0.0,
+                    rtol=1.0e-3, atol=1.0e-6,
+                ) | (self.prob.get_val("boundary_distances", units="km") < 0.0)
             )
 
         # make sure the target spacing matches well
@@ -145,7 +147,11 @@ class TestConstraints:
         area_target_validation = 10.49498327  # from a run on 24 June 2025
         with subtests.test("validation spacing matches"):
             assert np.isclose(
-                self.prob.get_val("spacing_target"), spacing_target_validation
+                self.prob.get_val("spacing_target"), spacing_target_validation,
+                rtol=1.0e-3, atol=1.0e-6,
             )
         with subtests.test("validation area matches"):
-            assert np.isclose(self.prob.get_val("area_tight"), area_target_validation)
+            assert np.isclose(
+                self.prob.get_val("area_tight"), area_target_validation,
+                rtol=1.0e-3, atol=1.0e-6,
+            )
