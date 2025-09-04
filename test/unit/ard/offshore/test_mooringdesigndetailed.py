@@ -30,9 +30,10 @@ class TestMooringDesignDetailed:
         self.N_turbines = len(self.x_turbines)
 
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
             },
+            "offshore": True,
             "floating": True,
             "platform": {
                 "N_anchors": 3,
@@ -104,7 +105,7 @@ class TestMooringDesignDetailed:
     def test_FAModel_anchor_positions(self):
 
         # change number of turbines to one
-        self.modeling_options["farm"]["N_turbines"] = 1
+        self.modeling_options["layout"]["N_turbines"] = 1
 
         # set up openmdao problem
         model = om.Group()

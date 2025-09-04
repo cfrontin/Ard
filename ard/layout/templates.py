@@ -16,8 +16,6 @@ class LayoutTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    N_turbines : int
-        the number of turbines that should be in the farm layout
 
     Inputs
     ------
@@ -50,7 +48,8 @@ class LayoutTemplate(om.ExplicitComponent):
 
         # load modeling options
         modeling_options = self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = modeling_options["farm"]["N_turbines"]
+        self.windIO = self.modeling_options["windIO_plant"]
+        self.N_turbines = modeling_options["layout"]["N_turbines"]
 
         # add outputs that are universal
         self.add_output(
@@ -103,8 +102,6 @@ class LanduseTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    N_turbines : int
-        the number of turbines that should be in the farm layout
 
     Inputs
     ------
@@ -127,7 +124,8 @@ class LanduseTemplate(om.ExplicitComponent):
 
         # load modeling options and turbine count
         modeling_options = self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = modeling_options["farm"]["N_turbines"]
+        self.windIO = self.modeling_options["windIO_plant"]
+        self.N_turbines = modeling_options["layout"]["N_turbines"]
 
         # add inputs that are universal
         self.add_input(

@@ -52,7 +52,7 @@ class MooringConstraint(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = int(self.modeling_options["farm"]["N_turbines"])
+        self.N_turbines = int(self.modeling_options["layout"]["N_turbines"])
         self.N_anchor_dimensions = int(
             self.modeling_options["platform"]["N_anchor_dimensions"]
         )
@@ -114,7 +114,7 @@ class MooringConstraint(om.ExplicitComponent):
                 x_turbines, y_turbines, x_anchors, y_anchors, z_anchors
             )
         else:
-            raise (ValueError("modeling_options['farm'][']"))
+            raise (ValueError("modeling_options['layout'][']"))
 
         outputs["mooring_spacing"] = distances
 
@@ -137,7 +137,7 @@ class MooringConstraint(om.ExplicitComponent):
                 x_turbines, y_turbines, x_anchors, y_anchors, z_anchors
             )
         else:
-            raise (ValueError("modeling_options['farm'][']"))
+            raise (ValueError("modeling_options['layout'][']"))
 
         partials["mooring_spacing", "x_turbines"] = jacobian[0]
         partials["mooring_spacing", "y_turbines"] = jacobian[1]

@@ -5,15 +5,16 @@ import matplotlib.pyplot as plt
 
 import openmdao.api as om
 
-import optiwindnet.plotting
 from ard.utils.io import load_yaml
 from ard.api import set_up_ard_model
+from ard.viz.layout import plot_layout
 
 
 def run_example():
 
     # load input
-    input_dict = load_yaml("./inputs/ard_system.yaml")
+    mod = True
+    input_dict = load_yaml(f"./inputs/ard_system{"_mod" if mod else ""}.yaml")
 
     # set up system
     prob = set_up_ard_model(
@@ -21,12 +22,27 @@ def run_example():
         root_data_path="inputs",
     )
 
-    # run the model
-    prob.run_model()
+    prob.model.set_input_defaults(
+        "x_turbines",
+        input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"][
+            "coordinates"
+        ]["x"],
+        units="m",
+    )
+    prob.model.set_input_defaults(
+        "y_turbines",
+        input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"][
+            "coordinates"
+        ]["y"],
+        units="m",
+    )
 
     if False:
         # visualize model
         om.n2(prob)
+
+    # run the model
+    prob.run_model()
 
     # collapse the test result data
     test_data = {
@@ -51,7 +67,7 @@ def run_example():
     pp.pprint(test_data)
     print("\n\n")
 
-    optimize = False  # set to False to skip optimization
+    optimize = True  # set to False to skip optimization
 
     if optimize:
 
@@ -59,14 +75,14 @@ def run_example():
         prob.run_driver()
         prob.cleanup()
 
-        prob.check_totals(compact_print=True, show_only_incorrect=True)
-
         # collapse the test result data
         test_data = {
-            "spacing_primary": float(prob.get_val("spacing_primary")[0]),
-            "spacing_secondary": float(prob.get_val("spacing_secondary")[0]),
-            "angle_orientation": float(prob.get_val("angle_orientation")[0]),
-            "angle_skew": float(prob.get_val("angle_skew")[0]),
+            "x_turbines": prob.get_val("x_turbines", units="km"),
+            "y_turbines": prob.get_val("y_turbines", units="km"),
+            # "spacing_primary": float(prob.get_val("spacing_primary")[0]),
+            # "spacing_secondary": float(prob.get_val("spacing_secondary")[0]),
+            # "angle_orientation": float(prob.get_val("angle_orientation")[0]),
+            # "angle_skew": float(prob.get_val("angle_skew")[0]),
             "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
             "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
             "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
@@ -117,17 +133,30 @@ def run_example():
 
         # Plot the convergence
         plt.figure(figsize=(8, 6))
-        plt.plot(iterations, objective_values, marker="o", label="Objective (LCOE)")
-        plt.xlabel("Iteration")
-        plt.ylabel("Objective Value (Total Cable Length (m))")
-        plt.title("Convergence Plot")
+        plt.plot(
+            iterations,
+            np.array(objective_values)
+            * input_dict["analysis_options"]["objective"]
+            .get("options", {})
+            .get("scaler", 1.0),
+            marker="o",
+            label=f"objective ({input_dict['analysis_options']['objective'].get('name')})",
+        )
+        plt.xlabel("Iteration number (-)")
+        plt.ylabel(
+            f"Objective value ({input_dict['analysis_options']['objective'].get('name')})"
+        )
         plt.legend()
         plt.grid()
         plt.show()
 
-    optiwindnet.plotting.gplot(prob.model.collection.graph)
-
-    plt.show()
+    plot_layout(
+        prob,
+        input_dict=input_dict,
+        show_image=True,
+        include_cable_routing=False,
+        include_mooring_system=True,
+    )
 
 
 if __name__ == "__main__":

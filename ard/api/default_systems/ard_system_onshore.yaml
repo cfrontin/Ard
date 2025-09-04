@@ -1,7 +1,4 @@
 type: group
-connections:
-  - ["AEP_farm", "financese.plant_aep_in"]
-  - ["total_capex_kW", "financese.bos_per_kW"]
 systems:
   layout2aep:
     type: group
@@ -28,11 +25,13 @@ systems:
           modeling_options:
           data_path:
           case_title: "default"
-    approx_totals:
-      method: "fd"
-      step: 1.0E-3
-      form: "central"
-      step_calc: "rel_avg"
+  boundary:
+    type: component
+    module: ard.layout.boundary
+    object: FarmBoundaryDistancePolygon
+    promotes: ["*"]
+    kwargs:
+      modeling_options:
   landuse:
     type: component
     module: ard.layout.gridfarm
@@ -40,7 +39,7 @@ systems:
     promotes: ["*"]
     kwargs:
       modeling_options:
-  optiwindnet_coll:
+  collection:
     type: component
     module: ard.collection.optiwindnet_wrap
     object: OptiwindnetCollection
@@ -68,7 +67,9 @@ systems:
     type: component
     module: ard.cost.wisdem_wrap
     object: LandBOSSEWithSpacingApproximations
-    promotes: ["*"]
+    promotes: [
+      "total_length_cables",
+    ]
     kwargs:
       modeling_options:
   opex:
@@ -83,7 +84,7 @@ systems:
   financese:
     type: component
     module: ard.cost.wisdem_wrap
-    object: PlantFinance
+    object: FinanceSEGroup
     promotes: [
       "turbine_number",
       "machine_rating",
@@ -91,3 +92,8 @@ systems:
       "offset_tcc_per_kW",
       "opex_per_kW",
     ]
+    kwargs:
+      modeling_options:
+connections:
+  - ["AEP_farm", "financese.plant_aep_in"]
+  - ["landbosse.total_capex_kW", "financese.bos_per_kW"]

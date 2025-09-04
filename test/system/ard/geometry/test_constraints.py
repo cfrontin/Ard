@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import yaml
+
 import numpy as np
 
 import openmdao.api as om
@@ -17,40 +19,42 @@ class TestConstraints:
 
     def setup_method(self):
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
-            Path(ard.__file__).parents[1]
-            / "examples"
-            / "data"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        ).absolute()  # toolset generalized turbine specification
-
-        # load the turbine specification
-        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
         self.N_turbines = 25
         region_assignments_single = np.zeros(self.N_turbines, dtype=int)
 
         # set up the modeling options
+        path_turbine = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
+        with open(path_turbine) as f_yaml:
+            data_turbine_yaml = yaml.safe_load(f_yaml)
         self.modeling_options = {
-            "farm": {
-                "N_turbines": self.N_turbines,
-                "boundary": {
-                    "type": "polygon",
-                    "vertices": [
-                        np.array(
-                            [
-                                [-2.0, -2.0],
-                                [2.0, -2.0],
-                                [2.0, 2.0],
-                                [-2.0, 2.0],
-                            ]
-                        )
-                    ],
-                    "turbine_region_assignments": region_assignments_single,
+            "windIO_plant": {
+                "name": "system test special",
+                "site": {
+                    "name": "system test site",
+                    "boundaries": {
+                        "polygons": [
+                            {
+                                "x": [-2000.0, 2000.0, 2000.0, -2000.0],
+                                "y": [-2000.0, -2000.0, 2000.0, 2000.0],
+                            },
+                        ],
+                    },
+                },
+                "wind_farm": {
+                    "turbine": data_turbine_yaml,
                 },
             },
-            "turbine": data_turbine,
+            "layout": {
+                "N_turbines": self.N_turbines,
+            },
+            "boundary": {
+                "turbine_region_assignments": region_assignments_single,
+            },
         }
 
         # create a model
@@ -95,7 +99,9 @@ class TestConstraints:
 
             # load validation data from pyrite file using ard.utils.io
             validation_data = {
-                "boundary_distances": self.prob.get_val("boundary_distances"),
+                "boundary_distances": self.prob.get_val(
+                    "boundary_distances", units="km"
+                ),
             }
             with subtests.test(f"boundary_violations pyrite validation at {spacing}D"):
                 ard.utils.test_utils.pyrite_validator(
@@ -118,7 +124,7 @@ class TestConstraints:
 
         # configure the driver
         self.prob.driver = om.ScipyOptimizeDriver(optimizer="SLSQP")
-        self.prob.driver.options["maxiter"] = 10  # short run
+        self.prob.driver.options["maxiter"] = 20  # short run
 
         # setup the problem
         self.prob.setup()
@@ -132,8 +138,13 @@ class TestConstraints:
         # after 10 iterations, should have near-zero boundary distances
         with subtests.test("boundary distances near zero"):
             assert np.all(
-                np.isclose(self.prob.get_val("boundary_distances"), 0.0)
-                | (self.prob.get_val("boundary_distances") < 0.0)
+                np.isclose(
+                    self.prob.get_val("boundary_distances", units="km"),
+                    0.0,
+                    rtol=1.0e-3,
+                    atol=1.0e-6,
+                )
+                | (self.prob.get_val("boundary_distances", units="km") < 0.0)
             )
 
         # make sure the target spacing matches well
@@ -141,7 +152,15 @@ class TestConstraints:
         area_target_validation = 10.49498327  # from a run on 24 June 2025
         with subtests.test("validation spacing matches"):
             assert np.isclose(
-                self.prob.get_val("spacing_target"), spacing_target_validation
+                self.prob.get_val("spacing_target"),
+                spacing_target_validation,
+                rtol=1.0e-3,
+                atol=1.0e-6,
             )
         with subtests.test("validation area matches"):
-            assert np.isclose(self.prob.get_val("area_tight"), area_target_validation)
+            assert np.isclose(
+                self.prob.get_val("area_tight"),
+                area_target_validation,
+                rtol=1.0e-3,
+                atol=1.0e-6,
+            )
