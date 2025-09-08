@@ -46,10 +46,11 @@ dependencies = [
   "openmdao",
   "shapely",
   "jax",
-  "optiwindnet>=0.0.4",
+  "optiwindnet==0.0.4",
   "statsmodels",
   "highspy",
   "pyyaml",
+  "windio",
 ]
 [project.optional-dependencies]
 dev = [

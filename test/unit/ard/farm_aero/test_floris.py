@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import yaml
+
 import numpy as np
 import openmdao.api as om
 
@@ -35,22 +37,41 @@ class TestFLORISBatchPower:
             for v in np.meshgrid(np.linspace(-2, 2, 5), np.linspace(-2, 2, 5))
         ]
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = Path(
-            Path(ard.__file__).parents[1],
-            "examples",
-            "data",
-            "turbine_spec_IEA-3p4-130-RWT.yaml",
-        ).absolute()  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
         # set up the modeling options
-        modeling_options = {
-            "farm": {
+        path_turbine = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
+        with open(path_turbine) as f_yaml:
+            data_turbine_yaml = yaml.safe_load(f_yaml)
+        self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "name": "unit test farm",
+                    "turbine": data_turbine_yaml,
+                },
+                "site": {
+                    "energy_resource": {
+                        "wind_resource": {
+                            "wind_direction": wind_query.get_directions().tolist(),
+                            "wind_speed": wind_query.get_speeds().tolist(),
+                            "turbulence_intensity": wind_query.get_TIs().tolist(),
+                            "time": np.zeros_like(wind_query.get_speeds().tolist()),
+                            "shear": 0.585,
+                        },
+                        "reference_height": 90.0,
+                    },
+                },
+            },
+            "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
-            "wind_rose": wind_query,
-            "turbine": data_turbine_spec,
+            "floris": {
+                "peak_shaving_fraction": 0.4,
+                "peak_shaving_TI_threshold": 0.0,
+            },
         }
 
         # create the OpenMDAO model
@@ -58,7 +79,7 @@ class TestFLORISBatchPower:
         self.FLORIS = model.add_subsystem(
             "batchFLORIS",
             farmaero_floris.FLORISBatchPower(
-                modeling_options=modeling_options,
+                modeling_options=self.modeling_options,
                 case_title="letsgo",
                 data_path="",
             ),
@@ -73,8 +94,8 @@ class TestFLORISBatchPower:
         assert "case_title" in [k for k, _ in self.FLORIS.options.items()]
         assert "modeling_options" in [k for k, _ in self.FLORIS.options.items()]
 
-        assert "farm" in self.FLORIS.options["modeling_options"].keys()
-        assert "N_turbines" in self.FLORIS.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.FLORIS.options["modeling_options"].keys()
+        assert "N_turbines" in self.FLORIS.options["modeling_options"]["layout"].keys()
 
         # make sure that the inputs in the component match what we planned
         input_list = [k for k, v in self.FLORIS.list_inputs(val=False)]
@@ -116,6 +137,7 @@ class TestFLORISBatchPower:
                 "batchFLORIS.thrust_turbines", units="kN"
             ),
         }
+
         # validate data against pyrite file
         ard.utils.test_utils.pyrite_validator(
             validation_data,
@@ -145,22 +167,53 @@ class TestFLORISAEP:
             for v in np.meshgrid(np.linspace(-2, 2, 5), np.linspace(-2, 2, 5))
         ]
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
+        # set up the modeling options
+        path_turbine = (
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
-        # set up the modeling options
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
+        with open(path_turbine) as f_yaml:
+            data_turbine_yaml = yaml.safe_load(f_yaml)
         modeling_options = {
-            "farm": {
+            "windIO_plant": {
+                "wind_farm": {
+                    "name": "unit test farm",
+                    "turbine": data_turbine_yaml,
+                },
+                "site": {
+                    "energy_resource": {
+                        "wind_resource": {
+                            "wind_direction": wind_rose.wind_directions.tolist(),
+                            "wind_speed": wind_rose.wind_speeds.tolist(),
+                            "probability": {
+                                "data": wind_rose.freq_table.tolist(),
+                                "dim": [
+                                    "wind_direction",
+                                    "wind_speed",
+                                ],
+                            },
+                            "turbulence_intensity": {
+                                "data": wind_rose.ti_table.tolist(),
+                                "dim": [
+                                    "wind_direction",
+                                    "wind_speed",
+                                ],
+                            },
+                            "shear": 0.585,
+                            "reference_height": 110.0,
+                        },
+                    },
+                },
+            },
+            "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
-            "wind_rose": wind_rose,
-            "turbine": data_turbine_spec,
+            "floris": {
+                "peak_shaving_fraction": 0.4,
+                "peak_shaving_TI_threshold": 0.0,
+            },
         }
 
         # create the OpenMDAO model
@@ -182,8 +235,8 @@ class TestFLORISAEP:
         assert "case_title" in [k for k, _ in self.FLORIS.options.items()]
         assert "modeling_options" in [k for k, _ in self.FLORIS.options.items()]
 
-        assert "farm" in self.FLORIS.options["modeling_options"].keys()
-        assert "N_turbines" in self.FLORIS.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.FLORIS.options["modeling_options"].keys()
+        assert "N_turbines" in self.FLORIS.options["modeling_options"]["layout"].keys()
 
         # make sure that the inputs in the component match what we planned
         input_list = [k for k, v in self.FLORIS.list_inputs(val=False)]
