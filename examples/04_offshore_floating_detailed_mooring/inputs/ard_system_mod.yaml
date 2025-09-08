@@ -145,6 +145,13 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
+    anchor_boundary:
+      type: component
+      module: ard.offshore.mooring_boundary
+      object: FarmBoundaryAnchorDistancePolygon
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
     tcc:
       type: component
       module: ard.cost.wisdem_wrap
@@ -197,7 +204,7 @@ analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: SLSQP
+      optimizer: COBYLA  # SLSQP
   design_variables:
     x_turbines:
       units: "m"
@@ -224,11 +231,16 @@ analysis_options:
       scaler: 0.004128137384  # 1/D_rotor
     boundary_distances:
       units: "m"
-      upper: 0.0
+      upper: -50.0
+      scaler: 0.004128137384  # 1/D_rotor
+    anchor_boundary_distances:
+      units: "m"
+      upper: -50.0
       scaler: 0.004128137384  # 1/D_rotor
   objective:
     name: financese.lcoe
     options:
-      scaler: 0.01
+      units: USD/MW/h
+      scaler: 1.0
   recorder:
     filepath: opt_results.sql
