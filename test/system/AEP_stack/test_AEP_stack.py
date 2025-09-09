@@ -56,7 +56,7 @@ class TestAEPstack:
         self.prob = glue.create_setup_OM_problem(
             modeling_options=self.modeling_options,
             wind_rose=wind_rose,
-            aero_backend='FLOWERS',
+            aero_backend="FLOWERS",
         )
 
     def test_model(self):

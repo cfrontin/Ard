@@ -158,9 +158,10 @@ analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: "COBYLA"
+      optimizer: "SLSQP"
       opt_settings:
         rhobeg: 1.0
+        maxiter: 50
       debug_print:
         - "desvars"
         - "objs"
@@ -190,8 +191,11 @@ analysis_options:
       units: "km"
       lower: 0.552
   objective:
-    name: financese.lcoe
+    name: AEP_farm
     options:
-      scaler: 1.0
+      scaler: -1.0e-12
+    # name: financese.lcoe
+    # options:
+    #   scaler: 1.0
   recorder:
     filepath: "cases.sql"

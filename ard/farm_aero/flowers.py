@@ -74,14 +74,17 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
 
         # grab the windrose from the windIO data
         windrose_floris = templates.create_windresource_from_windIO(
-            self.windIO, resource_type="probability",
+            self.windIO,
+            resource_type="probability",
         )
         # extract to a dataframe
-        self.wind_data = pd.DataFrame({
-            "wd": windrose_floris.wd_flat,
-            "ws": windrose_floris.ws_flat,
-            "freq_val": windrose_floris.freq_table_flat,
-        })
+        self.wind_data = pd.DataFrame(
+            {
+                "wd": windrose_floris.wd_flat,
+                "ws": windrose_floris.ws_flat,
+                "freq_val": windrose_floris.freq_table_flat,
+            }
+        )
 
     def setup_partials(self):
         super().setup_partials()
@@ -96,14 +99,26 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         # turbine_type = self.modeling_options["flowers"]["turbine"]  # TODO: handle better
         turbine_type = {
             "D": self.windIO["wind_farm"]["turbine"]["rotor_diameter"],
-            "U": self.windIO["wind_farm"]["turbine"]["performance"].get("cutout_wind_speed", 25.0),
-            "ct": self.windIO["wind_farm"]["turbine"]["performance"]["Ct_curve"]["Ct_values"],
-            "u_ct": self.windIO["wind_farm"]["turbine"]["performance"]["Ct_curve"]["Ct_wind_speeds"],
+            "U": self.windIO["wind_farm"]["turbine"]["performance"].get(
+                "cutout_wind_speed", 25.0
+            ),
+            "ct": self.windIO["wind_farm"]["turbine"]["performance"]["Ct_curve"][
+                "Ct_values"
+            ],
+            "u_ct": self.windIO["wind_farm"]["turbine"]["performance"]["Ct_curve"][
+                "Ct_wind_speeds"
+            ],
         }
         if "Cp_curve" not in self.windIO["wind_farm"]["turbine"]["performance"]:
-            raise NotImplementedError("power to coefficient tranform not programmed yet...")
-        turbine_type["cp"] = self.windIO["wind_farm"]["turbine"]["performance"]["Cp_curve"]["Cp_values"]
-        turbine_type["u_cp"] = self.windIO["wind_farm"]["turbine"]["performance"]["Cp_curve"]["Cp_wind_speeds"]
+            raise NotImplementedError(
+                "power to coefficient tranform not programmed yet..."
+            )
+        turbine_type["cp"] = self.windIO["wind_farm"]["turbine"]["performance"][
+            "Cp_curve"
+        ]["Cp_values"]
+        turbine_type["u_cp"] = self.windIO["wind_farm"]["turbine"]["performance"][
+            "Cp_curve"
+        ]["Cp_wind_speeds"]
 
         # create the flowers model
         self.flowers_model = FlowersModel(
@@ -116,14 +131,17 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         )
 
         # FLOWERS computes the powers
-        outputs["AEP_farm"] = self.flowers_model.calculate_aep(self)
+        outputs["AEP_farm"] = self.flowers_model.calculate_aep()
         # outputs["power_farm"] = FLOWERSFarmComponent.get_power_farm(self)
         # outputs["power_turbines"] = FLOWERSFarmComponent.get_power_turbines(self)
         # outputs["thrust_turbines"] = FLOWERSFarmComponent.get_thrust_turbines(self)
 
     def compute_partials(self, inputs, partials):
-        raise NotImplementedError("FLOWERS PARTIALS ARE NOT IMPLEMENTED YET!")
+
+        # compute the gradients and extract to the right places
+        _, gradient = self.flowers_model.calculate_aep(gradient=True)
+        partials["AEP_farm", "x_turbines"] = gradient[:, 0]
+        partials["AEP_farm", "y_turbines"] = gradient[:, 1]
 
     def setup_partials(self):
         self.declare_partials("AEP_farm", ["x_turbines", "y_turbines"], method="exact")
-
