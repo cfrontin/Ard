@@ -7,6 +7,9 @@ modeling_options: &modeling_options
     # spacing_secondary: 3.0
     # angle_orientation: 0.0
     # angle_skew: 0.0
+  flowers:
+    num_terms: 0
+    k: 0.05
   platform:
     N_anchors: 3
     min_mooring_line_length_m: 500.0
@@ -82,11 +85,18 @@ modeling_options: &modeling_options
 system:
   type: group
   systems:
+    aepFLOWERS:
+      type: component
+      module: ard.farm_aero.flowers
+      object: FLOWERSAEP
+      promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+      kwargs:
+        modeling_options: *modeling_options
     aepFLORIS:
       type: component
       module: ard.farm_aero.floris
       object: FLORISAEP
-      promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+      promotes: ["x_turbines", "y_turbines", ["AEP_farm", "AEP_FLORIS"]]
       kwargs:
         modeling_options: *modeling_options
         case_title: "offshore-floating"
