@@ -1,4 +1,4 @@
-
+[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml)
 # Ard
 
 **Dig into wind farm design.**
@@ -13,6 +13,9 @@ They are aerodynamic machines, with complicated control systems, power electroni
 Moreover, the design of *one* of these aspects affects all the rest!
 
 `Ard` seeks to make plant-level design choices that can incorporate these different aspects _and their interactions_ to make wind energy projects more successful.
+
+## Documentation
+Ard documentation is available at [https://wisdem.github.io/Ard/]()
 
 ## Installation instructions
 
@@ -53,7 +56,7 @@ There can be some hardware-software mis-specification issues with WISDEM install
 In the event of issues, WISDEM can be installed manually or using `conda` without issues, then `pip` installation can proceed.
 
 ```shell
-mamba install wisdem=3.18.1 -y
+mamba install wisdem -y
 pip install -e .[dev,docs]
 ```
 
@@ -67,11 +70,9 @@ For user information, in pre-release, we are using some co-developed changes to 
 
 If the installation fails, please open a new issue [here](https://github.com/WISDEM/Ard/issues).
 
-### Optional installations
+## OptiWindNet
 
-#### OptiWindNet
-
-We currently have experimental support for [Mauricio Souza de Alancar's OptiWindNet package for collection system cable path-planning optimization](https://gitlab.windenergy.dtu.dk/TOPFARM/OptiWindNet).
+We currently have experimental support for [Mauricio Souza de Alencar's OptiWindNet package for collection system cable path-planning optimization](https://gitlab.windenergy.dtu.dk/TOPFARM/OptiWindNet).
 
 ## Current capabilities
 
@@ -85,7 +86,7 @@ The components that achieve this can be assembled to either run a single top-dow
 
 A second example is in progress to reoptimize the layout of two offshore wind farms, one fixed bottom (OFB) and one floating (OFL).
 Both wind farms are made of the [22 MW reference wind turbine](https://github.com/IEAWindSystems/IEA-22-280-RWT).
-In this example, BOS costs are estimated using the tool [Orbit](https://github.com/WISDEM/ORBIT).
+In this example, BOS costs are estimated using the tool [ORBIT](https://github.com/WISDEM/ORBIT).
 
 ## Roadmap to future capabilities
 
@@ -103,6 +104,16 @@ This, then, allows us to attempt to accomplish the technical goals of `Ard`, to:
 1) allow optimization of wind farm layouts for specific wind resource profiles
 2) target wholistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics
 3) naturally incorporate multi-fidelity analyses to efficiently integrate physics-resolving simulation
+
+## Building Documentation
+
+To build the documentation locally run the following from the top `Ard/` directory.
+
+```shell
+jupyter-book build docs/
+```
+
+You can then open `Ard/docs/_build/html/index.html` to view the docs.
 
 ---
 

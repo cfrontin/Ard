@@ -10,9 +10,25 @@ class TestCollectionTemplate:
 
     def setup_method(self):
         self.modeling_options = {
-            "farm": {
+            "windIO_plant": {
+                "wind_farm": {
+                    "electrical_substations": [
+                        {
+                            "electrical_substation": {
+                                "coordinates": {
+                                    "x": [0.0, 0.0],
+                                    "y": [0.0, 0.0],
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+            "layout": {
                 "N_turbines": 4,
                 "N_substations": 2,
+                "x_turbines": np.zeros(4),
+                "y_turbines": np.zeros(4),
             },
         }
 
@@ -32,10 +48,17 @@ class TestCollectionTemplate:
 
         assert "modeling_options" in [k for k, _ in self.coll_temp.options.items()]
 
-        assert "farm" in self.coll_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.coll_temp.options["modeling_options"]["farm"].keys()
+        assert "windIO_plant" in self.coll_temp.options["modeling_options"].keys()
         assert (
-            "N_substations" in self.coll_temp.options["modeling_options"]["farm"].keys()
+            "wind_farm"
+            in self.coll_temp.options["modeling_options"]["windIO_plant"].keys()
+        )
+        assert (
+            "N_turbines" in self.coll_temp.options["modeling_options"]["layout"].keys()
+        )
+        assert (
+            "N_substations"
+            in self.coll_temp.options["modeling_options"]["layout"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet
@@ -59,6 +82,15 @@ class TestCollectionTemplate:
                 "max_load_cables",
             ]:
                 assert var_to_check in output_list
+
+            # make sure that the outputs in the component match what we planned
+            discrete_output_list = [
+                k for k, v in self.coll_temp._discrete_outputs.items()
+            ]
+            for var_to_check in [
+                "terse_links",
+            ]:
+                assert var_to_check in discrete_output_list
 
     def test_compute(self):
 

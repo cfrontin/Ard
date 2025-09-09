@@ -33,16 +33,23 @@ class CollectionTemplate(om.ExplicitComponent):
 
     Outputs
     -------
+    total_length_cables : float
+        the total length of cables used in the collection system network
+
+    Discrete Outputs
+    ----------------
     length_cables : np.ndarray
         a 1D numpy array that holds the lengths of each of the cables necessary
         to collect energy generated, with length `N_turbines`
     load_cables : np.ndarray
-        a 1D numpy array that holds the load integer (i.e. total number of
-        turbines) collected up to each cable, with length `N_turbines`
-    total_length_cables : float
-        the total length of cables to collect energy generated
-    max_load_cables : np.ndarray
-        the maximum cable capacity required by the system
+        a 1D numpy array that holds the turbine count upstream of the cable segment
+        (i.e. number of turbines whose power is collected through the cable), with
+        length `N_turbines`
+    max_load_cables : int
+        the maximum cable capacity required by the collection system
+    terse_links : np.ndarray
+        a 1D numpy int array encoding the electrical connections of the collection
+        system (tree topology), with length `N_turbines`
     """
 
     def initialize(self):
@@ -53,22 +60,67 @@ class CollectionTemplate(om.ExplicitComponent):
         """Setup of OM component."""
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
-        self.N_substations = self.modeling_options["farm"]["N_substations"]
+        self.windIO_plant = self.modeling_options["windIO_plant"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
+        self.N_substations = self.modeling_options["layout"]["N_substations"]
+        if "x_turbines" in self.modeling_options["layout"]:
+            self.x_turbines = self.modeling_options["layout"]["x_turbines"]
+        else:
+            self.x_turbines = (
+                self.windIO_plant.get("wind_farm", {})
+                .get("layouts", {})
+                .get("coordinates", {})
+                .get("x", np.zeros((self.N_turbines,)))
+            )
+        if "y_turbines" in self.modeling_options["layout"]:
+            self.y_turbines = self.modeling_options["layout"]["y_turbines"]
+        else:
+            self.y_turbines = (
+                self.windIO_plant.get("wind_farm", {})
+                .get("layouts", {})
+                .get("coordinates", {})
+                .get("y", np.zeros((self.N_turbines,)))
+            )
+        self.x_substations = np.array(
+            [
+                substation["electrical_substation"]["coordinates"]["x"]
+                for substation in self.windIO_plant["wind_farm"][
+                    "electrical_substations"
+                ]
+            ]
+        )
+        self.y_substations = np.array(
+            [
+                substation["electrical_substation"]["coordinates"]["y"]
+                for substation in self.windIO_plant["wind_farm"][
+                    "electrical_substations"
+                ]
+            ]
+        )
 
         # set up inputs for farm layout
-        self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="m")
-        self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="m")
-        self.add_input("x_substations", np.zeros((self.N_substations,)))
-        self.add_input("y_substations", np.zeros((self.N_substations,)))
+        self.add_input("x_turbines", self.x_turbines, units="m")
+        self.add_input("y_turbines", self.y_turbines, units="m")
+        self.add_input("x_substations", self.x_substations, units="m")
+        self.add_input("y_substations", self.y_substations, units="m")
+        self.add_discrete_input("x_border", None)
+        self.add_discrete_input("y_border", None)
 
         # set up outputs for the collection system
-        self.add_output("length_cables", np.zeros((self.N_turbines,)), units="m")
-        self.add_output("load_cables", np.zeros((self.N_turbines,)))
         self.add_output("total_length_cables", 0.0, units="m")
-        self.add_output("max_load_cables", 0.0)
+        self.add_discrete_output("length_cables", np.zeros((self.N_turbines,)))
+        self.add_discrete_output("terse_links", np.full((self.N_turbines,), -1))
+        self.add_discrete_output("load_cables", np.zeros((self.N_turbines,)))
+        self.add_discrete_output("max_load_cables", 0.0)
+        self.add_discrete_output("graph", None)
 
-    def compute(self, inputs, outputs):
+    def compute(
+        self,
+        inputs,
+        outputs,
+        discrete_inputs=None,
+        discrete_outputs=None,
+    ):
         """
         Computation for the OM component.
 

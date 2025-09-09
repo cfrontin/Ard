@@ -4,10 +4,10 @@ import openmdao.api as om
 from shapely import length
 import shapely.geometry as sg
 
-import ard.layout.templates as templates
+import ard.layout.templates
 
 
-class FullFarmLanduse(templates.LanduseTemplate):
+class FullFarmLanduse(ard.layout.templates.LanduseTemplate):
     """
     Landuse class for full Cartesian grid farm layout.
 
@@ -18,10 +18,10 @@ class FullFarmLanduse(templates.LanduseTemplate):
     -------
     modeling_options : dict
         a modeling options dictionary (inherited from
-        `templates.LayoutTemplate`)
+        `templates.LanduseTemplate`)
     N_turbines : int
         the number of turbines that should be in the farm layout (inherited from
-        `templates.LayoutTemplate`)
+        `templates.LanduseTemplate`)
 
     Inputs
     ------
@@ -79,7 +79,7 @@ class FullFarmLanduse(templates.LanduseTemplate):
         mp = sg.MultiPoint(points)
 
         # create a laybacked geometry
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        D_rotor = self.windIO["wind_farm"]["turbine"]["rotor_diameter"]
         lengthscale_layback = float(inputs["distance_layback_diameters"][0] * D_rotor)
 
         # area tight is equal to the convex hull area for the points in sq. km.

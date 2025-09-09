@@ -5,8 +5,9 @@ import scipy.spatial
 import openmdao.api as om
 
 import pytest
+import windIO
 
-import ard.test_utils
+import ard.utils.test_utils as test_utils
 import ard.layout.sunflower as sunflower
 
 
@@ -14,22 +15,28 @@ class TestSunflowerFarm:
 
     def setup_method(self):
 
+        self.N_turbines = 25
         self.D_rotor = 130.0
+
         self.modeling_options = {
-            "farm": {
-                "N_turbines": 25,
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
+                },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
-                }
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
         self.model = om.Group()
         self.sunflower = self.model.add_subsystem(
             "sunflower",
-            sunflower.SunflowerFarmLayout(modeling_options=self.modeling_options),
+            sunflower.SunflowerFarmLayout(
+                modeling_options=self.modeling_options,
+            ),
             promotes=["*"],
         )
         self.prob = om.Problem(self.model)
@@ -39,16 +46,16 @@ class TestSunflowerFarm:
         # make sure the modeling_options has what we need for the layout
         assert "modeling_options" in [k for k, _ in self.sunflower.options.items()]
 
-        assert "farm" in self.sunflower.options["modeling_options"].keys()
-        assert "N_turbines" in self.sunflower.options["modeling_options"]["farm"].keys()
-
-        assert "turbine" in self.sunflower.options["modeling_options"].keys()
+        assert "layout" in self.sunflower.options["modeling_options"].keys()
         assert (
-            "geometry" in self.sunflower.options["modeling_options"]["turbine"].keys()
+            "N_turbines" in self.sunflower.options["modeling_options"]["layout"].keys()
         )
+
+        assert "wind_farm" in self.modeling_options["windIO_plant"].keys()
+        assert "turbine" in self.modeling_options["windIO_plant"]["wind_farm"].keys()
         assert (
-            "diameter_rotor"
-            in self.sunflower.options["modeling_options"]["turbine"]["geometry"].keys()
+            "rotor_diameter"
+            in self.modeling_options["windIO_plant"]["wind_farm"]["turbine"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet
@@ -97,7 +104,7 @@ class TestSunflowerFarm:
         }
 
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_sunflower_7D_pyrite.npz",
             rtol_val=5e-3,
@@ -128,7 +135,7 @@ class TestSunflowerFarm:
         }
 
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_sunflower_4D_pyrite.npz",
             rtol_val=5e-3,
@@ -143,13 +150,13 @@ class TestSunflowerFarm:
             self.prob.set_val("sunflower.spacing_target", spacing)
             self.prob.run_model()
 
+            # get the turbine locations and their co-distance matrices
             points = np.vstack(
                 [
                     self.prob.get_val("x_turbines", units="km"),
                     self.prob.get_val("y_turbines", units="km"),
                 ]
             ).T
-            print(f"DEBUG!!!!! points.shape {points.shape}")
             dist_mtx = scipy.spatial.distance.squareform(
                 scipy.spatial.distance.pdist(points)
             )
