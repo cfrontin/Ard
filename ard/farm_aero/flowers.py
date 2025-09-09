@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
+from ard.farm_aero.floris import create_FLORIS_turbine_from_windIO
 from flowers import FlowersModel
 
 import ard.farm_aero.templates as templates
@@ -96,29 +97,29 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         layout_y = inputs["y_turbines"]
         num_terms = self.modeling_options["flowers"]["num_terms"]
         k_wake_expansion = self.modeling_options["flowers"]["k"]
-        # turbine_type = self.modeling_options["flowers"]["turbine"]  # TODO: handle better
+
+        # use the floris turbine as an intermediary to cover off windIO variants
+        floris_turbine = create_FLORIS_turbine_from_windIO(self.windIO)
+
+        rho_density_air = floris_turbine["power_thrust_table"][
+            "ref_air_density"
+        ]  # kg/m^3
+        area_rotor = np.pi / 4 * floris_turbine["rotor_diameter"] ** 2  # m^2
+        V_table = np.array(floris_turbine["power_thrust_table"]["wind_speed"])
+        P_table = 1.0e3 * np.array(floris_turbine["power_thrust_table"]["power"])
+        CT_table = np.array(floris_turbine["power_thrust_table"]["thrust_coefficient"])
+        CP_table = P_table / (0.5 * rho_density_air * area_rotor * V_table**3)
+
         turbine_type = {
             "D": self.windIO["wind_farm"]["turbine"]["rotor_diameter"],
             "U": self.windIO["wind_farm"]["turbine"]["performance"].get(
                 "cutout_wind_speed", 25.0
             ),
-            "ct": self.windIO["wind_farm"]["turbine"]["performance"]["Ct_curve"][
-                "Ct_values"
-            ],
-            "u_ct": self.windIO["wind_farm"]["turbine"]["performance"]["Ct_curve"][
-                "Ct_wind_speeds"
-            ],
+            "ct": CT_table,
+            "u_ct": V_table,
+            "cp": CP_table,
+            "u_cp": V_table,
         }
-        if "Cp_curve" not in self.windIO["wind_farm"]["turbine"]["performance"]:
-            raise NotImplementedError(
-                "power to coefficient tranform not programmed yet..."
-            )
-        turbine_type["cp"] = self.windIO["wind_farm"]["turbine"]["performance"][
-            "Cp_curve"
-        ]["Cp_values"]
-        turbine_type["u_cp"] = self.windIO["wind_farm"]["turbine"]["performance"][
-            "Cp_curve"
-        ]["Cp_wind_speeds"]
 
         # create the flowers model
         self.flowers_model = FlowersModel(
