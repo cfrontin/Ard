@@ -37,16 +37,46 @@ class FlowersModel():
         self.layout_y = layout_y
         self.k = k
 
-        if turbine is None or turbine == 'nrel_5MW':
-            self.turbine = 'nrel_5MW'
-            self.D = 126.
-            self.U = 25.0
-        if turbine == 'iea_22MW':
-            self.turbine = 'iea_22MW'
-            self.D = 283.2
-            self.U = 25.0
+        if turbine is None:
+            turbine = "nrel_5MW"
+        if type(turbine) == str:
+            if turbine == 'nrel_5MW':
+                self.turbine = 'nrel_5MW'
+                self.D = 126.
+                self.U = 25.0
+            elif turbine == 'iea_22MW':
+                self.turbine = 'iea_22MW'
+                self.D = 283.2
+                self.U = 25.0
+            else:
+                raise NotImplementedError(
+                    f"turbine type ({turbine}) has not been implemented"
+                )
 
-        self._fourier_coefficients(num_terms=num_terms)
+            self._fourier_coefficients(num_terms=num_terms)
+
+        elif type(turbine) == dict:
+            assert "ct" in turbine
+            assert "cp" in turbine
+            assert "D" in turbine
+            assert "U" in turbine
+            self.D = turbine["D"]
+            self.U = turbine["U"]
+            ct = turbine["ct"]
+            cp = turbine["cp"]
+            u_ct = turbine["u_ct"]
+            u_cp = turbine["u_cp"]
+
+            self._fourier_coefficients(
+                num_terms=num_terms,
+                u_ct_table=u_ct,
+                u_cp_table=u_cp,
+                ct_table=ct,
+                cp_table=cp,
+            )
+
+        else:
+            raise IOError("supplied turbine type was not recognized!")
 
     def reinitialize(self, wind_rose=None, layout_x=None, layout_y=None, num_terms=None, k=None):
 
@@ -124,7 +154,7 @@ class FlowersModel():
             dtdr = np.nan_to_num(dtdr)
 
             # Zero-frequency mode of change in power deficit wrt radius
-            dpdr = (-4 * self.fs.a[0] * self.k * theta_c * (3 + 6 * self.k * R + 2 * np.pi**2 * (4 * self.k * R - 1) * theta_c**2) + 
+            dpdr = (-4 * self.fs.a[0] * self.k * theta_c * (3 + 6 * self.k * R + 2 * np.pi**2 * (4 * self.k * R - 1) * theta_c**2) +
                     3 * self.fs.a[0] * (1 + 2 * self.k * R) * (1 + 2 * self.k * R + 8 * np.pi**2 * self.k * R * theta_c**2) * dtdr) / (
                 3 * (1 + 2*self.k*R)**4)
 
@@ -145,14 +175,14 @@ class FlowersModel():
 
                 # Higher Fourier modes of change in power deficit wrt radius
                 dpdr += ((self.fs.a[m] * np.cos(2 * np.pi * m * THETA) + self.fs.b[m] * np.sin(2 * np.pi * m * THETA)) / (np.pi * m**3 * (2 * self.k * R + 1)**4) * (
-                    -4 * self.k * np.sin(2 * np.pi * m * theta_c) * (1 + m**2 + 2 * self.k * R * (m**2 - 2) + 2 * np.pi**2 * m**2 * (4 * self.k * R - 1) * theta_c**2) + 
+                    -4 * self.k * np.sin(2 * np.pi * m * theta_c) * (1 + m**2 + 2 * self.k * R * (m**2 - 2) + 2 * np.pi**2 * m**2 * (4 * self.k * R - 1) * theta_c**2) +
                     2 * np.pi * m * np.cos(2 * np.pi * m * theta_c) * (4 * self.k * (1 - 4 * self.k * R) * theta_c + m**2 * (2 * self.k * R + 1) * (
                     1 + 2 * self.k * R + 8 * np.pi**2 * self.k * R * theta_c**2) * dtdr)))
 
         # Apply mask for points within rotor radius
         du = du * (1 - mask_area) + mask_val * mask_area
         np.fill_diagonal(du, 0.)
-        
+
         # Sum power for each turbine
         du = np.sum(du, axis=1)
         aep = np.sum((u0 - du)**3)
@@ -165,7 +195,7 @@ class FlowersModel():
 
             dx = np.nan_to_num(dx)
             dy = np.nan_to_num(dy)
-            
+
             coeff = (u0 - du)**2
             for i in range(len(grad)):
                 # Isolate gradient to turbine 'i'
@@ -173,13 +203,13 @@ class FlowersModel():
                 grad_mask[i,:] = -1.
                 grad_mask[:,i] = 1.
 
-                grad[i,0] = np.sum(coeff*np.sum(dx*grad_mask,axis=1)) 
+                grad[i,0] = np.sum(coeff*np.sum(dx*grad_mask,axis=1))
                 grad[i,1] = np.sum(coeff*np.sum(dy*grad_mask,axis=1))
 
             grad *= -3 * np.pi / 8 * 1.225 * self.D * self.U**3 * 8760
 
             return aep, grad
-        
+
         else:
             return aep
 
@@ -187,7 +217,7 @@ class FlowersModel():
     # Private functions
     ###########################################################################
 
-    def _fourier_coefficients(self, num_terms=0):
+    def _fourier_coefficients(self, num_terms=0, ct_table=None, cp_table=None, u_ct_table=None, u_cp_table=None):
         """
         Compute the Fourier series expansion coefficients from the wind rose.
         Modifies the FlowersModel in place to add a Fourier coefficients
@@ -200,14 +230,14 @@ class FlowersModel():
         Args:
             num_terms (int, optional): the number of Fourier modes to save in the range
                 [1, floor(num_wind_directions/2)]
-        
+
         """
 
         # Resample wind rose for average wind speed per wind direction
         wr = copy.deepcopy(self.wind_rose)
         wr = tl.resample_average_ws_by_wd(wr)
 
-        # Transform wind direction to polar angle 
+        # Transform wind direction to polar angle
         wr["wd"] = np.remainder(450 - wr.wd, 360)
         wr.sort_values("wd", inplace=True)
         # wr.loc[len(wr)] = wr.iloc[0]
@@ -215,10 +245,18 @@ class FlowersModel():
 
         # Normalize wind speed by cut-out speed
         wr["ws"] /= self.U
+        u_ct_table = np.array(u_ct_table)/self.U
+        u_cp_table = np.array(u_cp_table)/self.U
 
         # Look up thrust and power coefficients for each wind direction bin
-        ct = tl.ct_lookup(wr.ws,self.turbine)
-        cp = tl.cp_lookup(wr.ws,self.turbine)
+        if (u_ct_table is None) or (ct_table is None):
+            ct = tl.ct_lookup(wr.ws,self.turbine)
+        else:
+            ct = np.interp(wr.ws, u_ct_table, ct_table)
+        if (u_cp_table is None) or (cp_table is None):
+            cp = tl.cp_lookup(wr.ws,self.turbine)
+        else:
+            cp = np.interp(wr.ws, u_cp_table, cp_table)
 
         # Average freestream term
         c = np.sum(cp**(1/3) * wr.ws * wr.freq_val)
