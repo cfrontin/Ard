@@ -125,4 +125,5 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         raise NotImplementedError("FLOWERS PARTIALS ARE NOT IMPLEMENTED YET!")
 
     def setup_partials(self):
-        super().setup_partials()
+        self.declare_partials("AEP_farm", ["x_turbines", "y_turbines"], method="exact")
+
