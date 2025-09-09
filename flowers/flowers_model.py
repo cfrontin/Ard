@@ -109,7 +109,7 @@ class FlowersModel():
     def get_num_modes(self):
         return len(self.fs)
 
-    def calculate_aep(self, gradient=False):
+    def calculate_aep(self, rho_density=1.225, gradient=False):
         """
         Compute farm AEP (and Cartesian gradients) for the given layout and wind rose.
 
@@ -186,7 +186,7 @@ class FlowersModel():
         # Sum power for each turbine
         du = np.sum(du, axis=1)
         aep = np.sum((u0 - du)**3)
-        aep *= np.pi / 8 * 1.225 * self.D**2 * self.U**3 * 8760
+        aep *= np.pi / 8 * rho_density * self.D**2 * self.U**3 * 8760
 
         # Complete gradient calculation
         if gradient==True:
@@ -206,7 +206,7 @@ class FlowersModel():
                 grad[i,0] = np.sum(coeff*np.sum(dx*grad_mask,axis=1))
                 grad[i,1] = np.sum(coeff*np.sum(dy*grad_mask,axis=1))
 
-            grad *= -3 * np.pi / 8 * 1.225 * self.D * self.U**3 * 8760
+            grad *= -3 * np.pi / 8 * rho_density * self.D * self.U**3 * 8760
 
             return aep, grad
 
