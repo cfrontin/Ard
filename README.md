@@ -1,5 +1,9 @@
-[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml)
+
 # Ard
+
+[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml)
+
+![Ard logo](assets/logomaker/logo.png)
 
 **Dig into wind farm design.**
 
@@ -9,7 +13,7 @@
 The intent of `Ard` is to be a modular, full-stack multi-disciplinary optimization tool for wind farms.
 
 The problem with wind farms is that they are complicated, multi-disciplinary objects.
-They are aerodynamic machines (composed of complicated control systems, power electronic devices, etc.), social and political objects, and the core value generator (and cost) of complicated financial instruments.
+They are aerodynamic machines (composed of complicated control systems, power electronic devices, etc.), social and political objects, generators of electrical power and consumers of electricl demand, and the core value generator (and cost) of complicated financial instruments.
 Moreover, the design of any *one* of these aspects affects all the rest!
 
 `Ard` seeks to enable plant-level design choices that can incorporate these different aspects _and their interactions_ to make wind energy projects more successful.
@@ -45,7 +49,6 @@ For a basic and static installation, type:
 ```shell
 pip install .
 ```
-
 For development (and really for everyone during pre-release), we recommend a full development installation:
 ```shell
 pip install -e .[dev,docs]
@@ -60,59 +63,74 @@ mamba install wisdem -y
 pip install -e .[dev,docs]
 ```
 
-To test the installation, from the `Ard` folder run unit and regression tests:
+## Testing instructions
+
+The installation can be tested comprehensively using pytest.
+The developers also provide some convenience scripts for testing new installations; from the `Ard` folder run unit and regression tests:
 ```shell
 source test/run_local_test_unit.sh
 source test/run_local_test_system.sh
 ```
 
-For user information, in pre-release, we are using some co-developed changes to the `FLORIS` library.
-
-If the installation fails, please open a new issue [here](https://github.com/WISDEM/Ard/issues).
-
-## OptiWindNet
-
-We currently have experimental support for [Mauricio Souza de Alencar's OptiWindNet package for collection system cable path-planning optimization](https://gitlab.windenergy.dtu.dk/TOPFARM/OptiWindNet).
+`Ard`'s git repository includes requirements for both the `main` and `develop` branches to have 80% coverage on unit testing and 50% testing in system testing, which are, respectively, tests of individual parts of `Ard` and "systems" composed of multiple parts.
+Failures are not tolerated on these branches and code found therein *should* never fail if they make it onto them.
+If installation and testing fails, please open a new issue [here](https://github.com/WISDEM/Ard/issues).
 
 ## Current capabilities
 
-For the alpha pre-release of `Ard`, we have concentrated on optimization of wind plants, starting from a structured layout and optimizing it to minimize the levelized cost of energy, or LCOE.
-This capability is demonstrated for a land-based (LB) wind farm in `examples/LCOE_LB_stack` and tested in an abridged form in `test/system/LCOE_stack/test_LCOE_LB_stack.py`.
+For the beta pre-release of `Ard`, we concentrate on optimization problems for wind plants, starting from structured layouts and optimizing it to minimize the levelized cost of energy, or LCOE.
+This capability is demonstrated for a land-based (LB) wind farm in `examples/01_onshore` and tested in an abridged form in `test/system/ard/api/test_LCOE_LB_stack.py`.
 In this example, the wind farm layout is parametrized with two angles, named orientation and skewed, and turbine distancing for rows and columns.
-In the alpha pre-release stage, the constituent subcomponents of these problems are known to work and fully tested; any capabilities not touched in the layout-to-LCOE stack should be treated as experimental.
+Additionally, we have offshore examples co-located with the onshore one.
+In the beta pre-release stage, the constituent subcomponents of these problems are known to work and fully tested;
+any capabilities that are not touched by these problems should be considered to be experimental.
 
 These cases start from a four parameter farm layout, compute landuse area, make FLORIS AEP estimates, compute turbine capital costs, balance-of-station (BOS), and operational costs using WISDEM components, and finally give summary estimates of plant finance figures.
 The components that achieve this can be assembled to either run a single top-down analysis run, or run an optimization.
 
-A second example is in progress to reoptimize the layout of two offshore wind farms, one fixed bottom (OFB) and one floating (OFL).
-Both wind farms are made of the [22 MW reference wind turbine](https://github.com/IEAWindSystems/IEA-22-280-RWT).
-In this example, BOS costs are estimated using the tool [ORBIT](https://github.com/WISDEM/ORBIT).
-
 ## Roadmap to future capabilities
 
-The future development of `Ard` is centered around two user cases:
-1) systems energy researchers who are focusing on one specific subdiscipline (e.g. layout strategies, social impacts, or aerodynamic modeling) but want to be able to easily keep track of how it impacts the entire value chain down to production, cost, and/or value of energy or even optimize with respect to it, and
-2) private industry researchers who are interested in how public-sector research results change when proprietary analysis tools are dropped in and coupled the other tools in a systems-level simulation.
+The design of `Ard` is centered around two user cases:
+1) systems energy researchers who are focusing on one specific subdiscipline (e.g. layout strategies, social impacts, or aerodynamic modeling) but want to be able to easily keep track of how it impacts the entire value chain down to production, cost, and/or value of energy or even optimize with respect to these, and
+2) private industry researchers who are interested in how public-sector research results change when proprietary analysis tools are dropped in and/or coupled the other tools in a systems-level simulation.
 
 `Ard` is being developed as a modular tool to enable these types of research queries.
 This starts from our research goals, which are that `Ard` should be:
-1) principled: fully documented, and adhering to best-practices for code development
-2) modular and extensible: choose the parts you want, skip the ones you don't, build yourself the ones we don't have
-3) effective: fully tested and testable at the unit and system level, and built with a derivative-forward approach
+1) principled:
+   - fully documented
+   - adhering to best-practices for code development
+2) modular and extensible:
+   - choose the parts you want
+   - skip the ones you don't
+   - build yourself the ones we don't have
+3) effective
+    - fully tested and testable at the unit and system level
+    - built with a forward-looking approach
+        - ready for derivatives and control of their approximation
+        - built to incorporate multi-fidelity approximation
+        - structured for extensibility to other advanced methods
 
 This, then, allows us to attempt to accomplish the technical goals of `Ard`, to:
 1) allow optimization of wind farm layouts for specific wind resource profiles
 2) target wholistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics
-3) naturally incorporate multi-fidelity analyses to efficiently integrate physics-resolving simulation
+3) naturally incorporate analyses across fidelities to efficiently integrate advanced simulation
+
+# Contributing to `Ard`
+
+We have striven towards gold-standard documentation and testing for `Ard`.
+Contribution is welcome, and we are happy [to field pull requests from github](https://github.com/WISDEM/Ard/pulls).
+For acceptance, PRs must:
+- be formatted using [`black`](https://github.com/psf/black)
+- not fail any unit tests
+- achieve coverage criteria for unit & system testing
+- be documented enough for continued maintenance by core `Ard` developers
 
 ## Building Documentation
 
-To build the documentation locally run the following from the top `Ard/` directory.
-
+To build the documentation locally, run the following from the top-level `Ard/` directory:
 ```shell
 jupyter-book build docs/
 ```
-
 You can then open `Ard/docs/_build/html/index.html` to view the docs.
 
 ---
