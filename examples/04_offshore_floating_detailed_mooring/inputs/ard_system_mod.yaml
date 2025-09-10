@@ -209,12 +209,12 @@ system:
     - ["AEP_farm", "financese.plant_aep_in"]
     - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
 
-
 analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: COBYLA  # SLSQP
+      optimizer: SLSQP
+      maxiter: 50
   design_variables:
     x_turbines:
       units: "m"
@@ -248,9 +248,13 @@ analysis_options:
       upper: -50.0
       scaler: 0.004128137384  # 1/D_rotor
   objective:
-    name: financese.lcoe
+    name: AEP_farm
     options:
-      units: USD/MW/h
-      scaler: 1.0
+      units: GW*h
+      scaler: -1000.0
+    # name: financese.lcoe
+    # options:
+    #   units: USD/MW/h
+    #   scaler: 1.0
   recorder:
     filepath: opt_results.sql

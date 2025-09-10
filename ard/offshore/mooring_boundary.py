@@ -101,8 +101,8 @@ class FarmBoundaryAnchorDistancePolygon(om.ExplicitComponent):
             "*",
             "*",
             method="exact",
-            rows=np.arange(self.N_turbines),
-            cols=np.arange(self.N_turbines),
+            # rows=np.arange(self.N_turbines*self.N_anchors),
+            # cols=np.arange(self.N_turbines*self.N_anchors),
         )
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
@@ -131,9 +131,9 @@ class FarmBoundaryAnchorDistancePolygon(om.ExplicitComponent):
         x_anchors = inputs["x_anchors"].flatten()
         y_anchors = inputs["y_anchors"].flatten()
 
+        # compute and store the jacobian
         jacobian = self.distance_multi_point_to_multi_polygon_ray_casting_jac(
             x_anchors, y_anchors, self.boundary_vertices, self.boundary_regions_anchors
         )
-
-        partials["anchor_boundary_distances", "x_anchors"] = jacobian[0].diagonal()
-        partials["anchor_boundary_distances", "y_anchors"] = jacobian[1].diagonal()
+        partials["anchor_boundary_distances", "x_anchors"] = jacobian[0]
+        partials["anchor_boundary_distances", "y_anchors"] = jacobian[1]

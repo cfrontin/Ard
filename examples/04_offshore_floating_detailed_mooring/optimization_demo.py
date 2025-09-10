@@ -47,6 +47,7 @@ def run_example():
     # collapse the test result data
     test_data = {
         "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
+        "AEP_FLORIS": float(prob.get_val("AEP_FLORIS", units="GW*h")[0]),
         "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
         "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
         "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
@@ -84,6 +85,7 @@ def run_example():
             # "angle_orientation": float(prob.get_val("angle_orientation")[0]),
             # "angle_skew": float(prob.get_val("angle_skew")[0]),
             "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
+            "AEP_FLORIS": float(prob.get_val("AEP_FLORIS", units="GW*h")[0]),
             "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
             "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
             "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
