@@ -108,7 +108,7 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         V_table = np.array(floris_turbine["power_thrust_table"]["wind_speed"])
         P_table = 1.0e3 * np.array(floris_turbine["power_thrust_table"]["power"])
         CT_table = np.array(floris_turbine["power_thrust_table"]["thrust_coefficient"])
-        CP_table = P_table / (0.5 * rho_density_air * area_rotor * V_table**3)
+        CP_table = np.where(V_table == 0.0, 0.0, P_table / (0.5 * rho_density_air * area_rotor * V_table**3))
 
         turbine_type = {
             "D": self.windIO["wind_farm"]["turbine"]["rotor_diameter"],
