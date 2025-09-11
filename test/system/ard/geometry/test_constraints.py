@@ -39,8 +39,8 @@ class TestConstraints:
                     "boundaries": {
                         "polygons": [
                             {
-                                "x": [-2000.0,  2000.0,  2000.0, -2000.0],
-                                "y": [-2000.0, -2000.0,  2000.0,  2000.0],
+                                "x": [-2000.0, 2000.0, 2000.0, -2000.0],
+                                "y": [-2000.0, -2000.0, 2000.0, 2000.0],
                             },
                         ],
                     },
@@ -99,7 +99,9 @@ class TestConstraints:
 
             # load validation data from pyrite file using ard.utils.io
             validation_data = {
-                "boundary_distances": self.prob.get_val("boundary_distances", units="km"),
+                "boundary_distances": self.prob.get_val(
+                    "boundary_distances", units="km"
+                ),
             }
             with subtests.test(f"boundary_violations pyrite validation at {spacing}D"):
                 ard.utils.test_utils.pyrite_validator(
@@ -137,7 +139,11 @@ class TestConstraints:
         with subtests.test("boundary distances near zero"):
             tolerance_spec = 1.0e-3
             assert np.all(
-                np.isclose(self.prob.get_val("boundary_distances", units="m"), 0.0, rtol=tolerance_spec)
+                np.isclose(
+                    self.prob.get_val("boundary_distances", units="m"),
+                    0.0,
+                    rtol=tolerance_spec,
+                )
                 | (self.prob.get_val("boundary_distances", units="m") < tolerance_spec)
             )
 
