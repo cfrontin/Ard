@@ -51,6 +51,7 @@ analysis_options:
       optimizer: "COBYLA"
       opt_settings:
         rhobeg: 2.0
+        maxiter: 50
       debug_print:
         - "desvars"
         - "objs"
