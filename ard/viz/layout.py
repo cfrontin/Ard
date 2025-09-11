@@ -55,6 +55,7 @@ def plot_layout(
     save_path: os.PathLike = None,
     save_kwargs: dict = {},
     include_cable_routing: bool = False,
+    include_mooring_system: bool = False,
 ):
     """
     plot the layout of a farm
@@ -121,6 +122,34 @@ def plot_layout(
             infobox=False,
             landscape=False,
         )
+
+    if include_mooring_system:
+        # get the coordinates of the anchors
+        x_anchors = ard_prob.get_val("x_anchors", units="m")
+        y_anchors = ard_prob.get_val("y_anchors", units="m")
+
+        # loop over the anchors and plot from their originating turbine to each
+        for idx_turbine in range(
+            input_dict["modeling_options"]["layout"]["N_turbines"]
+        ):
+            for idx_anchor in range(
+                input_dict["modeling_options"]["platform"]["N_anchors"]
+            ):
+                ax.plot(
+                    [x_turbines[idx_turbine], x_anchors[idx_turbine, idx_anchor]],
+                    [y_turbines[idx_turbine], y_anchors[idx_turbine, idx_anchor]],
+                    "-r",
+                    alpha=0.25,
+                )
+            # plot the anchors as red circles
+            ax.plot(
+                x_anchors[idx_turbine, :],
+                y_anchors[idx_turbine, :],
+                "or",
+                alpha=0.25,
+            )
+
+    ax.axis("square")
 
     # show, save, or return
     if save_path is not None:

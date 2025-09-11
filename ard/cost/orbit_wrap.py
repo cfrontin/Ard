@@ -206,6 +206,7 @@ class ORBITDetail(orbit_wisdem.Orbit):
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=False)
 
     def setup(self):
         """Define all input variables from all models."""
@@ -250,6 +251,10 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 modeling_options=self.modeling_options,
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
+                override_mooring_lines=self.modeling_options["costs"].get(
+                    "override_mooring_lines",
+                    False,
+                ),
                 floating=self.modeling_options["floating"],
                 jacket=self.modeling_options.get("jacket"),
                 jacket_legs=self.modeling_options.get("jacket_legs"),
@@ -269,6 +274,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=False)
 
     def setup(self):
         """Define all the inputs."""
@@ -326,6 +332,14 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             "turbine_spacing": inputs["plant_turbine_spacing"],
             "row_spacing": inputs["plant_row_spacing"],
         }
+
+        # override the mooring line values
+        if self.options["override_mooring_lines"]:
+            # if mooring lines will be calculated in detail
+            # zero their ORBIT cost contributions
+            config["mooring_system"]["line_cost"] = 0.0
+            # the standard diameter and mass can still be used to approximate
+            # construction times and costs, etc.
 
         # switch to the custom array system design
         if not ("ArraySystemDesign" in config["design_phases"]):
