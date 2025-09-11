@@ -72,7 +72,6 @@ def generate_orbit_location_from_graph(
     for edge in edges_to_process:
         node_countmap[edge[0]] += 1
         node_countmap[edge[1]] += 1
-
     if np.any(
         (np.array(list(node_countmap.values())) > 2)
         & (np.array(list(node_countmap.keys())) >= 0)
