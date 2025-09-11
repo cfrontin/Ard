@@ -4,7 +4,7 @@
 format: jb-book
 root: intro
 parts:
-  # introductory material
+  # Introductory material
   - caption: Getting Started
     chapters:
     - file: installation
