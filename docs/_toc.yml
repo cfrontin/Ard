@@ -8,14 +8,15 @@ parts:
   - caption: Getting Started
     chapters:
     - file: installation
+    - file: testing
   # Tutorials
   - caption: Tutorials
     chapters:
     - file: LCOE_analysis
-  # How-to Guides
-  - caption: How-to Guides
-    chapters:
-    - file: multi_fidelity_aep
+  # # How-to Guides
+  # - caption: How-to Guides
+  #   chapters:
+  #   - file: multi_fidelity_aep
   # Reference Material
   - caption: Reference
     chapters:
