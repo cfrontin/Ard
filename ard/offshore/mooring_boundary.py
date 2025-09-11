@@ -90,7 +90,7 @@ class FarmBoundaryAnchorDistancePolygon(om.ExplicitComponent):
 
         self.add_output(
             "anchor_boundary_distances",
-            jnp.zeros(self.N_turbines*self.N_anchors),
+            jnp.zeros(self.N_turbines * self.N_anchors),
             units="m",
         )
 
@@ -112,7 +112,9 @@ class FarmBoundaryAnchorDistancePolygon(om.ExplicitComponent):
         x_anchors = inputs["x_anchors"].flatten()
         y_anchors = inputs["y_anchors"].flatten()
         # construct boundary region limits from turbine assignments
-        self.boundary_regions_anchors = np.vstack(3*[self.boundary_regions]).T.flatten()
+        self.boundary_regions_anchors = np.vstack(
+            3 * [self.boundary_regions]
+        ).T.flatten()
 
         boundary_distances = (
             ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting(
