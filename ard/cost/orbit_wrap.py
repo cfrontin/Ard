@@ -72,9 +72,14 @@ def generate_orbit_location_from_graph(
     for edge in edges_to_process:
         node_countmap[edge[0]] += 1
         node_countmap[edge[1]] += 1
+    # if this has branching, handle it
     if np.any(
-        (np.array(list(node_countmap.values())) > 2)
-        & (np.array(list(node_countmap.keys())) >= 0)
+        (
+            np.array(list(node_countmap.values())) > 2
+        )  # multiple turbine appearances indicates a branch
+        & (
+            np.array(list(node_countmap.keys())) >= 0
+        )  # but substations do appear so "mask" them
     ):
         if allow_branching_approximation:
             warnings.warn(
