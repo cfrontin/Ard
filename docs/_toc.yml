@@ -20,7 +20,7 @@ parts:
   # Examples
   - caption: Examples
     chapters:
-    - file: examples_01
+    - file: example_01.ipynb
   # Reference Material
   - caption: Reference
     chapters:
