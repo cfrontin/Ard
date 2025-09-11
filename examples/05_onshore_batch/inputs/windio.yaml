@@ -3,11 +3,9 @@ site:
     name: Ard Example 05 onshore wind site
     boundaries:
         polygons:
-            - x: [0.0, 1.0, 1.0, 0.0]
-              y: [0.0, 0.0, 1.0, 1.0]
-    energy_resource:
-        name: Ard Example 05 onshore energy resource
-        wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
+            - x: [-3.0, 3.0, 3.0, -3.0]
+              y: [-3.0, -3.0, 3.0, 3.0]
+    energy_resource: !include ./open-meteo-56.20N8.54E86m.yaml
 wind_farm:
     name: Ard Example 01 offshore wind farm
     layouts:

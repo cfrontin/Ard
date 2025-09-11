@@ -313,11 +313,11 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
         #   - farm and turbine powers
         #   - turbine thrusts
 
-        self.add_output(
-            "AEP_farm",
-            np.array([0.0]),
-            units="W*h",
-        )
+        # self.add_output(
+        #     "AEP_farm",
+        #     np.array([0.0]),
+        #     units="W*h",
+        # )
         self.add_output(
             "AEP_farm",
             0.0,
