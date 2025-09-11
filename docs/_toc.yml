@@ -9,14 +9,18 @@ parts:
     chapters:
     - file: installation
     - file: testing
-  # Tutorials
-  - caption: Tutorials
-    chapters:
-    - file: LCOE_analysis
+  # # Tutorials
+  # - caption: Tutorials
+  #   chapters:
+  #   - file: LCOE_analysis
   # # How-to Guides
   # - caption: How-to Guides
   #   chapters:
   #   - file: multi_fidelity_aep
+  # Examples
+  - caption: Examples
+    chapters:
+    - file: examples_01
   # Reference Material
   - caption: Reference
     chapters:
