@@ -21,6 +21,7 @@ parts:
   - caption: Examples
     chapters:
     - file: example_01.ipynb
+    - file: example_02.ipynb
   # Reference Material
   - caption: Reference
     chapters:
