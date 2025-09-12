@@ -73,7 +73,7 @@ analysis_options:
     options:
       optimizer: SLSQP
       opt_settings:
-        maxiter: 25
+        maxiter: 10
       debug_print:
       - "desvars"
       - "objs"
@@ -97,7 +97,7 @@ analysis_options:
   constraints:
     AEP_farm:
       units: GW*h
-      lower: 2.20
+      lower: 2200.0
       scaler: 2.0
     spacing_constraint.turbine_spacing:
       units: m
