@@ -94,8 +94,8 @@ def plot_layout(
     windIO_dict = input_dict["modeling_options"]["windIO_plant"]
 
     ax.fill(
-        [x * 1e3 for x in windIO_dict["site"]["boundaries"]["polygons"][0]["x"]],
-        [y * 1e3 for y in windIO_dict["site"]["boundaries"]["polygons"][0]["y"]],
+        windIO_dict["site"]["boundaries"]["polygons"][0]["x"],
+        windIO_dict["site"]["boundaries"]["polygons"][0]["y"],
         linestyle="--",
         alpha=0.5,
         fill=False,
