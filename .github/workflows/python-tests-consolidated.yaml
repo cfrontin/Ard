@@ -242,7 +242,7 @@ jobs:
           path: ~/Library/Caches/pip
         - os: windows-latest
           path: ~\AppData\Local\pip\Cache
-        script: ${{fromJson( needs.find-notebooks.outputs.scripts )}}
+        script: ${{fromJson( needs.find-examples_nb.outputs.scripts )}}
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
