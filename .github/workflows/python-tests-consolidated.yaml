@@ -218,6 +218,9 @@ jobs:
     - name: Find example python notebooks
       id: find_notebooks
       run: |
+        echo "scripts<<EOF"
+        find examples -mindepth 2 -maxdepth 2 -name "*.ipynb" | jq -R -s -c 'split("\n")[:-1]'
+        echo "EOF"
         echo "scripts<<EOF" >> $GITHUB_OUTPUT
         find examples -mindepth 2 -maxdepth 2 -name "*.ipynb" | jq -R -s -c 'split("\n")[:-1]' >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
@@ -239,7 +242,7 @@ jobs:
           path: ~/Library/Caches/pip
         - os: windows-latest
           path: ~\AppData\Local\pip\Cache
-        script: ${{fromJson(needs.find-notebooks.outputs.scripts)}}
+        script: ${{fromJson( needs.find-notebooks.outputs.scripts )}}
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
