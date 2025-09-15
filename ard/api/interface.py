@@ -203,6 +203,7 @@ def set_up_system_recursive(
             if "driver" in analysis_options:
                 Driver = getattr(om, analysis_options["driver"]["name"])
 
+                # handle DOE drivers with special treatment
                 if Driver == om.DOEDriver:
                     generator = None
                     if "generator" in analysis_options["driver"]:

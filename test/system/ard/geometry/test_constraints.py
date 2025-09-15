@@ -139,12 +139,7 @@ class TestConstraints:
         with subtests.test("boundary distances near zero"):
             tolerance_spec = 1.0e-3
             assert np.all(
-                np.isclose(
-                    self.prob.get_val("boundary_distances", units="m"),
-                    0.0,
-                    rtol=tolerance_spec,
-                )
-                | (self.prob.get_val("boundary_distances", units="m") < tolerance_spec)
+                self.prob.get_val("boundary_distances", units="m") < tolerance_spec
             )
 
         # make sure the target spacing matches well

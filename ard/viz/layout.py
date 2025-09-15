@@ -109,8 +109,8 @@ def plot_layout(
 
     # adjust plot limits
     x_lim, y_lim = get_limits(windIO_dict)
-    ax.set_xlim([x * 1e3 for x in x_lim])
-    ax.set_ylim([y * 1e3 for y in y_lim])
+    ax.set_xlim(x_lim)
+    ax.set_ylim(y_lim)
 
     if include_cable_routing:
         optiwindnet.plotting.gplot(
@@ -149,7 +149,11 @@ def plot_layout(
                 alpha=0.25,
             )
 
+<<<<<<< HEAD
     ax.axis("square")
+=======
+    ax.axis("equal")
+>>>>>>> develop
 
     # show, save, or return
     if save_path is not None:

@@ -3,8 +3,13 @@ site:
     name: Ard Example 03 offshore wind site
     boundaries:
         polygons:
+<<<<<<< HEAD
             - x: [ 5.0, -5.0, -5.0,  5.0]
               y: [ 5.0,  5.0, -5.0, -5.0]
+=======
+            - x: [ 5000.0, -5000.0, -5000.0,  5000.0]
+              y: [ 5000.0,  5000.0, -5000.0, -5000.0]
+>>>>>>> develop
     energy_resource:
         name: Ard Example 03 offshore energy resource
         wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
@@ -26,7 +31,11 @@ wind_farm:
                  1250.0,  1250.0,  1250.0,  1250.0,  1250.0,
                  2500.0,  2500.0,  2500.0,  2500.0,  2500.0
             ]
+<<<<<<< HEAD
     turbine: !include ../../data/windIO-plant_turbine_IEA-22MW-284m-RWT.yaml
+=======
+    turbine: !include ../../data/windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml
+>>>>>>> develop
     electrical_substations:
         - electrical_substation:
             coordinates:
