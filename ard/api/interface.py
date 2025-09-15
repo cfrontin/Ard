@@ -267,6 +267,17 @@ def set_up_system_recursive(
                     prob.add_recorder(recorder)
                     prob.driver.add_recorder(recorder)
 
+        prob.model.set_input_defaults(
+            "x_turbines",
+            # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["x"],
+            units="m",
+        )
+        prob.model.set_input_defaults(
+            "y_turbines",
+            # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["y"],
+            units="m",
+        )
+
         prob.setup()
 
     return prob
