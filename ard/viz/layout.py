@@ -149,11 +149,7 @@ def plot_layout(
                 alpha=0.25,
             )
 
-<<<<<<< HEAD
-    ax.axis("square")
-=======
     ax.axis("equal")
->>>>>>> develop
 
     # show, save, or return
     if save_path is not None:
