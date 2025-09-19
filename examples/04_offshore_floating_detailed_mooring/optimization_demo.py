@@ -156,7 +156,7 @@ def run_example():
         prob,
         input_dict=input_dict,
         show_image=True,
-        include_cable_routing=False,
+        include_cable_routing=True,
         include_mooring_system=True,
     )
 

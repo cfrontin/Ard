@@ -7,6 +7,7 @@ modeling_options: &modeling_options
     # spacing_secondary: 3.0
     # angle_orientation: 0.0
     # angle_skew: 0.0
+    phi_platform: 60.0
   flowers:
     num_terms: 0
     k: 0.05
@@ -33,7 +34,7 @@ modeling_options: &modeling_options
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: "branched"
+      topology: "radial"  # "branched"
       feeder_route: "segmented"
       feeder_limit: "unlimited"
   costs:
@@ -79,6 +80,9 @@ modeling_options: &modeling_options
     mooring_line_length: 837. # (m)
     anchor_mass: 0. # (kg)
     floating_substructure_cost: 11803978.242949858 # (USD)
+
+    # override settings for ORBIT
+    override_mooring_lines: True
   offshore: true
   floating: true
 
@@ -101,16 +105,6 @@ system:
         modeling_options: *modeling_options
         case_title: "offshore-floating"
         data_path:
-    spacing_approx:
-      type: component
-      module: ard.cost.approximate_turbine_spacing
-      object: SpacingApproximations
-      promotes:
-        - "total_length_cables"
-        - ["primary_turbine_spacing_diameters", "spacing_primary"]
-        - ["secondary_turbine_spacing_diameters", "spacing_secondary"]
-      kwargs:
-        modeling_options: *modeling_options
     landuse:
       type: component
       module: ard.layout.fullfarm
@@ -173,16 +167,34 @@ system:
         "offset_tcc_per_kW",
       ]
     orbit:
-      type: component
-      module: ard.cost.wisdem_wrap
-      object: ORBITGroup
+      type: group
+      systems:
+        orbit_inside:
+          type: component
+          module: ard.cost.orbit_wrap
+          object: ORBITDetailedGroup
+          promotes: [
+            "x_turbines",
+            "y_turbines",
+            "x_substations",
+            "y_substations",
+            "total_capex",
+            "total_capex_kW",
+            # "installation_capex",
+          ]
+          kwargs:
+            modeling_options: *modeling_options
       promotes: [
-        ["plant_turbine_spacing", "spacing_effective_primary"],
-        ["plant_row_spacing", "spacing_effective_secondary"],
-        # "installation_capex",
+        "x_turbines",
+        "y_turbines",
+        "x_substations",
+        "y_substations",
       ]
-      kwargs:
-        modeling_options: *modeling_options
+      approx_totals:
+        method: "fd"
+        step: 1.0E-3
+        form: "central"
+        step_calc: "rel_avg"
     opex:
       type: component
       module: ard.cost.wisdem_wrap
@@ -208,12 +220,18 @@ system:
   connections:
     - ["AEP_farm", "financese.plant_aep_in"]
     - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
+    - ["collection.graph", "orbit.orbit_inside.graph"]
+  approx_totals:
+    method: "fd"
+    step: 1.0E-3
+    form: "central"
+    step_calc: "rel_avg"
 
 analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: SLSQP
+      optimizer: SLSQP  # SLSQP
       maxiter: 50
   design_variables:
     x_turbines:
@@ -226,10 +244,10 @@ analysis_options:
       lower: -7000.0
       upper:  7000.0
       scaler: 0.0005897339121  # 1/(7*D_rotor)
-    phi_platform:
-      lower: -30.0
-      upper:  30.0
-      scaler: 0.166666
+    # phi_platform:
+    #   lower: -30.0
+    #   upper:  30.0
+    #   scaler: 0.166666
   constraints:
     mooring_constraint.mooring_spacing:
       units: "m"
@@ -248,13 +266,13 @@ analysis_options:
       upper: -50.0
       scaler: 0.004128137384  # 1/D_rotor
   objective:
-    name: AEP_farm
-    options:
-      units: GW*h
-      scaler: -1000.0
-    # name: financese.lcoe
+    # name: AEP_farm
     # options:
-    #   units: USD/MW/h
-    #   scaler: 1.0
+    #   units: GW*h
+    #   scaler: -1.0e-12
+    name: financese.lcoe
+    options:
+      units: USD/MW/h
+      scaler: 1.0
   recorder:
     filepath: opt_results.sql

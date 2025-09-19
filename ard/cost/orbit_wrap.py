@@ -209,7 +209,9 @@ class ORBITDetail(orbit_wisdem.Orbit):
         super().initialize()
 
         self.options.declare("case_title", default="working")
-        self.options.declare("modeling_options")
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
         self.options.declare("approximate_branches", default=False)
         self.options.declare("override_mooring_lines", default=False)
 
@@ -410,6 +412,7 @@ class ORBITDetailedGroup(om.Group):
             "modeling_options", types=dict, desc="Ard modeling options"
         )
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=False)
 
     def setup(self):
 
@@ -457,3 +460,8 @@ class ORBITDetailedGroup(om.Group):
         # connect
         for key in variable_mapping.keys():
             self.connect(key, f"orbit.{key}")
+
+    def setup_partials(self):
+        super().setup_partials()
+
+        self.declare_partials("graph", "*", type="exact", val=0.0, dependent=False)
