@@ -423,9 +423,10 @@ class FarmAEPTemplate(FarmAeroTemplate):
         if data_path is None:
             data_path = ""
 
-        self.directions_wind, self.speeds_wind, self.TIs_wind, self.pmf_wind, _, _ = (
-            self.wind_query.unpack()
-        )
+        self.directions_wind = self.wind_query.wind_directions
+        self.speeds_wind = self.wind_query.wind_speeds
+        self.TIs_wind = self.wind_query.ti_table_flat
+        self.pmf_wind = self.wind_query.freq_table_flat
         self.N_wind_conditions = len(self.pmf_wind)
 
         # add the outputs we want for an AEP analysis:

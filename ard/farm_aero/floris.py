@@ -73,9 +73,9 @@ def create_FLORIS_turbine_from_windIO(
                 "Reconciliation has not been implemented yet."
             )
         tdd["wind_speed"] = wind_speeds_power_curve
-        tdd["power"] = (
-            values_power_curve / 1e3
-        )  # windIO data comes in in W and FLORIS takes kW
+        tdd["power"] = [
+            v / 1.0e3 for v in values_power_curve
+        ]  # windIO data comes in in W and FLORIS takes kW
         tdd["thrust_coefficient"] = values_Ct_curve
     elif all(
         val in windIOturbine["performance"]
@@ -238,13 +238,32 @@ class FLORISFarmComponent:
         """Get the turbine thrusts of a FLORIS farm at each wind condition."""
         # FLORIS computes the thrust precursors, compute and return thrust
         # use pure FLORIS to get these values for consistency
+
+        # prepare to unpack thrust data that is not pre-computed in FLORIS
         CT_turbines = self.fmodel.get_turbine_thrust_coefficients()
         V_turbines = self.fmodel.turbine_average_velocities
         rho_floris = self.fmodel.core.flow_field.air_density
         A_floris = np.pi * self.fmodel.core.farm.rotor_diameters**2 / 4
 
+        # unpacking procedure
+        # from FLORIS's floris_model.py:564 at a6fc5d35aa32614edc450dc399c42af60a816887
         thrust_turbines = CT_turbines * (0.5 * rho_floris * A_floris * V_turbines**2)
-        return thrust_turbines.T
+        if isinstance(self.fmodel.wind_data, floris.WindRose) or isinstance(
+            self.fmodel.wind_data, floris.WindRoseWRG
+        ):
+            thrust_turbines_densified = np.full(
+                (
+                    np.prod(self.fmodel.wind_data.freq_table.shape),
+                    self.fmodel.core.farm.n_turbines,
+                ),
+                0.0,
+            )
+            thrust_turbines_densified[self.fmodel.wind_data.non_zero_freq_mask, :] = (
+                thrust_turbines
+            )
+            return thrust_turbines_densified.T
+        else:
+            return thrust_turbines.T
 
     def dump_floris_yamlfile(self, dir_output=None):
         """
