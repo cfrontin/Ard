@@ -141,7 +141,9 @@ def create_FLORIS_turbine_from_windIO(
             rotor_diameter=windIOturbine["rotor_diameter"],
             TSR=windIOturbine.get("TSR"),
             generator_efficiency=windIOturbine.get("generator_efficiency", 1.0),
-            ref_air_density=modeling_options.get("floris", {}).get("ref_air_density", 1.225),
+            ref_air_density=modeling_options.get("floris", {}).get(
+                "ref_air_density", 1.225
+            ),
         )
     )
 
