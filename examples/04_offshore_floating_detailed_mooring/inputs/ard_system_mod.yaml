@@ -105,13 +105,6 @@ system:
         modeling_options: *modeling_options
         case_title: "offshore-floating"
         data_path:
-    landuse:
-      type: component
-      module: ard.layout.fullfarm
-      object: FullFarmLanduse
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
     collection:
       type: component
       module: ard.collection
@@ -167,34 +160,17 @@ system:
         "offset_tcc_per_kW",
       ]
     orbit:
-      type: group
-      systems:
-        orbit_inside:
-          type: component
-          module: ard.cost.orbit_wrap
-          object: ORBITDetailedGroup
-          promotes: [
-            "x_turbines",
-            "y_turbines",
-            "x_substations",
-            "y_substations",
-            "total_capex",
-            "total_capex_kW",
-            # "installation_capex",
-          ]
-          kwargs:
-            modeling_options: *modeling_options
+      type: component
+      module: ard.cost.orbit_wrap
+      object: ORBITDetailedGroup
       promotes: [
         "x_turbines",
         "y_turbines",
         "x_substations",
         "y_substations",
       ]
-      approx_totals:
-        method: "fd"
-        step: 1.0E-3
-        form: "central"
-        step_calc: "rel_avg"
+      kwargs:
+        modeling_options: *modeling_options
     opex:
       type: component
       module: ard.cost.wisdem_wrap
@@ -220,12 +196,7 @@ system:
   connections:
     - ["AEP_farm", "financese.plant_aep_in"]
     - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
-    - ["collection.graph", "orbit.orbit_inside.graph"]
-  approx_totals:
-    method: "fd"
-    step: 1.0E-3
-    form: "central"
-    step_calc: "rel_avg"
+    - ["collection.terse_links", "orbit.terse_links"]
 
 analysis_options:
   driver:

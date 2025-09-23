@@ -36,6 +36,13 @@ def run_example():
         ]["y"],
         units="m",
     )
+    prob.model.set_input_defaults(
+        "phi_platform",
+        input_dict["modeling_options"]["layout"]["phi_platform"] * np.ones_like(
+            input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["y"]
+        ),
+        units="deg",
+    )
 
     if False:
         # visualize model
@@ -43,6 +50,10 @@ def run_example():
 
     # run the model
     prob.run_model()
+
+    # BEGIN DEBUG!!!!!
+    print(prob.get_val("collection.terse_links"))
+    # END DEBUG!!!!!
 
     # collapse the test result data
     test_data = {
@@ -52,7 +63,7 @@ def run_example():
         "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
         "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
         "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
-        "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
+        # "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
         "coll_length": float(
             prob.get_val("collection.total_length_cables", units="km")[0]
         ),
@@ -90,7 +101,7 @@ def run_example():
             "BOS_val": float(prob.get_val("orbit.total_capex", units="MUSD")[0]),
             "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
             "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
-            "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
+            # "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
             "coll_length": float(
                 prob.get_val("collection.total_length_cables", units="km")[0]
             ),

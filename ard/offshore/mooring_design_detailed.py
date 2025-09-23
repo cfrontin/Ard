@@ -435,3 +435,21 @@ class DetailedMooringDesign(om.ExplicitComponent):
         FAM.getMoorPyArray()
 
         return FAM
+
+
+class DetailedMooringBOSInterface(om.ExplicitComponent):
+
+    def initialize(self):
+        pass
+
+    def setup(self):
+        pass
+
+    def setup_partials(self):
+        pass
+
+    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
+        pass
+
+    def compute_partials(self, inputs, jacobian, discrete_inputs=None):
+        pass
