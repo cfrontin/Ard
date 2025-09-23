@@ -78,6 +78,12 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
             self.windIO,
             resource_type="probability",
         )
+        windrose_resample = self.modeling_options["flowers"].get("windrose_resample")
+        if windrose_resample is not None:
+            windrose_floris.resample_by_interpolation(
+                **windrose_resample,
+                inplace=True,
+            )
         # extract to a dataframe
         self.wind_data = pd.DataFrame(
             {
