@@ -80,7 +80,7 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         )
         windrose_resample = self.modeling_options.get("flowers", {}).get(
             "windrose_resample",
-            self.modeling_options["wind_rose"].get("windrose_resample"),
+            self.modeling_options.get("wind_rose", {}).get("windrose_resample"),
         )
         if windrose_resample is not None:
             windrose_floris.resample_by_interpolation(
