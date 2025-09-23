@@ -78,6 +78,12 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
             self.windIO,
             resource_type="probability",
         )
+        windrose_resample = self.modeling_options["flowers"].get("windrose_resample")
+        if windrose_resample is not None:
+            windrose_floris.resample_by_interpolation(
+                **windrose_resample,
+                inplace=True,
+            )
         # extract to a dataframe
         self.wind_data = pd.DataFrame(
             {
@@ -99,20 +105,16 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         k_wake_expansion = self.modeling_options["flowers"]["k"]
 
         # use the floris turbine as an intermediary to cover off windIO variants
-        floris_turbine = create_FLORIS_turbine_from_windIO(self.windIO)
+        self.floris_turbine = create_FLORIS_turbine_from_windIO(self.windIO)
 
-        rho_density_air = floris_turbine["power_thrust_table"][
+        rho_density_air = self.floris_turbine["power_thrust_table"][
             "ref_air_density"
         ]  # kg/m^3
-        area_rotor = np.pi / 4 * floris_turbine["rotor_diameter"] ** 2  # m^2
-        V_table = np.array(floris_turbine["power_thrust_table"]["wind_speed"])
-        P_table = 1.0e3 * np.array(floris_turbine["power_thrust_table"]["power"])
-        CT_table = np.array(floris_turbine["power_thrust_table"]["thrust_coefficient"])
-        CP_table = np.where(
-            V_table == 0.0,
-            0.0,
-            P_table / (0.5 * rho_density_air * area_rotor * V_table**3),
-        )
+        area_rotor = np.pi / 4 * self.floris_turbine["rotor_diameter"] ** 2  # m^2
+        V_table = np.array(self.floris_turbine["power_thrust_table"]["wind_speed"])
+        P_table = 1.0e3 * np.array(self.floris_turbine["power_thrust_table"]["power"])
+        CT_table = np.array(self.floris_turbine["power_thrust_table"]["thrust_coefficient"])
+        CP_table = np.where(V_table == 0.0, 0.0, P_table / (0.5 * rho_density_air * area_rotor * V_table**3))
 
         turbine_type = {
             "D": self.windIO["wind_farm"]["turbine"]["rotor_diameter"],
@@ -136,15 +138,20 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         )
 
         # FLOWERS computes the powers
-        outputs["AEP_farm"] = self.flowers_model.calculate_aep()
+        outputs["AEP_farm"] = self.flowers_model.calculate_aep(rho_density=rho_density_air)
         # outputs["power_farm"] = FLOWERSFarmComponent.get_power_farm(self)
         # outputs["power_turbines"] = FLOWERSFarmComponent.get_power_turbines(self)
         # outputs["thrust_turbines"] = FLOWERSFarmComponent.get_thrust_turbines(self)
 
     def compute_partials(self, inputs, partials):
 
+        # grab dependencies
+        rho_density_air = self.floris_turbine["power_thrust_table"][
+            "ref_air_density"
+        ]  # kg/m^3
+
         # compute the gradients and extract to the right places
-        _, gradient = self.flowers_model.calculate_aep(gradient=True)
+        _, gradient = self.flowers_model.calculate_aep(rho_density=rho_density_air, gradient=True)
         partials["AEP_farm", "x_turbines"] = gradient[:, 0]
         partials["AEP_farm", "y_turbines"] = gradient[:, 1]
 
