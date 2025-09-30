@@ -51,10 +51,12 @@ class TestFLOWERSAEP:
                     "turbine": data_turbine_yaml,
                     "layouts": {
                         "coordinates": {
-                            "x": farm_spec["xD_farm"]*data_turbine_yaml["rotor_diameter"],
-                            "y": farm_spec["yD_farm"]*data_turbine_yaml["rotor_diameter"],
+                            "x": farm_spec["xD_farm"]
+                            * data_turbine_yaml["rotor_diameter"],
+                            "y": farm_spec["yD_farm"]
+                            * data_turbine_yaml["rotor_diameter"],
                         }
-                    }
+                    },
                 },
                 "site": {
                     "energy_resource": {
@@ -107,8 +109,20 @@ class TestFLOWERSAEP:
         self.prob = om.Problem(model)
         self.prob.setup()
 
-        self.prob.set_val("x_turbines", modeling_options["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["x"], units="m")
-        self.prob.set_val("y_turbines", modeling_options["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["y"], units="m")
+        self.prob.set_val(
+            "x_turbines",
+            modeling_options["windIO_plant"]["wind_farm"]["layouts"]["coordinates"][
+                "x"
+            ],
+            units="m",
+        )
+        self.prob.set_val(
+            "y_turbines",
+            modeling_options["windIO_plant"]["wind_farm"]["layouts"]["coordinates"][
+                "y"
+            ],
+            units="m",
+        )
 
     def test_dummy(self):
 
@@ -127,8 +141,12 @@ class TestFLOWERSAEP:
             self.prob.set_val("angle_orientation", angle_orientation)
             self.prob.run_model()
 
-            AEP_flowers = float(self.prob.get_val("batchFLOWERS.AEP_farm", units="GW*h")[0])
-            AEP_floris = float(self.prob.get_val("batchFLORIS.AEP_farm", units="GW*h")[0])
+            AEP_flowers = float(
+                self.prob.get_val("batchFLOWERS.AEP_farm", units="GW*h")[0]
+            )
+            AEP_floris = float(
+                self.prob.get_val("batchFLORIS.AEP_farm", units="GW*h")[0]
+            )
 
             AEP_flowers_vec[idx] = AEP_flowers
             AEP_floris_vec[idx] = AEP_floris

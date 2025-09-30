@@ -18,14 +18,16 @@ from ard.cost.wisdem_wrap import ORBIT_setup_latents
 
 from ard.collection.optiwindnet_wrap import _own_L_from_inputs
 
+
 def S_from_terse_links(terse_links, **kwargs):
     T = terse_links.shape[0]
     S = nx.Graph(T=T, R=abs(terse_links.min()), **kwargs)
     S.add_edges_from(tuple(zip(range(T), terse_links)))
     calcload(S)
-    if 'capacity' not in kwargs:
-        S.graph['capacity'] = S.graph['max_load']
+    if "capacity" not in kwargs:
+        S.graph["capacity"] = S.graph["max_load"]
     return S
+
 
 def generate_orbit_location_from_graph(
     terse_links,  # TODO: replace with a terse_links representation
@@ -71,15 +73,18 @@ def generate_orbit_location_from_graph(
 
     # create graph from terse links
     tlm = np.astype(terse_links, np.int_)
-    L = _own_L_from_inputs({
-        "x_turbines": X_turbines,
-        "y_turbines": Y_turbines,
-        "x_substations": X_substations,
-        "y_substations": Y_substations,
-    }, {
-        "x_border": None,
-        "y_border": None,
-    })
+    L = _own_L_from_inputs(
+        {
+            "x_turbines": X_turbines,
+            "y_turbines": Y_turbines,
+            "x_substations": X_substations,
+            "y_substations": Y_substations,
+        },
+        {
+            "x_border": None,
+            "y_border": None,
+        },
+    )
     graph = S_from_terse_links(tlm)
 
     # get all edges, sorted by the first node then the second node
@@ -494,6 +499,13 @@ class ORBITDetailedGroup(om.Group):
     def setup_partials(self):
 
         self.declare_partials(
-            "*", "*", method="fd", step=1.0E-5, form="central", step_calc="rel_avg",
+            "*",
+            "*",
+            method="fd",
+            step=1.0e-5,
+            form="central",
+            step_calc="rel_avg",
         )
-        self.declare_partials("terse_links", "*", method="exact", val=0.0, dependent=False)
+        self.declare_partials(
+            "terse_links", "*", method="exact", val=0.0, dependent=False
+        )

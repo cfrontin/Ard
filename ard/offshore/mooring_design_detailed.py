@@ -186,7 +186,8 @@ class DetailedMooringDesign(om.ExplicitComponent):
         # set up inputs and outputs for mooring system
         self.add_input(
             "phi_platform",
-            self.modeling_options["layout"]["phi_platform"] * np.ones((self.N_turbines,)),
+            self.modeling_options["layout"]["phi_platform"]
+            * np.ones((self.N_turbines,)),
             units="deg",
         )  # cardinal direction of the mooring platform orientation
         self.add_input(
@@ -444,7 +445,9 @@ class DetailedMooringBOSInterface(om.ExplicitComponent):
     def initialize(self):
 
         self.options.declare(
-            "modeling_options", types=dict, desc="Ard modeling options",
+            "modeling_options",
+            types=dict,
+            desc="Ard modeling options",
         )
 
     def setup(self):
@@ -471,7 +474,9 @@ class DetailedMooringBOSInterface(om.ExplicitComponent):
         bos_mooring = inputs["bos_mooring"]
         bos_anchor = inputs["bos_anchor"]
 
-        outputs["bos_per_kW_full"] = bos_per_kW_base + (bos_mooring + bos_anchor)/machine_rating
+        outputs["bos_per_kW_full"] = (
+            bos_per_kW_base + (bos_mooring + bos_anchor) / machine_rating
+        )
 
     def compute_partials(self, inputs, J, discrete_inputs=None):
 
@@ -481,6 +486,12 @@ class DetailedMooringBOSInterface(om.ExplicitComponent):
         bos_anchor = inputs["bos_anchor"]
 
         J["bos_per_kW_full", "bos_per_kW_base"] = 1.0 + 0.0
-        J["bos_per_kW_full", "machine_rating"] = 0.0 - (bos_mooring + bos_anchor)/(machine_rating**2)
-        J["bos_per_kW_full", "bos_mooring"] = 0.0 + 1.0/machine_rating + 0.0/machine_rating
-        J["bos_per_kW_full", "bos_anchor"] = 0.0 + 0.0/machine_rating + 1.0/machine_rating
+        J["bos_per_kW_full", "machine_rating"] = 0.0 - (bos_mooring + bos_anchor) / (
+            machine_rating**2
+        )
+        J["bos_per_kW_full", "bos_mooring"] = (
+            0.0 + 1.0 / machine_rating + 0.0 / machine_rating
+        )
+        J["bos_per_kW_full", "bos_anchor"] = (
+            0.0 + 0.0 / machine_rating + 1.0 / machine_rating
+        )
