@@ -287,6 +287,10 @@ class ORBITDetail(orbit_wisdem.Orbit):
                     "override_mooring_lines",
                     False,
                 ),
+                override_mooring_anchors=self.modeling_options["costs"].get(
+                    "override_mooring_anchors",
+                    False,
+                ),
                 floating=self.modeling_options["floating"],
                 jacket=self.modeling_options.get("jacket"),
                 jacket_legs=self.modeling_options.get("jacket_legs"),
@@ -307,6 +311,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
         self.options.declare("override_mooring_lines", default=False)
+        self.options.declare("override_mooring_anchors", default=False)
 
     def setup(self):
         """Define all the inputs."""
@@ -487,5 +492,8 @@ class ORBITDetailedGroup(om.Group):
             self.connect(key, f"orbit.{key}")
 
     def setup_partials(self):
-        super().setup_partials()
+
+        self.declare_partials(
+            "*", "*", method="fd", step=1.0E-5, form="central", step_calc="rel_avg",
+        )
         self.declare_partials("terse_links", "*", method="exact", val=0.0, dependent=False)
