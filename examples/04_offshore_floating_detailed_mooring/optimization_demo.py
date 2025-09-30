@@ -38,8 +38,11 @@ def run_example():
     )
     prob.model.set_input_defaults(
         "phi_platform",
-        input_dict["modeling_options"]["layout"]["phi_platform"] * np.ones_like(
-            input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["y"]
+        input_dict["modeling_options"]["layout"]["phi_platform"]
+        * np.ones_like(
+            input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"][
+                "coordinates"
+            ]["y"]
         ),
         units="deg",
     )
