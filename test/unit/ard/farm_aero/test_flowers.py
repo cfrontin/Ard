@@ -36,12 +36,12 @@ class TestFLOWERSAEP:
         with open(path_turbine) as f_yaml:
             data_turbine_yaml = yaml.safe_load(f_yaml)
         # set up the modeling options
-        path_wind_resource = (
-            Path(ard.__file__).parents[1]
-            / "examples"
-            / "data"
-            / "windIO-plant_wind-resource_wrg-example.yaml"
-        )
+        path_wind_resource = Path("wind-resource.yaml")  # (
+        #     Path(ard.__file__).parents[1]
+        #     / "examples"
+        #     / "data"
+        #     / "windIO-plant_wind-resource_wrg-example.yaml"
+        # )
         with open(path_wind_resource) as f_yaml:
             data_wind_resource_yaml = yaml.safe_load(f_yaml)
         modeling_options = self.modeling_options = {
@@ -71,13 +71,13 @@ class TestFLOWERSAEP:
                 "angle_orientation": 15.0,
                 "angle_skew": 10.0,
             },
-            "floris": {
-                "peak_shaving_fraction": 0.4,
-                "peak_shaving_TI_threshold": 0.0,
-            },
+            # "floris": {
+            #     # "peak_shaving_fraction": 0.4,
+            #     "peak_shaving_TI_threshold": 0.0,
+            # },
             "flowers": {
-                "num_terms": 0,
-                "k": 0.05,
+                "num_terms": 25,
+                "k": 0.1,
             },
         }
 

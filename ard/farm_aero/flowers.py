@@ -110,7 +110,6 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         # use the floris turbine as an intermediary to cover off windIO variants
         self.floris_turbine = create_FLORIS_turbine_from_windIO(self.windIO)
 
-        # rho_density_air = 1.0  # DEBUG!!!!!
         rho_density_air = self.floris_turbine["power_thrust_table"][
             "ref_air_density"
         ]  # kg/m^3
@@ -120,10 +119,10 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         CT_table = np.array(
             self.floris_turbine["power_thrust_table"]["thrust_coefficient"]
         )
-        CP_table = np.where(
-            V_table == 0.0,
-            0.0,
-            P_table / (0.5 * rho_density_air * area_rotor * V_table**3),
+        CP_table = np.zeros_like(P_table)
+        np.divide(
+            P_table, 0.5 * rho_density_air * area_rotor * V_table**3,
+            out=CP_table, where=V_table > 0.0,
         )
 
         turbine_type = {
@@ -148,10 +147,7 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         )
 
         # FLOWERS computes the powers
-        outputs["AEP_farm"] = self.flowers_model.calculate_aep(
-            rho_density=1.0
-        )  # DEBUG!!!!!
-        # outputs["AEP_farm"] = self.flowers_model.calculate_aep(rho_density=rho_density_air)  # DEBUG!!!!!
+        outputs["AEP_farm"] = self.flowers_model.calculate_aep(rho_density=rho_density_air)
         # outputs["power_farm"] = FLOWERSFarmComponent.get_power_farm(self)
         # outputs["power_turbines"] = FLOWERSFarmComponent.get_power_turbines(self)
         # outputs["thrust_turbines"] = FLOWERSFarmComponent.get_thrust_turbines(self)
@@ -165,10 +161,7 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         # ]  # kg/m^3
 
         # compute the gradients and extract to the right places
-        _, gradient = self.flowers_model.calculate_aep(
-            rho_density=1.0, gradient=True
-        )  # DEBUG!!!!!
-        # _, gradient = self.flowers_model.calculate_aep(rho_density=rho_density_air, gradient=True)  # DEBUG!!!!!
+        _, gradient = self.flowers_model.calculate_aep(rho_density=rho_density_air, gradient=True)
         partials["AEP_farm", "x_turbines"] = gradient[:, 0]
         partials["AEP_farm", "y_turbines"] = gradient[:, 1]
 
