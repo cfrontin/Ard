@@ -16,8 +16,6 @@ class LayoutTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    N_turbines : int
-        the number of turbines that should be in the farm layout
 
     Inputs
     ------
@@ -50,7 +48,8 @@ class LayoutTemplate(om.ExplicitComponent):
 
         # load modeling options
         modeling_options = self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = modeling_options["farm"]["N_turbines"]
+        self.windIO = self.modeling_options["windIO_plant"]
+        self.N_turbines = modeling_options["layout"]["N_turbines"]
 
         # add outputs that are universal
         self.add_output(
@@ -76,13 +75,9 @@ class LayoutTemplate(om.ExplicitComponent):
             desc="effective spacing in y-dimension for BOS calculation",
         )
 
-    def setup_partials(self):
-        """Derivative setup for OM component."""
+    # omit setup partials for template class
 
-        # default complex step for the layout tools, since they're often algebraic
-        self.declare_partials("*", "*", method="cs")
-
-    def compute(self):
+    def compute(self, inputs, outputs):
         """
         Computation for the OM component.
 
@@ -107,8 +102,6 @@ class LanduseTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    N_turbines : int
-        the number of turbines that should be in the farm layout
 
     Inputs
     ------
@@ -131,7 +124,8 @@ class LanduseTemplate(om.ExplicitComponent):
 
         # load modeling options and turbine count
         modeling_options = self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = modeling_options["farm"]["N_turbines"]
+        self.windIO = self.modeling_options["windIO_plant"]
+        self.N_turbines = modeling_options["layout"]["N_turbines"]
 
         # add inputs that are universal
         self.add_input(
@@ -149,13 +143,9 @@ class LanduseTemplate(om.ExplicitComponent):
             desc="fundamental area of the farm geometry",
         )
 
-    def setup_partials(self):
-        """Derivative setup for OM component."""
+    # omit setup partials for template class
 
-        # default complex step for the layout-landuse tools, since they're often algebraic
-        self.declare_partials("*", "*", method="cs")
-
-    def compute(self):
+    def compute(self, inputs, outputs):
         """
         Computation for the OM component.
 

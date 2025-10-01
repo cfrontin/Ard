@@ -1,10 +1,168 @@
-import os
+from pathlib import Path
+import copy
 
 import numpy as np
-import floris
 
-import ard.utils
+import floris
+import floris.turbine_library.turbine_utilities
+
 import ard.farm_aero.templates as templates
+
+
+def create_FLORIS_turbine_from_windIO(
+    windIOplant: dict,
+    modeling_options: dict = {},
+) -> dict:
+    """
+    takes a windIO plant specification and creates a FLORIS turbine dictionary
+
+    Parameters
+    ----------
+    windIOplant : dict
+        a full, presumed validated, windIO plant specification file
+    modeling_options : dict, optional
+        an Ard modeling options dictionary, which can contain FLORIS options for
+        configuring the FLORIS turbine
+
+    Returns
+    -------
+    dict
+        the FLORIS dictionary that was created, with references deep copied
+
+    Raises
+    ------
+    NotImplementedError
+        if a valid windIO configuration for which reconciliation with the
+        FLORIS specification has not been implemented yet
+    IndexError
+        if the windIO file is in an apparently invalid state
+    """
+
+    # extract the turbine... assuming a single one for now
+    windIOturbine = windIOplant["wind_farm"]["turbine"]
+
+    # generate dictionary for FLORIS utility
+    tdd = {}
+    wind_speeds_Ct_curve = windIOturbine["performance"]["Ct_curve"]["Ct_wind_speeds"]
+    values_Ct_curve = windIOturbine["performance"]["Ct_curve"]["Ct_values"]
+    if "Cp_curve" in windIOturbine["performance"]:
+        wind_speeds_Cp_curve = windIOturbine["performance"]["Cp_curve"][
+            "Cp_wind_speeds"
+        ]
+        values_Cp_curve = windIOturbine["performance"]["Cp_curve"]["Cp_values"]
+        if not np.allclose(wind_speeds_Cp_curve, wind_speeds_Ct_curve):
+            raise NotImplementedError(
+                "Ct and Cp curves are specified with different indep. variables. "
+                "windIO allows seperate indep. variables for power/thrust curve "
+                "specification, while FLORIS requires common indep. variables. "
+                "Reconciliation has not been implemented yet."
+            )
+        tdd["wind_speed"] = wind_speeds_Cp_curve
+        tdd["power_coefficient"] = values_Cp_curve
+        tdd["thrust_coefficient"] = values_Ct_curve
+    elif "power_curve" in windIOturbine["performance"]:
+        wind_speeds_power_curve = windIOturbine["performance"]["power_curve"][
+            "power_wind_speeds"
+        ]
+        values_power_curve = windIOturbine["performance"]["power_curve"]["power_values"]
+        if not np.allclose(wind_speeds_power_curve, wind_speeds_Ct_curve):
+            raise NotImplementedError(
+                "Ct and power curves are specified with different indep. variables. "
+                "windIO allows seperate indep. variables for power/thrust curve "
+                "specification, while FLORIS requires common indep. variables. "
+                "Reconciliation has not been implemented yet."
+            )
+        tdd["wind_speed"] = wind_speeds_power_curve
+        tdd["power"] = [
+            v / 1.0e3 for v in values_power_curve
+        ]  # windIO data comes in in W and FLORIS takes kW
+        tdd["thrust_coefficient"] = values_Ct_curve
+    elif all(
+        val in windIOturbine["performance"]
+        for val in [
+            "rated_power",
+            "rated_wind_speed",
+            "cutin_wind_speed",
+            "cutout_wind_speed",
+        ]
+    ):
+        # extract key values
+        rated_power = windIOturbine["rated_power"]
+        rated_wind_speed = windIOturbine["rated_wind_speed"]
+        cutin_wind_speed = windIOturbine["cutin_wind_speed"]
+        cutout_wind_speed = windIOturbine["cutout_wind_speed"]
+
+        # ### SYNTHETIC POWER CURVE ###
+        # for this section, we assume synthetic behavior based on the values
+        # specified in a windIO plant turbine specification, based on region:
+        #
+        # - region I: before cut-in, $V < `cutin_wind_speed`$
+        #       $P(V) = 0$
+        # - region II: harvest all available power, $`cutin_wind_speed` < V < `rated_wind_speed`$
+        #       $P(V) = 0.5 * rho * A * V^3 * C_{P,\max}$
+        #   for $P_{\mathrm{rated}} = 0.5 * rho * A * V_{\mathrm{rated}}^3 * C_{P,\max}$,
+        #   it follows that $P(V) = P_{\mathrm{rated}} \\left( \frac{V}{V_{\mathrm{rated}}} \\right)^3$
+        # - region III: throttle power to rated, $`rated_wind_speed` < V < `cutout_wind_speed`$
+        #       $P(V) = P_{\mathrm{rated}}$
+        # - region IV: after cut-out, $V > `cutout_wind_speed`$
+        #       $P(V) = 0$
+
+        # compute based on reg. I, II, III, IV of synthetic power curve
+        values_power_curve = (
+            wind_speeds_Ct_curve**3 / rated_wind_speed**3 * rated_power
+        )  # scales proportionally in reg. II
+        values_power_curve[wind_speeds_Ct_curve >= rated_wind_speed] = (
+            rated_power  # flat in reg. III
+        )
+        values_power_curve[wind_speeds_Ct_curve <= cutin_wind_speed] = (
+            0.0  # zero in reg. I
+        )
+        values_power_curve[wind_speeds_Ct_curve >= cutout_wind_speed] = (
+            0.0  # zero in reg. IV
+        )
+
+        # pack and ship
+        tdd["wind_speed"] = wind_speeds_Ct_curve
+        tdd["power"] = (
+            values_power_curve / 1e3
+        )  # windIO data comes in in W and FLORIS takes kW
+        tdd["thrust_coefficient"] = values_Ct_curve
+    else:
+        raise IndexError(
+            "The windIO file appears to be invalid. Try validating and re-running."
+        )
+
+    # create a FLORIS turbine using the utility
+    turbine_FLORIS = (
+        floris.turbine_library.turbine_utilities.build_cosine_loss_turbine_dict(
+            turbine_data_dict=tdd,
+            turbine_name=windIOturbine["name"],
+            hub_height=windIOturbine["hub_height"],
+            rotor_diameter=windIOturbine["rotor_diameter"],
+            TSR=windIOturbine.get("TSR"),
+            generator_efficiency=windIOturbine.get("generator_efficiency", 1.0),
+            ref_air_density=modeling_options.get("floris", {}).get(
+                "ref_air_density", 1.225
+            ),
+        )
+    )
+
+    # append peak shaving reduction fraction and TI threshhold they exist
+    psf_val = modeling_options.get("floris", {}).get("peak_shaving_fraction")
+    psf_thresh = modeling_options.get("floris", {}).get(
+        "peak_shaving_TI_threshold", 0.0
+    )
+    if psf_val is not None:
+        # if they exist, set them
+        turbine_FLORIS["power_thrust_table"]["peak_shaving_fraction"] = psf_val
+        turbine_FLORIS["power_thrust_table"]["peak_shaving_TI_threshold"] = psf_thresh
+
+    # # If an export filename is given, write it out
+    # if filename_turbine_FLORIS is not None:
+    #     with open(filename_turbine_FLORIS, "w") as file_turbine_FLORIS:
+    #         yaml.safe_dump(turbine_FLORIS, file_turbine_FLORIS)
+
+    return copy.deepcopy(turbine_FLORIS)
 
 
 class FLORISFarmComponent:
@@ -37,17 +195,24 @@ class FLORISFarmComponent:
 
         # set up FLORIS
         self.fmodel = floris.FlorisModel("defaults")
+        data_path = self.options["data_path"]
         self.fmodel.set(
-            wind_shear=self.modeling_options.get("wind_shear", 0.585),
             turbine_type=[
-                ard.utils.create_FLORIS_turbine(self.modeling_options["turbine"])
+                create_FLORIS_turbine_from_windIO(self.windIO, self.modeling_options),
             ],
+            wind_shear=self.windIO["site"]["energy_resource"]["wind_resource"].get(
+                "shear"
+            ),
+            reference_wind_height=(
+                self.wind_query.reference_height
+                if hasattr(self.wind_query, "reference_height")
+                else None
+            ),
         )
-        self.fmodel.assign_hub_height_to_ref_height()
 
         self.case_title = self.options["case_title"]
-        self.dir_floris = os.path.join("case_files", self.case_title, "floris_inputs")
-        os.makedirs(self.dir_floris, exist_ok=True)
+        self.dir_floris = Path("case_files", self.case_title, "floris_inputs")
+        self.dir_floris.mkdir(parents=True, exist_ok=True)
 
     def compute(self, inputs):
         """
@@ -80,13 +245,32 @@ class FLORISFarmComponent:
         """Get the turbine thrusts of a FLORIS farm at each wind condition."""
         # FLORIS computes the thrust precursors, compute and return thrust
         # use pure FLORIS to get these values for consistency
+
+        # prepare to unpack thrust data that is not pre-computed in FLORIS
         CT_turbines = self.fmodel.get_turbine_thrust_coefficients()
         V_turbines = self.fmodel.turbine_average_velocities
         rho_floris = self.fmodel.core.flow_field.air_density
         A_floris = np.pi * self.fmodel.core.farm.rotor_diameters**2 / 4
 
+        # unpacking procedure
+        # from FLORIS's floris_model.py:564 at a6fc5d35aa32614edc450dc399c42af60a816887
         thrust_turbines = CT_turbines * (0.5 * rho_floris * A_floris * V_turbines**2)
-        return thrust_turbines.T
+        if isinstance(self.fmodel.wind_data, floris.WindRose) or isinstance(
+            self.fmodel.wind_data, floris.WindRoseWRG
+        ):
+            thrust_turbines_densified = np.full(
+                (
+                    np.prod(self.fmodel.wind_data.freq_table.shape),
+                    self.fmodel.core.farm.n_turbines,
+                ),
+                0.0,
+            )
+            thrust_turbines_densified[self.fmodel.wind_data.non_zero_freq_mask, :] = (
+                thrust_turbines
+            )
+            return thrust_turbines_densified.T
+        else:
+            return thrust_turbines.T
 
     def dump_floris_yamlfile(self, dir_output=None):
         """
@@ -96,7 +280,7 @@ class FLORISFarmComponent:
         """
         if dir_output is None:
             dir_output = self.dir_floris
-        self.fmodel.core.to_file(os.path.join(dir_output, "batch.yaml"))
+        self.fmodel.core.to_file(Path(dir_output, "batch.yaml"))
 
 
 class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
@@ -113,9 +297,9 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
     case_title : str
         a "title" for the case, used to disambiguate runs in practice (inherited
         from `FLORISFarmComponent`)
-    modeling_options : dict
-        a modeling options dictionary (inherited via
-        `templates.BatchFarmPowerTemplate`)
+    # modeling_options : dict
+    #     a modeling options dictionary (inherited via
+    #     `templates.BatchFarmPowerTemplate`)
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed (inherited from `templates.BatchFarmPowerTemplate`)
@@ -167,9 +351,9 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
 
         # generate the list of conditions for evaluation
         self.time_series = floris.TimeSeries(
-            wind_directions=np.degrees(np.array(self.wind_query.get_directions())),
-            wind_speeds=np.array(self.wind_query.get_speeds()),
-            turbulence_intensities=np.array(self.wind_query.get_TIs()),
+            wind_directions=np.degrees(np.array(self.wind_query.wind_directions)),
+            wind_speeds=np.array(self.wind_query.wind_speeds),
+            turbulence_intensities=np.array(self.wind_query.turbulence_intensities),
         )
 
         # set up and run the floris model
@@ -178,8 +362,14 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
             layout_y=inputs["y_turbines"],
             wind_data=self.time_series,
             yaw_angles=np.array([inputs["yaw_turbines"]]),
+            reference_wind_height=(
+                self.wind_query.reference_height
+                if hasattr(self.wind_query, "reference_height")
+                else None
+            ),
         )
-        self.fmodel.set_operation_model("peak-shaving")
+        if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
+            self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()
 
@@ -187,6 +377,7 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
+        outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
         outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)
         outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
         outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
@@ -206,9 +397,9 @@ class FLORISAEP(templates.FarmAEPTemplate):
     case_title : str
         a "title" for the case, used to disambiguate runs in practice (inherited
         from `FLORISFarmComponent`)
-    modeling_options : dict
-        a modeling options dictionary (inherited via
-        `templates.FarmAEPTemplate`)
+    # modeling_options : dict
+    #     a modeling options dictionary (inherited via
+    #     `templates.FarmAEPTemplate`)
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed (inherited from `templates.FarmAEPTemplate`)
@@ -263,10 +454,16 @@ class FLORISAEP(templates.FarmAEPTemplate):
         self.fmodel.set(
             layout_x=inputs["x_turbines"],
             layout_y=inputs["y_turbines"],
-            wind_data=self.wind_rose,
+            wind_data=self.wind_query,
             yaw_angles=np.array([inputs["yaw_turbines"]]),
+            reference_wind_height=(
+                self.wind_query.reference_height
+                if hasattr(self.wind_query, "reference_height")
+                else None
+            ),
         )
-        self.fmodel.set_operation_model("peak-shaving")
+        if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
+            self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()
 

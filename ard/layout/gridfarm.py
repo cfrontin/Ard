@@ -8,25 +8,30 @@ class GridFarmLayout(templates.LayoutTemplate):
     A simplified, uniform four-parameter parallelepiped grid farm layout class.
 
     This is a class to take a parameterized, structured grid farm defined by a
-    gridded parallelepiped with spacing variables defined to 1) orient the farm
-    with respect to North, 2) space the rows of turbines along this primary
-    vector, 3) space the columns of turbines along the perpendicular, and
-    4) skew the positioning along a parallel to the primary (orientation)
-    vector. The layout model is shown in a ASCII image below:
+    gridded parallelepiped with spacing variables defined to:
+    1) orient the farm with respect to North,
+    2) space the rows of turbines along this primary vector,
+    3) space the columns of turbines along the perpendicular, and
+    4) skew the positioning along a parallel to the primary (orientation) vector.
 
-                                      |-------| <- streamwise spacing
-      orient.         x ----- x ----- x ----- x ----- x -
-       angle         /       /       /       /       /  | <- spanwise spacing
-        |           x ----- x ----- x ----- x ----- x   -      (perpendicular
-        v          /       /       /       /       /            w.r.t. primary)
-       -------    x ----- x ----- x ----- x ----- x    ----- primary vector
-            '    /       /       /       /       /             (rotated from
-        '       x ----- x ----- x ----- x ----- x               north CW by
-    '          /       /       /       /       /                orientation
-     NORTH    x ----- x ----- x ----- x ----- x                 angle)
-                     /|
-                    / |
-                   /  | <- skew angle
+    The layout model is shown in a ASCII image below:
+
+    ::
+
+    |                                          |-------| <- streamwise spacing
+    |          orient.         x ----- x ----- x ----- x ----- x -
+    |           angle         /       /       /       /       /  | <- spanwise spacing
+    |            |           x ----- x ----- x ----- x ----- x   -      (perpendicular
+    |            v          /       /       /       /       /            w.r.t. primary)
+    |           -------    x ----- x ----- x ----- x ----- x    ----- primary vector
+    |                '    /       /       /       /       /             (rotated from
+    |            '       x ----- x ----- x ----- x ----- x               north CW by
+    |        '          /       /       /       /       /                orientation
+    |        NORTH     x ----- x ----- x ----- x ----- x                 angle)
+    |                        /|
+    |                       / |
+    |                      /  | <- skew angle
+
 
     Options
     -------
@@ -80,23 +85,29 @@ class GridFarmLayout(templates.LayoutTemplate):
     def setup(self):
         """Setup of OM component."""
         super().setup()
+        spacing_primary = self.modeling_options["layout"]["spacing_primary"]
+        spacing_secondary = self.modeling_options["layout"]["spacing_secondary"]
+        angle_orientation = self.modeling_options["layout"]["angle_orientation"]
+        angle_skew = self.modeling_options["layout"]["angle_skew"]
 
         # add four-parameter grid farm layout DVs
-        self.add_input("spacing_primary", 7.0)
-        self.add_input("spacing_secondary", 7.0)
-        self.add_input("angle_orientation", 0.0, units="deg")
-        self.add_input("angle_skew", 0.0, units="deg")
+        self.add_input("spacing_primary", spacing_primary)
+        self.add_input("spacing_secondary", spacing_secondary)
+        self.add_input("angle_orientation", angle_orientation, units="deg")
+        self.add_input("angle_skew", angle_skew, units="deg")
 
     def setup_partials(self):
         """Derivative setup for OM component."""
 
-        # default complex step for the layout tools, since they're often algebraic
-        self.declare_partials("*", "*", method="cs")
+        # default FD for the layout tools
+        self.declare_partials("*", "*", method="fd")
 
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
 
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        D_rotor = self.windIO["wind_farm"]["turbine"][
+            "rotor_diameter"
+        ]  # will break if multiple turbine types are used...
         lengthscale_spacing_streamwise = inputs["spacing_primary"] * D_rotor
         lengthscale_spacing_spanwise = inputs["spacing_secondary"] * D_rotor
 
@@ -131,7 +142,7 @@ class GridFarmLayout(templates.LayoutTemplate):
         Bmtx = np.array(
             [
                 [1.0, 0.0],
-                [np.tan(float(angle_skew[0])), 1.0],
+                [np.tan(angle_skew[0]), 1.0],
             ]
         ).squeeze()
 
@@ -213,10 +224,24 @@ class GridFarmLanduse(templates.LanduseTemplate):
         super().setup()
 
         # add grid farm-specific inputs
-        self.add_input("spacing_primary", 7.0)
-        self.add_input("spacing_secondary", 7.0)
-        self.add_input("angle_orientation", 0.0, units="deg")
-        self.add_input("angle_skew", 0.0, units="deg")
+        self.add_input(
+            "spacing_primary",
+            self.modeling_options["layout"]["spacing_primary"],
+        )
+        self.add_input(
+            "spacing_secondary",
+            self.modeling_options["layout"]["spacing_secondary"],
+        )
+        self.add_input(
+            "angle_orientation",
+            self.modeling_options["layout"]["angle_orientation"],
+            units="deg",
+        )
+        self.add_input(
+            "angle_skew",
+            self.modeling_options["layout"]["angle_skew"],
+            units="deg",
+        )
 
         self.add_output(
             "area_aligned_parcel",
@@ -240,7 +265,9 @@ class GridFarmLanduse(templates.LanduseTemplate):
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
 
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        D_rotor = self.windIO["wind_farm"]["turbine"][
+            "rotor_diameter"
+        ]  # will break if multiple turbine types are used...
         lengthscale_spacing_streamwise = inputs["spacing_primary"] * D_rotor
         lengthscale_spacing_spanwise = inputs["spacing_secondary"] * D_rotor
         lengthscale_layback = inputs["distance_layback_diameters"] * D_rotor

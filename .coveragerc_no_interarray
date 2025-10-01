@@ -1,0 +1,5 @@
+[run]
+omit = 
+    ard/test_utils.py
+    ard/collection/optiwindnet_wrap.py
+    
