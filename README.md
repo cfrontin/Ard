@@ -1,7 +1,7 @@
 
 # Ard
 
-[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)
+[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=main)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml)
 
 ![Ard logo](assets/logomaker/logo.png)
 
