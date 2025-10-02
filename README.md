@@ -20,7 +20,7 @@ Moreover, the design of any *one* of these aspects affects all the rest!
 In brief, we are designing `Ard` to be: principled, modular, extensible, and effective, to allow resource-specific wind farm layout optimization with realistic, well-posed constraints, holistic and complex objectives, and natural incorporation of multiple fidelities and disciplines.
 
 ## Documentation
-Ard documentation is available at [https://wisdem.github.io/Ard/]()
+Ard documentation is available at [https://wisdem.github.io/Ard](https://wisdem.github.io/Ard)
 
 ## Installation instructions
 
