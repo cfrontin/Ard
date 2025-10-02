@@ -94,6 +94,7 @@ The goals during the development of `Ard` are to be:
    - build yourself the ones we don't have
 3) effective
     - robustly tested and testable at both unit and system levels
+
 These principles guide us to implement, using [`OpenMDAO`](https://openmdao.org) as a backbone, a multi-disciplinary design, analysis, and optimization (MDAO) model of the wind farm layout problem, a toolset to accomplish the capability goals of `Ard`, to:
 1) allow optimization of wind farm layouts for specific wind resource profiles
 2) enable the incorporation of realistic but well-posed constraints
