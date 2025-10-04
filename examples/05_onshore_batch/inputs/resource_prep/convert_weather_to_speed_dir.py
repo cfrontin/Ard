@@ -96,7 +96,7 @@ def extract_columns_to_yaml(input_csv: str, output_yaml: str, columns: list, tur
         return
 
     # Extract the desired columns
-    extracted_data = data[columns].head(10)
+    extracted_data = data[columns] #.head(10)
 
     # Prepare the YAML data structure
     yaml_data = {"name": input_csv,

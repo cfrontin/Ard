@@ -4,14 +4,12 @@ modeling_options:
   windIO_plant: !include windio.yaml
   layout:
     type: "unstructured"
-    N_turbines: 25 # should be 65 turbines
+    N_turbines: 65 # should be 65 turbines
     N_substations: 1
     spacing_primary: 7.0
     spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
-  # wind_rose: !include open-meteo-56.20N8.54E86m.yaml
-  # turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml # Switch to IEA 5MW
   floris:
     peak_shaving_fraction: 0.2
     peak_shaving_TI_threshold: 0.0
@@ -28,21 +26,21 @@ modeling_options:
   offshore: false
   floating: false
   costs:
-    rated_power: 3400000.0  # W
+    rated_power: 5000000.0  # W
     num_blades: 3
-    rated_thrust_N: 645645.83964671
-    gust_velocity_m_per_s: 52.5
+    rated_thrust_N: 823484.4216152605 # from NREL 5MW definition
+    gust_velocity_m_per_s: 70.0 # from https://github.com/WISDEM/WISDEM/blob/master/examples/02_reference_turbines/nrel5mw.yaml
     blade_surface_area: 69.7974979
     tower_mass: 620.4407337521
     nacelle_mass: 101.98582836439
     hub_mass: 8.38407517646
     blade_mass: 14.56341339641
     foundation_height: 0.0
-    commissioning_cost_kW: 44.0
-    decommissioning_cost_kW: 58.0
+    commissioning_cost_kW: 44.0 # from https://github.com/WISDEM/WISDEM/blob/master/examples/02_reference_turbines/nrel5mw.yaml
+    decommissioning_cost_kW: 58.0 # from https://github.com/WISDEM/WISDEM/blob/master/examples/02_reference_turbines/nrel5mw.yaml
     trench_len_to_substation_km: 50.0
     distance_to_interconnect_mi: 4.97096954
-    interconnect_voltage_kV: 130.0
+    interconnect_voltage_kV: 130.0 # from https://github.com/WISDEM/WISDEM/blob/master/examples/02_reference_turbines/nrel5mw.yaml
     tcc_per_kW: 1300.00  # (USD/kW)
     opex_per_kW: 44.00  # (USD/kWh)
 
@@ -69,6 +67,14 @@ analysis_options:
     angle_skew:
       lower: -75.0
       upper: 180.0
+    x_substations:
+      lower: -3000
+      upper: 3000
+      scaler: 1E-2
+    y_substations:
+      lower: -3000
+      upper: 3000
+      scaler: 1E-2
   constraints:
     boundary_distances:
       units: "km"
