@@ -52,9 +52,6 @@ def update_layout(n_turbines, windio_filepath, xlim, ylim):
 
     return x_flat, y_flat
 
-    
-
-
 def run_example():
 
     # load input
