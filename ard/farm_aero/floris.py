@@ -379,8 +379,9 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         # FLORIS computes the powers
         outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
         outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)
-        # outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
-        # outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
+        if self.options["modeling_options"]["aero"]["return_turbine_output"]:
+            outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
+            outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
 
 
 class FLORISAEP(templates.FarmAEPTemplate):
