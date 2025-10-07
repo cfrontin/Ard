@@ -308,7 +308,7 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
         self.speeds_wind = self.wind_query.wind_speeds.tolist()
         self.TIs_wind = self.wind_query.turbulence_intensities.tolist()
         self.N_wind_conditions = len(self.directions_wind)
-        
+
         # add the outputs we want for a batched power analysis:
         #   - farm and turbine powers
         #   - turbine thrusts
@@ -366,8 +366,12 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
         # the following should be set
         outputs["power_farm"] = np.zeros((self.N_wind_conditions,))
         if self.options["modeling_options"]["aero"]["return_turbine_output"]:
-            outputs["power_turbines"] = np.zeros((self.N_turbines, self.N_wind_conditions))
-            outputs["thrust_turbines"] = np.zeros((self.N_turbines, self.N_wind_conditions))
+            outputs["power_turbines"] = np.zeros(
+                (self.N_turbines, self.N_wind_conditions)
+            )
+            outputs["thrust_turbines"] = np.zeros(
+                (self.N_turbines, self.N_wind_conditions)
+            )
 
 
 class FarmAEPTemplate(FarmAeroTemplate):

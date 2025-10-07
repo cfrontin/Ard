@@ -228,25 +228,25 @@ class GridFarmLanduse(templates.LanduseTemplate):
             "spacing_primary",
             self.modeling_options["layout"]["spacing_primary"],
             units="unitless",
-            desc="turbine row spacing in rotor diameters"
+            desc="turbine row spacing in rotor diameters",
         )
         self.add_input(
             "spacing_secondary",
             self.modeling_options["layout"]["spacing_secondary"],
             units="unitless",
-            desc="turbine column spacing (along rows) in rotor diameters"
+            desc="turbine column spacing (along rows) in rotor diameters",
         )
         self.add_input(
             "angle_orientation",
             self.modeling_options["layout"]["angle_orientation"],
             units="deg",
-            desc="orientation in degrees clockwise with respect to North"
+            desc="orientation in degrees clockwise with respect to North",
         )
         self.add_input(
             "angle_skew",
             self.modeling_options["layout"]["angle_skew"],
             units="deg",
-            desc="clockwise skew angle of turbine rows"
+            desc="clockwise skew angle of turbine rows",
         )
 
         self.add_output(

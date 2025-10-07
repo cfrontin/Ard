@@ -348,7 +348,7 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         FLORISFarmComponent.setup_partials(self)
 
     def compute(self, inputs, outputs):
-        
+
         # generate the list of conditions for evaluation
         self.time_series = floris.TimeSeries(
             wind_directions=np.degrees(np.array(self.wind_query.wind_directions)),
