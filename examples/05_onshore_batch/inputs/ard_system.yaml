@@ -3,7 +3,6 @@ system: "onshore_batch"
 modeling_options:
   windIO_plant: !include windio.yaml
   layout:
-    type: "unstructured"
     N_turbines: 65 # should be 65 turbines
     N_substations: 1
     spacing_primary: 7.0
