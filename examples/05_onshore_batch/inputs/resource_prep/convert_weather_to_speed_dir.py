@@ -10,6 +10,7 @@ import pytest
 
 import windIO
 
+
 def load_header_key_value(csv_path: str) -> dict:
     """
     Read first two lines of a CSV. First line -> keys, second line -> values.
@@ -27,6 +28,7 @@ def load_header_key_value(csv_path: str) -> dict:
             raise ValueError("CSV has only one line; need two.")
     if len(values) != len(header):
         raise ValueError("Header and value line have different lengths.")
+
     def _convert(v: str):
         v = v.strip()
         if v == "":
@@ -37,7 +39,9 @@ def load_header_key_value(csv_path: str) -> dict:
             except Exception:
                 pass
         return v
+
     return {k.strip(): _convert(v) for k, v in zip(header, values)}
+
 
 def build_dt(datetime_str, tz_str):
 
@@ -51,18 +55,22 @@ def build_dt(datetime_str, tz_str):
     tz = dt.timezone(dt.timedelta(hours=offset_hours))
 
     datetime_obj_naive = dt.datetime.fromisoformat(datetime_str)
-    
-    datetime_obj_aware = dt.datetime(year=datetime_obj_naive.year, 
-                              month=datetime_obj_naive.month, 
-                              day=datetime_obj_naive.day,
-                              hour=datetime_obj_naive.hour,
-                              second=datetime_obj_naive.second,
-                              tzinfo=tz,
-                              )
 
-    return datetime_obj_naive.isoformat()+"Z"
+    datetime_obj_aware = dt.datetime(
+        year=datetime_obj_naive.year,
+        month=datetime_obj_naive.month,
+        day=datetime_obj_naive.day,
+        hour=datetime_obj_naive.hour,
+        second=datetime_obj_naive.second,
+        tzinfo=tz,
+    )
 
-def extract_columns_to_yaml(input_csv: str, output_yaml: str, columns: list, turbulence_intensity: float):
+    return datetime_obj_naive.isoformat() + "Z"
+
+
+def extract_columns_to_yaml(
+    input_csv: str, output_yaml: str, columns: list, turbulence_intensity: float
+):
     """
     Load a CSV file, extract specific columns, and save them to a YAML file in the desired format.
 
@@ -78,7 +86,7 @@ def extract_columns_to_yaml(input_csv: str, output_yaml: str, columns: list, tur
 
     # time = datetime(2020, 10, 31, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
     meta_data = load_header_key_value(input_csv)
-    
+
     # Load the CSV file
     try:
         data = pd.read_csv(input_csv, header=2)
@@ -92,25 +100,29 @@ def extract_columns_to_yaml(input_csv: str, output_yaml: str, columns: list, tur
     # Check if all desired columns exist in the file
     missing_columns = [col for col in columns if col not in data.columns]
     if missing_columns:
-        print(f"Error: The following columns are missing in the input file: {missing_columns}")
+        print(
+            f"Error: The following columns are missing in the input file: {missing_columns}"
+        )
         return
 
     # Extract the desired columns
-    extracted_data = data[columns] #.head(10)
+    extracted_data = data[columns]  # .head(10)
 
     # Prepare the YAML data structure
-    yaml_data = {"name": input_csv,
-                    "wind_resource": {
-                        "time": [build_dt(t, tz_str=meta_data["timezone_abbreviation"]) for t in extracted_data[columns[0]]],
-                        "wind_speed": extracted_data[columns[1]].tolist(),
-                        "wind_direction": extracted_data[columns[2]].tolist(),
-                        "turbulence_intensity": {
-                            "data": [turbulence_intensity] * len(extracted_data),
-                        },
-                          
-                    },
+    yaml_data = {
+        "name": input_csv,
+        "wind_resource": {
+            "time": [
+                build_dt(t, tz_str=meta_data["timezone_abbreviation"])
+                for t in extracted_data[columns[0]]
+            ],
+            "wind_speed": extracted_data[columns[1]].tolist(),
+            "wind_direction": extracted_data[columns[2]].tolist(),
+            "turbulence_intensity": {
+                "data": [turbulence_intensity] * len(extracted_data),
+            },
+        },
     }
-                    
 
     # Save the data to a YAML file
     try:
@@ -124,11 +136,14 @@ def extract_columns_to_yaml(input_csv: str, output_yaml: str, columns: list, tur
 # Example usage
 if __name__ == "__main__":
     input_file = "open-meteo-56.20N8.54E86m.csv"  # Replace with your input file path
-    output_file = "open-meteo-56.20N8.54E86m.yaml"  # Replace with your desired output file path
+    output_file = (
+        "open-meteo-56.20N8.54E86m.yaml"  # Replace with your desired output file path
+    )
     desired_columns = ["time", "wind_speed_100m (m/s)", "wind_direction_100m (°)"]
 
-    extract_columns_to_yaml(input_file, output_file, desired_columns, turbulence_intensity=0.1)
-
+    extract_columns_to_yaml(
+        input_file, output_file, desired_columns, turbulence_intensity=0.1
+    )
 
     if windIO.validate(
         input=output_file,
