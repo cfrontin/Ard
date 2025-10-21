@@ -31,7 +31,7 @@ Ard documentation is available at [https://wisdem.github.io/Ard/]()
 `Ard` is currently in pre-release. It can be installed from PyPI or as a source-code installation.
 
 ### 1. Clone Ard source repository
-If installing from PyPI, skip to (2.)[]. If installing from source, the source can be cloned from github using the following command in your preferred location:
+If installing from PyPI, skip to [step 2.](#2.-Set-up-environment). If installing from source, the source can be cloned from github using the following command in your preferred location:
 ```shell
 git clone git@github.com:WISDEM/Ard.git
 ```
