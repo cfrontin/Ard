@@ -297,9 +297,9 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
     case_title : str
         a "title" for the case, used to disambiguate runs in practice (inherited
         from `FLORISFarmComponent`)
-    # modeling_options : dict
-    #     a modeling options dictionary (inherited via
-    #     `templates.BatchFarmPowerTemplate`)
+    modeling_options : dict
+        a modeling options dictionary (inherited via
+        `templates.BatchFarmPowerTemplate`)
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed (inherited from `templates.BatchFarmPowerTemplate`)
@@ -374,13 +374,14 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         self.fmodel.run()
 
         # dump the yaml to re-run this case on demand
-        FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
+        # FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
         outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
         outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)
-        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
-        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
+        if self.options["modeling_options"]["aero"]["return_turbine_output"]:
+            outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
+            outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
 
 
 class FLORISAEP(templates.FarmAEPTemplate):
@@ -397,9 +398,9 @@ class FLORISAEP(templates.FarmAEPTemplate):
     case_title : str
         a "title" for the case, used to disambiguate runs in practice (inherited
         from `FLORISFarmComponent`)
-    # modeling_options : dict
-    #     a modeling options dictionary (inherited via
-    #     `templates.FarmAEPTemplate`)
+    modeling_options : dict
+        a modeling options dictionary (inherited via
+        `templates.FarmAEPTemplate`)
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed (inherited from `templates.FarmAEPTemplate`)

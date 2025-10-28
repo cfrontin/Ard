@@ -64,6 +64,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
     # load default system if requested and available
     available_default_systems = [
         "onshore",
+        "onshore_batch",
         "onshore_no_cable_design",
         "offshore_monopile",
         "offshore_monopile_no_cable_design",
@@ -73,7 +74,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
 
     if isinstance(input_dict["system"], str):
         if input_dict["system"] in available_default_systems:
-            system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
+            system = load_yaml(ASSET_DIR / f"ard_system_{input_dict['system']}.yaml")
 
             input_dict["system"] = replace_key_value(
                 target_dict=system,
@@ -83,7 +84,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         else:
             raise (
                 ValueError(
-                    f"invalid default system '{input_dict["system"]}' specified. Must be one of {available_default_systems}"
+                    f"invalid default system '{input_dict['system']}' specified. Must be one of {available_default_systems}"
                 )
             )
 
@@ -253,11 +254,13 @@ def set_up_system_recursive(
                     prob.model.add_constraint(constraint_name, **constraint_data)
 
             # set objective
-            if "objective" in analysis_options:
-                prob.model.add_objective(
-                    analysis_options["objective"]["name"],
-                    **analysis_options["objective"]["options"],
-                )
+            if "objectives" in analysis_options:
+                for obj_name, obj_options in analysis_options["objectives"].items():
+                    obj_options = {} if (obj_options is None) else obj_options
+                    prob.model.add_objective(
+                        obj_name,
+                        **obj_options,
+                    )
 
             # Set up the recorder if specified in the input dictionary
             if "recorder" in analysis_options:
@@ -267,6 +270,8 @@ def set_up_system_recursive(
                     prob.add_recorder(recorder)
                     prob.driver.add_recorder(recorder)
 
+        # TODO! THIS IS NECESSARY FOR SOME REASON WHEN RUNNING FREE
+        # OPTIMIZATIONS. THIS SHOULDN'T BE NEEDED...
         prob.model.set_input_defaults(
             "x_turbines",
             # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["x"],
@@ -278,6 +283,7 @@ def set_up_system_recursive(
             units="m",
         )
 
+        # setup the openmdao problem
         prob.setup()
 
     return prob

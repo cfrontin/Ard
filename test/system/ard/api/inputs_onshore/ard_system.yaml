@@ -43,6 +43,8 @@ modeling_options:
     spacing_secondary: 7
     angle_orientation: 0.0
     angle_skew: 0.0
+  aero:
+    return_turbine_output: True
   floris:
     peak_shaving_fraction: 0.4
     peak_shaving_TI_threshold: 0.0
@@ -99,9 +101,8 @@ analysis_options:
     spacing_constraint.turbine_spacing:
       units: "m"
       lower: 552
-  objective:
-    name: collection.total_length_cables
-    options:
+  objectives:
+    collection.total_length_cables:
       scaler: 1.0
   recorder:
     filepath: "cases.sql"
