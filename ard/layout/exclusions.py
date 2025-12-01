@@ -61,7 +61,7 @@ class FarmExclusionDistancePolygon(om.ExplicitComponent):
             ).T
             for polygon in self.windIO["site"]["exclusions"]["polygons"]
         ]
-        self.exclusion_regions = self.modeling_options.get("boundary", {}).get(
+        self.exclusion_regions = self.modeling_options.get("exclusions", {}).get(
             "turbine_region_assignments",  # get the region assignments from modeling_options, if there
             np.zeros(self.N_turbines, dtype=int),  # default to zero for all turbines
         )
