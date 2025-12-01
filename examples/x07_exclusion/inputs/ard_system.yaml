@@ -1,5 +1,16 @@
 modeling_options: &modeling_options
   windIO_plant: !include windio.yaml
+  heterogeneous_map:
+    x: [-100.0, -100.0, 1500.0, 1500.0, 1030.39]
+    y: [-100.0, 1500.0, 1500.0, -100.0, 919.56]
+    speed_multipliers: [
+      [1.0, 1.0, 1.0, 1.0, 1.125],
+      [1.0, 1.0, 1.0, 1.0, 1.125],
+      [1.0, 1.0, 1.0, 1.0, 1.125],
+    ]
+    wind_directions: [0.0, 157.5, 270.0]
+    wind_speeds: [6.0, 7.5, 12.0]
+    interp_method: linear
   layout:
     type: gridfarm
     N_turbines: 7
@@ -132,7 +143,7 @@ analysis_options:
       optimizer: COBYLA
       opt_settings:
         rhobeg: 2.0
-        maxiter: 200
+        maxiter: 50
       # debug_print:
       #   - desvars
       #   - objs

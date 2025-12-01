@@ -105,7 +105,9 @@ def plot_layout(
     )
 
     # loop over the exclusion types
-    for excl_type_key, excl_type_value in windIO_dict["site"].get("exclusions", {}).items():
+    for excl_type_key, excl_type_value in (
+        windIO_dict["site"].get("exclusions", {}).items()
+    ):
         # handle un-implemented exclusion types
         if excl_type_key not in ["polygons"]:
             raise NotImplementedError(

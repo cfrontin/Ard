@@ -355,11 +355,14 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
     def compute(self, inputs, outputs):
 
         # generate the list of conditions for evaluation
-        self.time_series = floris.TimeSeries(
-            wind_directions=np.degrees(np.array(self.wind_query.wind_directions)),
-            wind_speeds=np.array(self.wind_query.wind_speeds),
-            turbulence_intensities=np.array(self.wind_query.turbulence_intensities),
-        )
+        if type(self.wind_query) == floris.TimeSeries:
+            self.time_series = self.wind_query
+        else:
+            self.time_series = floris.TimeSeries(
+                wind_directions=np.degrees(np.array(self.wind_query.wind_directions)),
+                wind_speeds=np.array(self.wind_query.wind_speeds),
+                turbulence_intensities=np.array(self.wind_query.turbulence_intensities),
+            )
 
         # set up and run the floris model
         self.fmodel.set(
