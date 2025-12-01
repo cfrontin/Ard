@@ -132,20 +132,27 @@ analysis_options:
       optimizer: COBYLA
       opt_settings:
         rhobeg: 2.0
-        maxiter: 50
+        maxiter: 200
       # debug_print:
       #   - desvars
       #   - objs
   design_variables:
     x_turbines:
-      units: m
-      lower: -100.0
-      upper:  2100.0
+      units: km
+      lower: -0.100
+      upper:  2.100
+      scaler: 0.5
     y_turbines:
-      lower: -500.0
-      upper:  2300.0
+      units: km
+      lower: -0.500
+      upper:  2.300
+      scaler: 0.5
   constraints:
     boundary_distances:
+      units: km
+      upper: 0.0
+      scaler: 2.0
+    exclusion_distances:
       units: km
       upper: 0.0
       scaler: 2.0
