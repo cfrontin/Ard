@@ -144,9 +144,9 @@ analysis_options:
       opt_settings:
         rhobeg: 2.0
         maxiter: 250
-      # debug_print:
-      #   - desvars
-      #   - objs
+      debug_print:
+        - desvars
+        - objs
   design_variables:
     x_turbines:
       units: km

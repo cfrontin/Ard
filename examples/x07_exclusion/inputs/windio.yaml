@@ -463,7 +463,7 @@ site:
         -349.9959503233879]
   energy_resource:
     name: Predominant wind only
-    wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
+    wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml  # DEBUG!!!!!
     # wind_resource: !include 'wrg.yaml'
 wind_farm:
   name: Patterson Pass
