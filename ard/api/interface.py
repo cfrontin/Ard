@@ -12,7 +12,8 @@ from ard import ASSET_DIR
 from typing import Union
 
 
-def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
+def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None,
+                     work_dir: str = "case_files"):
     """
     Set up an OpenMDAO model for Ard based on the provided input dictionary or YAML file.
 
@@ -37,6 +38,9 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
 
     root_data_path : str, optional
         The root path for resolving relative paths in the system configuration. Defaults to None.
+
+    work_dir : str, optional
+        Relative path to working directory that contains problem output
 
     Returns
     -------
@@ -103,6 +107,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
     # set up the openmdao problem
     prob = set_up_system_recursive(
         input_dict=input_dict["system"],
+        work_dir=work_dir,
         modeling_options=input_dict["modeling_options"],
         analysis_options=input_dict["analysis_options"],
     )
