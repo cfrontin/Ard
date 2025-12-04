@@ -13,7 +13,7 @@ from typing import Union
 
 
 def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None,
-                     work_dir: str = "case_files"):
+                     work_dir: str = "case_files", name: str = "problem"):
     """
     Set up an OpenMDAO model for Ard based on the provided input dictionary or YAML file.
 
@@ -40,7 +40,11 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None,
         The root path for resolving relative paths in the system configuration. Defaults to None.
 
     work_dir : str, optional
-        Relative path to working directory that contains problem output
+        Path to working directory that contains problem outputs.
+
+    name : str, optional
+        Name of the optimization problem. The resulting prob.get_outputs_dir()
+        will return "<work_dir>/<name>_out".
 
     Returns
     -------
@@ -108,6 +112,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None,
     prob = set_up_system_recursive(
         input_dict=input_dict["system"],
         work_dir=work_dir,
+        name=name,
         modeling_options=input_dict["modeling_options"],
         analysis_options=input_dict["analysis_options"],
     )
@@ -119,6 +124,7 @@ def set_up_system_recursive(
     input_dict: dict,
     system_name: str = "top_level",
     work_dir: str = "case_files",
+    name: str = "problem",
     parent_group=None,
     modeling_options: dict = None,
     analysis_options: dict = None,
@@ -139,6 +145,7 @@ def set_up_system_recursive(
     if parent_group is None:
         prob = om.Problem(
             work_dir=work_dir,
+            name=name,
         )
         parent_group = prob.model
         # parent_group.name = "ard_model"
