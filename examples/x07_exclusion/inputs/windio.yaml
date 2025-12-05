@@ -463,12 +463,10 @@ site:
         -349.9959503233879]
   energy_resource:
     name: Predominant wind only
-    wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml  # DEBUG!!!!!
-    # wind_resource: !include 'wrg.yaml'
+    wind_resource: !include 'wrg.yaml'
 wind_farm:
   name: Patterson Pass
-  turbine: !include ../../data/windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml  # DEBUG!!!!!
-  # turbine: !include 'NREL-2.8-127.yaml'  # this is a windIO turbine-turbine not a plant-turbine
+  turbine: !include 'NREL-2.82MW-127m.yaml'  # from https://github.com/NREL/openfast-turbine-models/blob/main/IEA-scaled/NREL-2.8-127/NREL-2.82-127_performance.csv
   layouts:
       coordinates:
           x: [

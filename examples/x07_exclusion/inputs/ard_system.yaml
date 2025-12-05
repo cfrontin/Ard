@@ -1,16 +1,6 @@
 modeling_options: &modeling_options
   windIO_plant: !include windio.yaml
-  heterogeneous_map:
-    x: [-100.0, -100.0, 1500.0, 1500.0, 1030.39]
-    y: [-100.0, 1500.0, 1500.0, -100.0, 919.56]
-    speed_multipliers: [
-      [1.0, 1.0, 1.0, 1.0, 1.125],
-      [1.0, 1.0, 1.0, 1.0, 1.125],
-      [1.0, 1.0, 1.0, 1.0, 1.125],
-    ]
-    wind_directions: [0.0, 157.5, 270.0]
-    wind_speeds: [6.0, 7.5, 12.0]
-    interp_method: linear
+  heterogeneous_map: !include wind_map.yaml
   layout:
     type: gridfarm
     N_turbines: 7
@@ -33,22 +23,25 @@ modeling_options: &modeling_options
   offshore: false
   floating: false
   costs:
-    rated_power: 3400000.0  # W
+    # generated from WISDEM (v3.13.x)
+    # https://github.com/NREL/openfast-turbine-models/blob/main/IEA-scaled/NREL-2.8-127/20_monolithic_opt2/NREL-2.8-127.yaml
+    # converted with https://github.com/IEAWindSystems/windIO/tree/main/windIO/converters
+    rated_power: 2820000.0  # W
     num_blades: 3
-    rated_thrust_N: 645645.83964671
+    rated_thrust_N: 394071.5511477288
     gust_velocity_m_per_s: 52.5
-    blade_surface_area: 69.7974979
-    tower_mass: 620.4407337521
-    nacelle_mass: 101.98582836439
-    hub_mass: 8.38407517646
-    blade_mass: 14.56341339641
+    blade_surface_area: 59.707910759797734
+    tower_mass: 178868.39386450217
+    nacelle_mass: 83287.80050671293
+    hub_mass: 7728.056554744464
+    blade_mass: 13986.721230923094
     foundation_height: 0.0
     commissioning_cost_kW: 44.0
     decommissioning_cost_kW: 58.0
     trench_len_to_substation_km: 50.0
     distance_to_interconnect_mi: 4.97096954
     interconnect_voltage_kV: 130.0
-    tcc_per_kW: 1300.00  # (USD/kW)
+    tcc_per_kW: 0.0  # (USD/kW)
     opex_per_kW: 44.00  # (USD/kWh)
 
 system:
