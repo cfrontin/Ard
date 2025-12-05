@@ -31,10 +31,10 @@ modeling_options: &modeling_options
     rated_thrust_N: 394071.5511477288
     gust_velocity_m_per_s: 52.5
     blade_surface_area: 59.707910759797734
-    tower_mass: 178868.39386450217
-    nacelle_mass: 83287.80050671293
-    hub_mass: 7728.056554744464
-    blade_mass: 13986.721230923094
+    tower_mass: 178.86839386450217
+    nacelle_mass: 83.28780050671293
+    hub_mass: 7.728056554744464
+    blade_mass: 13.986721230923094
     foundation_height: 0.0
     commissioning_cost_kW: 44.0
     decommissioning_cost_kW: 58.0
