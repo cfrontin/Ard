@@ -41,7 +41,7 @@ modeling_options: &modeling_options
     trench_len_to_substation_km: 50.0
     distance_to_interconnect_mi: 4.97096954
     interconnect_voltage_kV: 130.0
-    tcc_per_kW: 0.0  # (USD/kW)
+    tcc_per_kW: 706.411091392774  # (USD/kW)
     opex_per_kW: 44.00  # (USD/kWh)
 
 system:
