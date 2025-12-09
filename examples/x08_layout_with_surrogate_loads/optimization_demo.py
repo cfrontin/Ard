@@ -3,6 +3,8 @@ from pathlib import Path  # optional, for nice path specifications
 import pprint as pp  # optional, for nice printing
 import numpy as np  # numerics library
 import matplotlib.pyplot as plt  # plotting capabilities
+import pandas as pd
+import seaborn as sns
 
 import ard  # technically we only really need this
 from ard.utils.io import load_yaml  # we grab a yaml loader here
@@ -84,5 +86,47 @@ plot_layout(
     show_image=True,
     include_cable_routing=True,
 )
+
+# Access the recorder data
+case_reader = om.CaseReader(prob.get_outputs_dir() / "cases.sql")
+
+# Get all driver cases
+driver_cases = case_reader.list_cases("driver", out_stream=None)
+
+# Extract data from all cases
+results = []
+for case_id in driver_cases:
+
+    case = case_reader.get_case(case_id)
+
+    # Extract specific variables you're interested in
+    result = {
+        "case_id": case_id,
+        "AEP": float(case.get_val("AEP_farm", units="GW*h")[0]),
+        "DEL": float(case.get_val("aepFLORIS.tower_base_load", units="kN*m")[0]),
+        "total_length_cables": float(case.get_val("collection.total_length_cables", units="km")[0]),
+    }
+    results.append(result)
+
+# Convert to arrays for plotting/analysis
+case_id_history = np.array([int(r["case_id"].split('|')[-1]) for r in results])
+aep_history = np.array([r["AEP"] for r in results])
+DEL_history = np.array([r["DEL"] for r in results])
+total_length_cables_history = np.array([r["total_length_cables"] for r in results])
+
+# Create a correlation matrix
+sns.pairplot(
+    data = pd.DataFrame({
+        'AEP': aep_history,
+        'DEL': DEL_history,
+        'Cable Length': total_length_cables_history
+    }),
+
+)
 plt.show()
 
+obj_nd = prob.driver.obj_nd.copy()
+obj_nd = obj_nd[obj_nd[:, 0].argsort()]  # Sort rows by the first column
+print(obj_nd)
+plt.plot(*(obj_nd.T))
+plt.show()

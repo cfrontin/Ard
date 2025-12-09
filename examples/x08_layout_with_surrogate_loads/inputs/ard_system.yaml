@@ -117,36 +117,56 @@ system:
 
 analysis_options:
   driver:
-    name: ScipyOptimizeDriver
+    # # design-of-experiments
+    # name: DOEDriver
+    # generator:
+    #   name: LatinHypercubeGenerator
+    #   args:
+    #     samples: 100
+    # our NSGA2
+    name: NSGA2
     options:
-      optimizer: COBYLA
-      opt_settings:
-        rhobeg: 2.0
-        maxiter: 150
-      debug_print:
-        - desvars
-        - objs
+      max_gen: 5
+      pop_size: 100
+      # Pc: 0.9
+      # eta_c: 20.0
+      # Pm: 0.1
+      # eta_m: 20.0
+      run_parallel: True
+    # name: ScipyOptimizeDriver
+    # options:
+    #   optimizer: COBYLA
+    #   opt_settings:
+    #     rhobeg: 2.0
+    #     maxiter: 150
+    #   debug_print:
+    #     - desvars
+    #     - objs
   design_variables:
     x_turbines:
       units: km
-      lower: -3.0
-      upper: 3.0
+      lower: -1.0
+      upper: 1.0
       scaler: 1.0e1
     y_turbines:
       units: km
-      lower: -3.0
-      upper: 3.0
+      lower: -1.0
+      upper: 1.0
       scaler: 1.0e1
   constraints:
     boundary_distances:
       units: km
       upper: 0.0
       scaler: 2.0
-    spacing_constraint.turbine_spacing:
-      units: km
-      lower: 0.552
+    # spacing_constraint.turbine_spacing:
+    #   units: km
+    #   lower: 0.552
   objectives:
+    AEP_farm:
+      scaler: -1.0
     aepFLORIS.tower_base_load:
+      scaler: 1.0
+    collection.total_length_cables:
       scaler: 1.0
   recorder:
     filepath: cases.sql
