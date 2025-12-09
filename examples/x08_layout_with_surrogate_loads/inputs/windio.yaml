@@ -7,7 +7,7 @@ site:
               y: [ 3000.0,  1500.0, -1500.0, -3000.0, -3000.0, -1500.0,  1500.0,  3000.0]
     energy_resource:
         name: Ard Example 01 offshore energy resource
-        wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example_copy.yaml
+        wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
 wind_farm:
     name: Ard Example 01 offshore wind farm
     layouts:

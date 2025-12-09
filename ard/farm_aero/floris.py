@@ -542,7 +542,7 @@ class FLORISTowerBaseLoad(FLORISAEP):
 
     def compute(self, inputs, outputs):
         super().compute(inputs, outputs)
-        outputs["tower_base_load"] = FLORISFarmComponent.get_tower_base_load(self, inputs)
+        outputs["tower_base_load"] = FLORISFarmComponent.get_tower_base_load(self)
         outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
 
     def setup_partials(self):
