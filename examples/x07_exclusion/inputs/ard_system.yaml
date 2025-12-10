@@ -135,8 +135,9 @@ analysis_options:
     options:
       optimizer: COBYLA
       opt_settings:
-        rhobeg: 2.0
-        maxiter: 250
+        rhobeg: 1.0  # initial exploration scale
+        #maxiter: 250
+        maxiter: 50
       debug_print:
         - desvars
         - objs
@@ -145,12 +146,12 @@ analysis_options:
       units: km
       lower: -0.100
       upper:  2.100
-      scaler: 0.5
+      scaler: 2.0  # rhobeg [units] / scaler = 500 m
     y_turbines:
       units: km
       lower: -0.500
       upper:  2.300
-      scaler: 0.5
+      scaler: 2.0  # rhobeg [units] / scaler = 500 m
   constraints:
     boundary_distances:
       units: km
@@ -162,7 +163,7 @@ analysis_options:
       scaler: 2.0
     spacing_constraint.turbine_spacing:
       units: km
-      lower: 0.552
+      lower: 0.5 # ~ 4D
   objectives:
     financese.lcoe:
       scaler: 1.0
