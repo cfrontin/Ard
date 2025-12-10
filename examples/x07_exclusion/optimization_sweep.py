@@ -55,9 +55,12 @@ def run_opt_with_random_turbine_locs(seed, workdir, name, exclusions_yaml=None):
     print('********************************************')
     print('********************************************')
 
+    # modify input dict
     my_input_dict = copy.deepcopy(input_dict)
+    excluded_polygons = {}
     if exclusions_yaml is not None:
         excluded_polygons = load_yaml(path_inputs / "exclusions" / exclusions_yaml)
+    if excluded_polygons:
         my_input_dict['modeling_options']['windIO_plant']['site']['exclusions'] = excluded_polygons
     else:
         del my_input_dict['modeling_options']['windIO_plant']['site']['exclusions']
