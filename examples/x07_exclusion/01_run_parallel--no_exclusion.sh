@@ -1,0 +1,28 @@
+#!/bin/bash
+#SBATCH --job-name=layouts_no_excl
+#SBATCH --time=1:00:00
+#SBATCH --ntasks=64
+#SBATCH -N 1
+#SBATCH --exclusive
+
+# Macbook
+# -------
+NPROCS=8 # 0.83 min for 50 iters
+
+# Kestrel
+# -------
+# module purge
+# module load conda/2024.06.1
+# module load parallel/20220522
+# conda activate ard-env
+NPROCS=64 # 1.5 min for 50 iters
+
+
+work_dir='no_exclusion--prelim'
+prefix="${work_dir}/nonuniform"
+mkdir -p $work_dir
+
+seq 0 1024 | parallel -j $NPROCS "echo 'Running opt prob {} with NO exclusions'; ./optimization_sweep.py {} &> ${prefix}{}.log"
+
+./check_full_sweep.sh
+./check_floris_logs.sh
