@@ -13,7 +13,7 @@ modeling_options: &modeling_options
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: radial  # radial, branched
+      topology: branched  # radial, branched
       feeder_route: segmented
       feeder_limit: unlimited
   offshore: false
@@ -122,17 +122,18 @@ analysis_options:
     # generator:
     #   name: LatinHypercubeGenerator
     #   args:
-    #     samples: 100
+    #     samples: 1000
     # our NSGA2
     name: NSGA2
     options:
       max_gen: 5
-      pop_size: 100
+      pop_size: 50
       # Pc: 0.9
       # eta_c: 20.0
       # Pm: 0.1
       # eta_m: 20.0
       run_parallel: True
+    # # scipyopt
     # name: ScipyOptimizeDriver
     # options:
     #   optimizer: COBYLA
@@ -158,9 +159,9 @@ analysis_options:
       units: km
       upper: 0.0
       scaler: 2.0
-    # spacing_constraint.turbine_spacing:
-    #   units: km
-    #   lower: 0.552
+    spacing_constraint.turbine_spacing:
+      units: km
+      lower: 0.552
   objectives:
     AEP_farm:
       scaler: -1.0

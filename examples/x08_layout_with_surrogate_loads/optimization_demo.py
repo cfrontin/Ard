@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt  # plotting capabilities
 import pandas as pd
 import seaborn as sns
 
+import wisdem.optimization_drivers as opt_drivers
+
 import ard  # technically we only really need this
 from ard.utils.io import load_yaml  # we grab a yaml loader here
 from ard.api import set_up_ard_model  # the secret sauce
@@ -35,10 +37,10 @@ prob.run_model()
 # collapse the test result data
 test_data = {
     "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
-    "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
-    "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
-    "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
-    "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
+    # "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
+    # "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
+    # "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
+    # "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
     "coll_length": float(prob.get_val("collection.total_length_cables", units="km")[0]),
     "turbine_spacing": float(
         np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
@@ -59,10 +61,10 @@ if optimize:
     # collapse the test result data
     test_data = {
         "AEP_val": float(prob.get_val("AEP_farm", units="GW*h")[0]),
-        "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
-        "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
-        "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
-        "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
+        # "CapEx_val": float(prob.get_val("tcc.tcc", units="MUSD")[0]),
+        # "BOS_val": float(prob.get_val("landbosse.total_capex", units="MUSD")[0]),
+        # "OpEx_val": float(prob.get_val("opex.opex", units="MUSD/yr")[0]),
+        # "LCOE_val": float(prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
         "coll_length": float(
             prob.get_val("collection.total_length_cables", units="km")[0]
         ),
@@ -84,7 +86,7 @@ plot_layout(
     prob,
     input_dict=input_dict,
     show_image=True,
-    include_cable_routing=True,
+    include_cable_routing=False,
 )
 
 # Access the recorder data
@@ -115,18 +117,31 @@ DEL_history = np.array([r["DEL"] for r in results])
 total_length_cables_history = np.array([r["total_length_cables"] for r in results])
 
 # Create a correlation matrix
-sns.pairplot(
-    data = pd.DataFrame({
-        'AEP': aep_history,
-        'DEL': DEL_history,
-        'Cable Length': total_length_cables_history
-    }),
+obj_data = pd.DataFrame({
+    'AEP': aep_history,
+    'DEL': DEL_history,
+    'Cable Length': total_length_cables_history,
+})
+obj_data["pareto_rank"] = None
 
+idx_pareto = opt_drivers.nsga2.fast_nondom_sort.fast_nondom_sort(
+    np.vstack([-aep_history, DEL_history, total_length_cables_history]).T
 )
-plt.show()
+for pareto_rank, indices in enumerate(idx_pareto):
+    for index in indices:
+        obj_data.loc[index, "pareto_rank"] = pareto_rank
+obj_data.sort_values(
+    ["pareto_rank", "AEP", "DEL", "Cable Length"],
+    ascending=False,
+    inplace=True,
+)
+obj_data["is_pareto"] = (obj_data["pareto_rank"] == 0)
 
-obj_nd = prob.driver.obj_nd.copy()
-obj_nd = obj_nd[obj_nd[:, 0].argsort()]  # Sort rows by the first column
-print(obj_nd)
-plt.plot(*(obj_nd.T))
+print(obj_data)
+
+sns.pairplot(
+    data=obj_data,
+    vars=["AEP", "DEL", "Cable Length"],
+    hue="is_pareto",
+)
 plt.show()
