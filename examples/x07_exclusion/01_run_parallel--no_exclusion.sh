@@ -22,7 +22,7 @@ work_dir='no_exclusion--prelim'
 prefix="${work_dir}/nonuniform"
 mkdir -p $work_dir
 
-seq 0 1024 | parallel -j $NPROCS "echo 'Running opt prob {} with NO exclusions'; ./optimization_sweep.py {} &> ${prefix}{}.log"
+seq 0 1023 | parallel -j $NPROCS "echo 'Running opt prob {} with NO exclusions'; ./optimization_sweep.py {} &> ${prefix}{}.log"
 
 ./check_full_sweep.sh
 ./check_floris_logs.sh
