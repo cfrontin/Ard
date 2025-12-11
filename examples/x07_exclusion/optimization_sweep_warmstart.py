@@ -218,10 +218,20 @@ if __name__ == '__main__':
 
     name = f'{name_prefix}{probnum:02d}'
 
-    # read specified 
-    work_dir = 'no_exclusion'
-    #xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name, seed=seed)
+    # read specified problem number
+#    work_dir = 'no_exclusion'
+#    #xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name, seed=seed)
+#    xturb,yturb = get_turb_locs(work_dir, name)
+
+    work_dir = 'no_exclusion--prelim'
     xturb,yturb = get_turb_locs(work_dir, name)
+
+    # continue previous no-exclusion run, hopefully to convergence
+    work_dir = 'no_exclusion'
+    xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name,
+                                                   x_turbine=xturb,
+                                                   y_turbine=yturb)
+    
 
     for exclusions_yaml in threshold_defs:
         work_dir = os.path.splitext(exclusions_yaml)[0]
