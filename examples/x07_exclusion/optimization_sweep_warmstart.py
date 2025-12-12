@@ -228,6 +228,8 @@ if __name__ == '__main__':
 
     # continue previous no-exclusion run, hopefully to convergence
     work_dir = 'no_exclusion'
+    if os.path.isdir(f'{work_dir}/{name}_out'):
+        sys.exit("STOP -- don't overwrite existing results!")
     xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name,
                                                    x_turbine=xturb,
                                                    y_turbine=yturb)
