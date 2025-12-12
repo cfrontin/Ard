@@ -13,7 +13,7 @@ modeling_options: &modeling_options
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: radial  # radial, branched
+      topology: branched  # radial, branched
       feeder_route: segmented
       feeder_limit: unlimited
   offshore: false
@@ -43,8 +43,8 @@ system:
     aepFLORIS:
       type: component
       module: ard.farm_aero.floris
-      object: FLORISTowerBaseLoad
-      promotes: ["x_turbines", "y_turbines", "AEP_farm", "tower_base_load"]
+      object: FLORISSurrogateDELs
+      promotes: ["x_turbines", "y_turbines", "AEP_farm", "blade_root_DEL", "shaft_DEL", "tower_base_DEL", "yaw_bearings_DEL"]
       kwargs:
         modeling_options: *modeling_options
         data_path:
@@ -146,7 +146,7 @@ analysis_options:
       units: km
       lower: 0.552
   objectives:
-    aepFLORIS.tower_base_load:
+    aepFLORIS.tower_base_DEL:
       scaler: 1.0
   recorder:
     filepath: cases.sql
