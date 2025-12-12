@@ -7,7 +7,12 @@ import floris
 import floris.turbine_library.turbine_utilities
 
 import ard.farm_aero.templates as templates
-from ard.farm_loads.surrogate_load_functions import ANN_DEL_TowerBase
+from ard.farm_loads.surrogate_load_functions import (
+    ANN_DEL_BladeRoot,
+    ANN_DEL_Shaft,
+    ANN_DEL_TowerBase,
+    ANN_DEL_YawBearings,
+)
 
 
 def create_FLORIS_turbine_from_windIO(
@@ -276,7 +281,7 @@ class FLORISFarmComponent:
         else:
             return thrust_turbines.T
 
-    def get_tower_base_load(self):
+    def get_DELs(self):
         SATI = self.fmodel.get_turbine_SATI() * 100
         SAWS = self.fmodel.get_turbine_SAWS()
         turbine_powers_percent = self.fmodel.get_turbine_powers_percent().flatten()
@@ -297,18 +302,40 @@ class FLORISFarmComponent:
             axis=1,
         )
 
-        # Make predictions using ANN surrogate
+        # Make predictions using ANN surrogates
+        del_bladeroot_ann = ANN_DEL_BladeRoot(input_data)
+        del_shaft_ann = ANN_DEL_Shaft(input_data)
         del_towerbase_ann = ANN_DEL_TowerBase(input_data)
+        del_yawbearings_ann = ANN_DEL_YawBearings(input_data)
 
         # Weight predictions by frequency of wind conditions
-        weighted_observed_pred = np.zeros_like (del_towerbase_ann)
+        weighted_del_bladeroot = np.zeros_like(del_towerbase_ann)
+        weighted_del_shaft = np.zeros_like(del_towerbase_ann)
+        weighted_del_towerbase = np.zeros_like(del_towerbase_ann)
+        weighted_del_yawbearings = np.zeros_like(del_towerbase_ann)
 
         n_turbs = self.N_turbines
 
         for i, f in enumerate(self.wind_query.freq_table.flatten()):
-            weighted_observed_pred[i * n_turbs: i * n_turbs + n_turbs] = del_towerbase_ann[i * n_turbs: i * n_turbs + n_turbs] * f
+            weighted_del_bladeroot[i * n_turbs : i * n_turbs + n_turbs] = (
+                del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
+            )
+            weighted_del_shaft[i * n_turbs : i * n_turbs + n_turbs] = (
+                del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
+            )
+            weighted_del_towerbase[i * n_turbs : i * n_turbs + n_turbs] = (
+                del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
+            )
+            weighted_del_yawbearings[i * n_turbs : i * n_turbs + n_turbs] = (
+                del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
+            )
 
-        return np.sum(weighted_observed_pred)
+        return (
+            np.sum(weighted_del_bladeroot),
+            np.sum(weighted_del_shaft),
+            np.sum(weighted_del_towerbase),
+            np.sum(weighted_del_yawbearings),
+        )
 
     def dump_floris_yamlfile(self, dir_output=None):
         """
@@ -519,9 +546,9 @@ class FLORISAEP(templates.FarmAEPTemplate):
         FLORISFarmComponent.setup_partials(self)
 
 
-class FLORISTowerBaseLoad(FLORISAEP):
+class FLORISSurrogateDELs(FLORISAEP):
     """
-    Component class for computing surrogate tower base loads using FLORIS.
+    Component class for computing surrogate DELs using FLORIS.
     """
 
     def initialize(self):
@@ -531,10 +558,28 @@ class FLORISTowerBaseLoad(FLORISAEP):
         super().setup()  # run super class script first!
 
         self.add_output(
-            "tower_base_load",
+            "blade_root_del",
             0.0,
             units="kN*m",
-            desc="maximum tower base load across all wind conditions",
+            desc="frequency weighted sum of blade root DEL across all wind conditions",
+        )
+        self.add_output(
+            "shaft_del",
+            0.0,
+            units="kN*m",
+            desc="frequency weighted sum of shaft DEL across all wind conditions",
+        )
+        self.add_output(
+            "tower_base_del",
+            0.0,
+            units="kN*m",
+            desc="frequency weighted sum of tower base DEL across all wind conditions",
+        )
+        self.add_output(
+            "yaw_bearings_del",
+            0.0,
+            units="kN*m",
+            desc="frequency weighted sum of yaw bearings DELs across all wind conditions",
         )
 
     def setup_partials(self):
@@ -542,9 +587,12 @@ class FLORISTowerBaseLoad(FLORISAEP):
 
     def compute(self, inputs, outputs):
         super().compute(inputs, outputs)
-        outputs["tower_base_load"] = FLORISFarmComponent.get_tower_base_load(self)
+        DEL_outputs = FLORISFarmComponent.get_DELs(self)
+        outputs["blade_root_load"] = DEL_outputs[0]
+        outputs["shaft_load"] = DEL_outputs[1]
+        outputs["tower_base_load"] = DEL_outputs[2]
+        outputs["yaw_bearings_load"] = DEL_outputs[3]
         outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
 
     def setup_partials(self):
         FLORISFarmComponent.setup_partials(self)
-
