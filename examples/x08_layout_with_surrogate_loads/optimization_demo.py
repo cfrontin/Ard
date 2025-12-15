@@ -45,7 +45,10 @@ test_data = {
     "turbine_spacing": float(
         np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
     ),
-    "tower_base_DEL": float(prob.get_val("aepFLORIS.tower_base_load", units="kN*m")[0]),
+    "blade_root_DEL": float(prob.get_val("aepFLORIS.blade_root_DEL", units="kN*m")[0]),
+    "shaft_DEL": float(prob.get_val("aepFLORIS.shaft_DEL", units="kN*m")[0]),
+    "tower_base_DEL": float(prob.get_val("aepFLORIS.tower_base_DEL", units="kN*m")[0]),
+    "yaw_bearings_DEL": float(prob.get_val("aepFLORIS.yaw_bearings_DEL", units="kN*m")[0]),
 }
 
 print("\n\nRESULTS:\n")
@@ -71,7 +74,10 @@ if optimize:
         "turbine_spacing": float(
             np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
         ),
-        "tower_base_DEL": float(prob.get_val("aepFLORIS.tower_base_load", units="kN*m")[0]),
+        "blade_root_DEL": float(prob.get_val("aepFLORIS.blade_root_DEL", units="kN*m")[0]),
+        "shaft_DEL": float(prob.get_val("aepFLORIS.shaft_DEL", units="kN*m")[0]),
+        "tower_base_DEL": float(prob.get_val("aepFLORIS.tower_base_DEL", units="kN*m")[0]),
+        "yaw_bearings_DEL": float(prob.get_val("aepFLORIS.yaw_bearings_DEL", units="kN*m")[0]),
     }
 
     # clean up the recorder
