@@ -568,25 +568,25 @@ class FLORISSurrogateDELs(FLORISAEP):
         super().setup()  # run super class script first!
 
         self.add_output(
-            "blade_root_del",
+            "blade_root_load",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of blade root DEL across all wind conditions",
         )
         self.add_output(
-            "shaft_del",
+            "shaft_load",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of shaft DEL across all wind conditions",
         )
         self.add_output(
-            "tower_base_del",
+            "tower_base_load",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of tower base DEL across all wind conditions",
         )
         self.add_output(
-            "yaw_bearings_del",
+            "yaw_bearings_load",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of yaw bearings DELs across all wind conditions",

@@ -44,7 +44,7 @@ system:
       type: component
       module: ard.farm_aero.floris
       object: FLORISSurrogateDELs
-      promotes: ["x_turbines", "y_turbines", "AEP_farm", "blade_root_DEL", "shaft_DEL", "tower_base_DEL", "yaw_bearings_DEL"]
+      promotes: ["x_turbines", "y_turbines", "AEP_farm"]
       kwargs:
         modeling_options: *modeling_options
         data_path:
