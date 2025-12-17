@@ -35,7 +35,7 @@ Nturb = 7
 rotorD = 127.
 init_min_spacing = 1.0 * rotorD
 
-maxiter = 1000
+maxiter = 500
 
 # prefix for each realization, within each exclusion condition directory
 name_prefix = 'nonuniform'
@@ -43,17 +43,17 @@ name_prefix = 'nonuniform'
 # list of threshold polygons, with decreasing threshold values (i.e.,
 # increasing area restriction)
 threshold_defs = [
-    'thresh_0p88.yaml',
-    'thresh_0p8.yaml',
-    'thresh_0p71.yaml',
-    'thresh_0p65.yaml',
-    'thresh_0p6.yaml',
-    'thresh_0p55.yaml',
-    'thresh_0p48.yaml',
-    'thresh_0p45.yaml',
-    'thresh_0p4.yaml',
-    'thresh_0p35.yaml',
-    'thresh_0p33.yaml',
+    'thresh_0p88.yaml', # 0
+    'thresh_0p8.yaml',  # 1
+    'thresh_0p71.yaml', # 2
+    'thresh_0p65.yaml', # 3
+    'thresh_0p6.yaml',  # 4
+    'thresh_0p55.yaml', # 5
+    'thresh_0p48.yaml', # 6
+    'thresh_0p45.yaml', # 7
+    'thresh_0p4.yaml',  # 8
+    'thresh_0p35.yaml', # 9
+    'thresh_0p33.yaml', # 10
 ]
 
 #==============================================================================

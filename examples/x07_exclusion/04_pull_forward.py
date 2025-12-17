@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from helpers import postproc_workdir
 
-thresholds = [0.33, 0.4, 0.48, 0.6, 0.71, 0.8, 0.88, 1.0]
+thresholds = [0.33, 0.35, 0.4, 0.45, 0.48, 0.55, 0.6, 0.65, 0.71, 0.8, 0.88, 1.0]
 thresholds = thresholds[::-1]
 caselist = 'n1024_P5.txt'
 suffix = '--run0' # suffix appended to logs from the last run, and
