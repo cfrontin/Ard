@@ -15,7 +15,7 @@ NPROCS=64 # 1.5 min for 50 iters
 
 caselist='n1024_P5.txt'
 
-parallel -a $caselist -j $NPROCS "echo 'Running opt prob {} with $exclusions_yaml'; ./optimization_sweep_warmstart.py {} &> warmstart{}.log"
+parallel -a $caselist -j $NPROCS "echo 'Running opt prob {}'; ./optimization_sweep_warmstart.py {} &> warmstart{}--run0.log"
 
-./check_full_sweep.sh
+#./check_full_sweep.sh
 ./check_floris_logs.sh

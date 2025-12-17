@@ -35,7 +35,7 @@ Nturb = 7
 rotorD = 127.
 init_min_spacing = 1.0 * rotorD
 
-maxiter = 250
+maxiter = 1000
 
 # prefix for each realization, within each exclusion condition directory
 name_prefix = 'nonuniform'
@@ -223,10 +223,13 @@ if __name__ == '__main__':
 #    #xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name, seed=seed)
 #    xturb,yturb = get_turb_locs(work_dir, name)
 
-    work_dir = 'no_exclusion--prelim'
+    try:
+        work_dir = sys.argv[2]
+    except IndexError:
+        work_dir = 'no_exclusion--prelim'
     xturb,yturb = get_turb_locs(work_dir, name)
 
-    # continue previous no-exclusion run, hopefully to convergence
+    # re-run previous no-exclusion run, hopefully to convergence
     work_dir = 'no_exclusion'
     if os.path.isdir(f'{work_dir}/{name}_out'):
         sys.exit("STOP -- don't overwrite existing results!")
