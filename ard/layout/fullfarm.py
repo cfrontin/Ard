@@ -79,6 +79,8 @@ class FullFarmLanduse(ard.layout.templates.LanduseTemplate):
         D_rotor = self.windIO["wind_farm"]["turbine"]["rotor_diameter"]
         lengthscale_layback = float(inputs["distance_layback_diameters"][0] * D_rotor)
 
+        print("here")
+        print(points)
         # area tight is equal to the convex hull area for the points in sq. km.
         outputs["area_tight"] = (
             mp.convex_hull.buffer(lengthscale_layback).area / 1000**2
