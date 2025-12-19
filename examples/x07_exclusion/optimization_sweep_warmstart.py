@@ -35,7 +35,7 @@ Nturb = 7
 rotorD = 127.
 init_min_spacing = 1.0 * rotorD
 
-maxiter = 250
+maxiter = 1000
 
 # prefix for each realization, within each exclusion condition directory
 name_prefix = 'nonuniform'
@@ -46,9 +46,13 @@ threshold_defs = [
     'thresh_0p88.yaml',
     'thresh_0p8.yaml',
     'thresh_0p71.yaml',
+    'thresh_0p65.yaml',
     'thresh_0p6.yaml',
+    'thresh_0p55.yaml',
     'thresh_0p48.yaml',
+    'thresh_0p45.yaml',
     'thresh_0p4.yaml',
+    'thresh_0p35.yaml',
     'thresh_0p33.yaml',
 ]
 
@@ -218,10 +222,25 @@ if __name__ == '__main__':
 
     name = f'{name_prefix}{probnum:02d}'
 
-    # read specified 
-    work_dir = 'no_exclusion'
-    #xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name, seed=seed)
+    # read specified problem number
+#    work_dir = 'no_exclusion'
+#    #xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name, seed=seed)
+#    xturb,yturb = get_turb_locs(work_dir, name)
+
+    try:
+        work_dir = sys.argv[2]
+    except IndexError:
+        work_dir = 'no_exclusion--prelim'
     xturb,yturb = get_turb_locs(work_dir, name)
+
+    # re-run previous no-exclusion run, hopefully to convergence
+    work_dir = 'no_exclusion'
+    if os.path.isdir(f'{work_dir}/{name}_out'):
+        sys.exit("STOP -- don't overwrite existing results!")
+    xturb,yturb = run_opt_with_random_turbine_locs(work_dir, name,
+                                                   x_turbine=xturb,
+                                                   y_turbine=yturb)
+    
 
     for exclusions_yaml in threshold_defs:
         work_dir = os.path.splitext(exclusions_yaml)[0]

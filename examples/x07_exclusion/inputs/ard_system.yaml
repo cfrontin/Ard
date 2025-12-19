@@ -16,6 +16,7 @@ modeling_options: &modeling_options
     solver_options:
       time_limit: 60
       mip_gap: 0.02
+      #seed: 42
     model_options:
       topology: radial  # radial, branched
       feeder_route: segmented
