@@ -80,6 +80,13 @@ system:
         "tcc_per_kW",
         "offset_tcc_per_kW",
       ]
+    landuse:
+      type: component
+      module: ard.layout.fullfarm
+      object: FullFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
     landbosse:
       type: component
       module: ard.cost.wisdem_wrap
@@ -117,7 +124,7 @@ system:
 
 analysis_options:
   driver:
-    # # design-of-experiments
+    # design-of-experiments
     # name: DOEDriver
     # generator:
     #   name: LatinHypercubeGenerator
@@ -127,7 +134,7 @@ analysis_options:
     name: NSGA2
     options:
       max_gen: 5
-      pop_size: 50
+      pop_size: 10
       # Pc: 0.9
       # eta_c: 20.0
       # Pm: 0.1
@@ -165,9 +172,17 @@ analysis_options:
   objectives:
     AEP_farm:
       scaler: -1.0
-    aepFLORIS.tower_base_DEL:
+    area_tight:
       scaler: 1.0
-    collection.total_length_cables:
-      scaler: 1.0
+    # aepFLORIS.blade_root_DEL:
+    #   scaler: 1.0
+    # aepFLORIS.shaft_DEL:
+    #   scaler: 1.0
+    # aepFLORIS.tower_base_DEL:
+    #   scaler: 1.0
+    # aepFLORIS.yaw_bearings_DEL:
+    #   scaler: 1.0
+    # collection.total_length_cables:
+    #   scaler: 1.0
   recorder:
     filepath: cases.sql

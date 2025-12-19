@@ -321,16 +321,16 @@ class FLORISFarmComponent:
 
         for i, f in enumerate(self.wind_query.freq_table.flatten()):
             weighted_del_bladeroot[i * n_turbs : i * n_turbs + n_turbs] = (
-                del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
+                del_bladeroot_ann[i * n_turbs : i * n_turbs + n_turbs] * f
             )
             weighted_del_shaft[i * n_turbs : i * n_turbs + n_turbs] = (
-                del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
+                del_shaft_ann[i * n_turbs : i * n_turbs + n_turbs] * f
             )
             weighted_del_towerbase[i * n_turbs : i * n_turbs + n_turbs] = (
                 del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
             )
             weighted_del_yawbearings[i * n_turbs : i * n_turbs + n_turbs] = (
-                del_towerbase_ann[i * n_turbs : i * n_turbs + n_turbs] * f
+                del_yawbearings_ann[i * n_turbs : i * n_turbs + n_turbs] * f
             )
 
         return (
@@ -568,25 +568,25 @@ class FLORISSurrogateDELs(FLORISAEP):
         super().setup()  # run super class script first!
 
         self.add_output(
-            "blade_root_load",
+            "blade_root_DEL",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of blade root DEL across all wind conditions",
         )
         self.add_output(
-            "shaft_load",
+            "shaft_DEL",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of shaft DEL across all wind conditions",
         )
         self.add_output(
-            "tower_base_load",
+            "tower_base_DEL",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of tower base DEL across all wind conditions",
         )
         self.add_output(
-            "yaw_bearings_load",
+            "yaw_bearings_DEL",
             0.0,
             units="kN*m",
             desc="frequency weighted sum of yaw bearings DELs across all wind conditions",
@@ -598,10 +598,10 @@ class FLORISSurrogateDELs(FLORISAEP):
     def compute(self, inputs, outputs):
         super().compute(inputs, outputs)
         DEL_outputs = FLORISFarmComponent.get_DELs(self)
-        outputs["blade_root_load"] = DEL_outputs[0]
-        outputs["shaft_load"] = DEL_outputs[1]
-        outputs["tower_base_load"] = DEL_outputs[2]
-        outputs["yaw_bearings_load"] = DEL_outputs[3]
+        outputs["blade_root_DEL"] = DEL_outputs[0]
+        outputs["shaft_DEL"] = DEL_outputs[1]
+        outputs["tower_base_DEL"] = DEL_outputs[2]
+        outputs["yaw_bearings_DEL"] = DEL_outputs[3]
         outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
 
     def setup_partials(self):

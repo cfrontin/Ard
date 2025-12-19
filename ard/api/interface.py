@@ -322,4 +322,7 @@ def set_up_system_recursive(
         print(f"System {system_name} set up.")
         prob.setup()
 
+        prob.model.aepFLORIS.add_recorder(recorder)
+        prob.model.collection.add_recorder(recorder)
+
     return prob
