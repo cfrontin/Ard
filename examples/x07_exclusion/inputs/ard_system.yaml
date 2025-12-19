@@ -85,6 +85,13 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
+    eagles:
+      type: component
+      module: ard.eco.eagle_density
+      object: EagleDensityFunction
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
     tcc:
       type: component
       module: ard.cost.wisdem_wrap
@@ -158,13 +165,16 @@ analysis_options:
       units: km
       upper: 0.0
       scaler: 2.0
-    exclusion_distances:
-      units: km
-      upper: 0.0
-      scaler: 2.0
+    # exclusion_distances:
+    #   units: km
+    #   upper: 0.0
+    #   scaler: 2.0
     spacing_constraint.turbine_spacing:
       units: km
       lower: 0.5 # ~ 4D
+    eagle_normalized_density:
+      units: unitless
+      upper: 0.8
   objectives:
     financese.lcoe:
       scaler: 1.0
