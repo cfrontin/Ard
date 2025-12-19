@@ -133,8 +133,8 @@ analysis_options:
     # our NSGA2
     name: NSGA2
     options:
-      max_gen: 5  # 20
-      pop_size: 10  # 50
+      max_gen: 20
+      pop_size: 20  # 50
       # Pc: 0.9
       # eta_c: 20.0
       # Pm: 0.1

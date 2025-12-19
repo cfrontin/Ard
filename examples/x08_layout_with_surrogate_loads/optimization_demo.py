@@ -135,9 +135,9 @@ for case_id in driver_cases:
         "AEP": float(case.get_val("AEP_farm", units="GW*h")[0]),
         "area_tight": float(case.get_val("landuse.area_tight", units="km**2")[0]),
         "blade_root_DEL": float(case.get_val("aepFLORIS.blade_root_DEL", units="kN*m")[0]),
-        # "shaft_DEL": float(case.get_val("aepFLORIS.shaft_DEL", units="kN*m")[0]),
-        # "tower_base_DEL": float(case.get_val("aepFLORIS.tower_base_DEL", units="kN*m")[0]),
-        # "yaw_bearings_DEL": float(case.get_val("aepFLORIS.yaw_bearings_DEL", units="kN*m")[0]),
+        "shaft_DEL": float(case.get_val("aepFLORIS.shaft_DEL", units="kN*m")[0]),
+        "tower_base_DEL": float(case.get_val("aepFLORIS.tower_base_DEL", units="kN*m")[0]),
+        "yaw_bearings_DEL": float(case.get_val("aepFLORIS.yaw_bearings_DEL", units="kN*m")[0]),
         # "total_length_cables": float(case.get_val("collection.total_length_cables", units="km")[0]),
     }
     driver_results.append(result)
@@ -178,9 +178,9 @@ case_id_history = np.array([int(r["case_id"].split('|')[-1]) for r in driver_res
 aep_history = np.array([r["AEP"] for r in driver_results])
 area_history = np.array([r["area_tight"] for r in driver_results])
 blade_root_DEL_history = np.array([r["blade_root_DEL"] for r in driver_results])
-# shaft_DEL_history = np.array([r["shaft_DEL"] for r in driver_results])
-# tower_base_DEL_history = np.array([r["tower_base_DEL"] for r in driver_results])
-# yaw_bearings_DEL_history = np.array([r["yaw_bearings_DEL"] for r in driver_results])
+shaft_DEL_history = np.array([r["shaft_DEL"] for r in driver_results])
+tower_base_DEL_history = np.array([r["tower_base_DEL"] for r in driver_results])
+yaw_bearings_DEL_history = np.array([r["yaw_bearings_DEL"] for r in driver_results])
 # total_length_cables_history = np.array([r["total_length_cables"] for r in driver_results])
 
 # Create a correlation matrix
@@ -193,9 +193,9 @@ obj_data = pd.DataFrame({
     'AEP': aep_history,
     "Area": area_history,
     'Blade Root DEL': blade_root_DEL_history,
-    # 'Shaft DEL': shaft_DEL_history,
-    # 'Tower Base DEL': tower_base_DEL_history,
-    # 'Yaw Bearings DEL': yaw_bearings_DEL_history,
+    'Shaft DEL': shaft_DEL_history,
+    'Tower Base DEL': tower_base_DEL_history,
+    'Yaw Bearings DEL': yaw_bearings_DEL_history,
     # 'Cable Length': total_length_cables_history
 })
 obj_data["pareto_rank"] = None
@@ -220,9 +220,9 @@ obj_data.sort_values(
         "AEP",
         "Area",
         "Blade Root DEL",
-        # "Shaft DEL",
-        # "Tower Base DEL",
-        # "Yaw Bearings DEL",
+        "Shaft DEL",
+        "Tower Base DEL",
+        "Yaw Bearings DEL",
         # "Cable Length"
     ],
     ascending=False,
@@ -238,14 +238,32 @@ sns.pairplot(
         "AEP",
         "Area",
         "Blade Root DEL",
-        # "Shaft DEL",
-        # "Tower Base DEL",
-        # "Yaw Bearings DEL",
+        "Shaft DEL",
+        "Tower Base DEL",
+        "Yaw Bearings DEL",
         # "Cable Length"
     ],
     hue="is_pareto",
 )
 
 plt.savefig('aep_vs_area.png')
+plt.close()
+# plt.show()
+
+sns.pairplot(
+    data=obj_data[obj_data["is_pareto"]],
+    vars=[
+        "AEP",
+        "Area",
+        "Blade Root DEL",
+        "Shaft DEL",
+        "Tower Base DEL",
+        "Yaw Bearings DEL",
+        # "Cable Length"
+    ],
+    hue="is_pareto",
+)
+
+plt.savefig('aep_vs_area_pareto.png')
 plt.close()
 # plt.show()
