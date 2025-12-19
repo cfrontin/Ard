@@ -133,8 +133,8 @@ for case_id in driver_cases:
     result = {
         "case_id": case_id,
         "AEP": float(case.get_val("AEP_farm", units="GW*h")[0]),
-        "area_tight": float(prob.get_val("landuse.area_tight", units="km**2")[0]),
-        # "blade_root_DEL": float(case.get_val("aepFLORIS.blade_root_DEL", units="kN*m")[0]),
+        "area_tight": float(case.get_val("landuse.area_tight", units="km**2")[0]),
+        "blade_root_DEL": float(case.get_val("aepFLORIS.blade_root_DEL", units="kN*m")[0]),
         # "shaft_DEL": float(case.get_val("aepFLORIS.shaft_DEL", units="kN*m")[0]),
         # "tower_base_DEL": float(case.get_val("aepFLORIS.tower_base_DEL", units="kN*m")[0]),
         # "yaw_bearings_DEL": float(case.get_val("aepFLORIS.yaw_bearings_DEL", units="kN*m")[0]),
@@ -177,7 +177,7 @@ for case_id in driver_cases:
 case_id_history = np.array([int(r["case_id"].split('|')[-1]) for r in driver_results])
 aep_history = np.array([r["AEP"] for r in driver_results])
 area_history = np.array([r["area_tight"] for r in driver_results])
-# blade_root_DEL_history = np.array([r["blade_root_DEL"] for r in driver_results])
+blade_root_DEL_history = np.array([r["blade_root_DEL"] for r in driver_results])
 # shaft_DEL_history = np.array([r["shaft_DEL"] for r in driver_results])
 # tower_base_DEL_history = np.array([r["tower_base_DEL"] for r in driver_results])
 # yaw_bearings_DEL_history = np.array([r["yaw_bearings_DEL"] for r in driver_results])
@@ -192,7 +192,7 @@ area_history = np.array([r["area_tight"] for r in driver_results])
 obj_data = pd.DataFrame({
     'AEP': aep_history,
     "Area": area_history,
-    # 'Blade Root DEL': blade_root_DEL_history,
+    'Blade Root DEL': blade_root_DEL_history,
     # 'Shaft DEL': shaft_DEL_history,
     # 'Tower Base DEL': tower_base_DEL_history,
     # 'Yaw Bearings DEL': yaw_bearings_DEL_history,
@@ -218,8 +218,8 @@ obj_data.sort_values(
     [
         "pareto_rank",
         "AEP",
-        "Area"
-        # "Blade Root DEL",
+        "Area",
+        "Blade Root DEL",
         # "Shaft DEL",
         # "Tower Base DEL",
         # "Yaw Bearings DEL",
@@ -237,7 +237,7 @@ sns.pairplot(
     vars=[
         "AEP",
         "Area",
-        # "Blade Root DEL",
+        "Blade Root DEL",
         # "Shaft DEL",
         # "Tower Base DEL",
         # "Yaw Bearings DEL",

@@ -304,6 +304,7 @@ def set_up_system_recursive(
                     recorder = om.SqliteRecorder(recorder_filepath)
                     prob.add_recorder(recorder)
                     prob.driver.add_recorder(recorder)
+                    prob.driver.recording_options["includes"] = ["aepFLORIS.*_DEL"]  # DEBUG!!!!!
 
         # TODO! THIS IS NECESSARY FOR SOME REASON WHEN RUNNING FREE
         # OPTIMIZATIONS. THIS SHOULDN'T BE NEEDED...
@@ -321,8 +322,5 @@ def set_up_system_recursive(
         # setup the openmdao problem
         print(f"System {system_name} set up.")
         prob.setup()
-
-        prob.model.aepFLORIS.add_recorder(recorder)
-        prob.model.collection.add_recorder(recorder)
 
     return prob

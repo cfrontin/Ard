@@ -80,6 +80,6 @@ class FullFarmLanduse(ard.layout.templates.LanduseTemplate):
         lengthscale_layback = float(inputs["distance_layback_diameters"][0] * D_rotor)
 
         # area tight is equal to the convex hull area for the points in sq. km.
-        outputs["area_tight"] = (
-            mp.convex_hull.buffer(lengthscale_layback).area / 1000**2
-        )
+        area_tight = mp.convex_hull.buffer(lengthscale_layback).area / 1000**2
+        print(f"DEBUG!!!!! AREA TIGHT: {area_tight}")
+        outputs["area_tight"] = mp.convex_hull.buffer(lengthscale_layback).area / 1000**2
