@@ -138,6 +138,11 @@ for case_id in driver_cases:
         "shaft_DEL": float(case.get_val("aepFLORIS.shaft_DEL", units="kN*m")[0]),
         "tower_base_DEL": float(case.get_val("aepFLORIS.tower_base_DEL", units="kN*m")[0]),
         "yaw_bearings_DEL": float(case.get_val("aepFLORIS.yaw_bearings_DEL", units="kN*m")[0]),
+        "x_turbines": case.get_val("x_turbines", units="km"),
+        "y_turbines": case.get_val("y_turbines", units="km"),
+        "turbine_spacing": float(
+            np.min(case.get_val("spacing_constraint.turbine_spacing", units="km"))
+        ),
         # "total_length_cables": float(case.get_val("collection.total_length_cables", units="km")[0]),
     }
     driver_results.append(result)
@@ -181,6 +186,7 @@ blade_root_DEL_history = np.array([r["blade_root_DEL"] for r in driver_results])
 shaft_DEL_history = np.array([r["shaft_DEL"] for r in driver_results])
 tower_base_DEL_history = np.array([r["tower_base_DEL"] for r in driver_results])
 yaw_bearings_DEL_history = np.array([r["yaw_bearings_DEL"] for r in driver_results])
+turbine_spacing_history = np.array([r["turbine_spacing"] for r in driver_results])
 # total_length_cables_history = np.array([r["total_length_cables"] for r in driver_results])
 
 # Create a correlation matrix
@@ -189,13 +195,37 @@ yaw_bearings_DEL_history = np.array([r["yaw_bearings_DEL"] for r in driver_resul
 #     'DEL': DEL_history,
 #     'Cable Length': total_length_cables_history,
 # })
+
+# Create min-dist array
+from sklearn.neighbors import NearestNeighbors
+min_distances_history = []
+for i in range(len(driver_cases)):
+    X = np.array([r["x_turbines"] for r in driver_results])
+    Y = np.array([r["y_turbines"] for r in driver_results])
+    xy_points = np.dstack((X, Y))
+    nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(xy_points[i])
+    distances, indices = nbrs.kneighbors(xy_points[i])
+    min_distances_history.append(distances[:, 1])
+
+avg_min_distances_history = np.mean(min_distances_history, axis=1)
+
+# print(turbine_spacing_history[0])
+# print(np.shape(turbine_spacing_history))
+# print(min_distances_history[0])
+# print(np.mean(min_distances_history[0]))
+# print(avg_min_distances_history[0])
+# lll
+
+
 obj_data = pd.DataFrame({
-    'AEP': aep_history,
-    "Area": area_history,
-    'Blade Root DEL': blade_root_DEL_history,
-    'Shaft DEL': shaft_DEL_history,
-    'Tower Base DEL': tower_base_DEL_history,
-    'Yaw Bearings DEL': yaw_bearings_DEL_history,
+    'AEP [GWh]': aep_history,
+    "Area [km^2]": area_history,
+    'Blade Root DEL [kNm]': blade_root_DEL_history,
+    'Shaft DEL [kNm]': shaft_DEL_history,
+    'Tower Base DEL [kNm]': tower_base_DEL_history,
+    'Yaw Bearings DEL [kNm]': yaw_bearings_DEL_history,
+    'Avg Min Turbine Spacing [D]': avg_min_distances_history * 1000 / 130., # normalize by rotor diameter
+    'turbine_spacing': turbine_spacing_history,
     # 'Cable Length': total_length_cables_history
 })
 obj_data["pareto_rank"] = None
@@ -217,12 +247,14 @@ for pareto_rank, indices in enumerate(idx_pareto):
 obj_data.sort_values(
     [
         "pareto_rank",
-        "AEP",
-        "Area",
-        "Blade Root DEL",
-        "Shaft DEL",
-        "Tower Base DEL",
-        "Yaw Bearings DEL",
+        "AEP [GWh]",
+        "Area [km^2]",
+        "Blade Root DEL [kNm]",
+        "Shaft DEL [kNm]",
+        "Tower Base DEL [kNm]",
+        "Yaw Bearings DEL [kNm]",
+        "Avg Min Turbine Spacing [D]",
+        "turbine_spacing",
         # "Cable Length"
     ],
     ascending=False,
@@ -230,17 +262,25 @@ obj_data.sort_values(
 )
 obj_data["is_pareto"] = (obj_data["pareto_rank"] == 0)
 
-print(obj_data)
+# print(obj_data)
+# data_pareto = obj_data[obj_data["is_pareto"]]
+# print(data_pareto)
+# print(data_pareto.keys())
+# print(data_pareto["Avg Min Turbine Spacing [D]"][0])
+# print(data_pareto["turbine_spacing"][0])
+# lll
+
 
 sns.pairplot(
     data=obj_data,
     vars=[
-        "AEP",
-        "Area",
-        "Blade Root DEL",
-        "Shaft DEL",
-        "Tower Base DEL",
-        "Yaw Bearings DEL",
+        "AEP [GWh]",
+        "Area [km^2]",
+        "Blade Root DEL [kNm]",
+        "Shaft DEL [kNm]",
+        "Tower Base DEL [kNm]",
+        "Yaw Bearings DEL [kNm]",
+        "Avg Min Turbine Spacing [D]",
         # "Cable Length"
     ],
     hue="is_pareto",
@@ -253,12 +293,13 @@ plt.close()
 sns.pairplot(
     data=obj_data[obj_data["is_pareto"]],
     vars=[
-        "AEP",
-        "Area",
-        "Blade Root DEL",
-        "Shaft DEL",
-        "Tower Base DEL",
-        "Yaw Bearings DEL",
+        "AEP [GWh]",
+        "Area [km^2]",
+        "Blade Root DEL [kNm]",
+        "Shaft DEL [kNm]",
+        "Tower Base DEL [kNm]",
+        "Yaw Bearings DEL [kNm]",
+        "Avg Min Turbine Spacing [D]",
         # "Cable Length"
     ],
     hue="is_pareto",
