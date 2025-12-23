@@ -230,10 +230,12 @@ obj_data = pd.DataFrame({
 })
 obj_data["pareto_rank"] = None
 
+constraint_feasible = turbine_spacing_history >= input_dict['analysis_options']['constraints']['spacing_constraint.turbine_spacing']['lower']
+
 idx_pareto = opt_drivers.nsga2.fast_nondom_sort.fast_nondom_sort(
     np.vstack([
-        -aep_history,
-        area_history,
+        -aep_history[constraint_feasible],
+        area_history[constraint_feasible],
         # blade_root_DEL_history,
         # shaft_DEL_history,
         # tower_base_DEL_history,
@@ -241,9 +243,11 @@ idx_pareto = opt_drivers.nsga2.fast_nondom_sort.fast_nondom_sort(
         # total_length_cables_history
     ]).T
 )
+
+constraint_feasible_idx_map = np.where(constraint_feasible)[0]
 for pareto_rank, indices in enumerate(idx_pareto):
     for index in indices:
-        obj_data.loc[index, "pareto_rank"] = pareto_rank
+        obj_data.loc[constraint_feasible_idx_map[index], "pareto_rank"] = pareto_rank
 obj_data.sort_values(
     [
         "pareto_rank",
@@ -261,6 +265,7 @@ obj_data.sort_values(
     inplace=True,
 )
 obj_data["is_pareto"] = (obj_data["pareto_rank"] == 0)
+obj_data["is_feasible"] = constraint_feasible
 
 # print(obj_data)
 # data_pareto = obj_data[obj_data["is_pareto"]]
@@ -272,7 +277,7 @@ obj_data["is_pareto"] = (obj_data["pareto_rank"] == 0)
 
 
 sns.pairplot(
-    data=obj_data,
+    data=obj_data[obj_data["is_feasible"]],
     vars=[
         "AEP [GWh]",
         "Area [km^2]",
@@ -281,12 +286,13 @@ sns.pairplot(
         "Tower Base DEL [kNm]",
         "Yaw Bearings DEL [kNm]",
         "Avg Min Turbine Spacing [D]",
+        "turbine_spacing",
         # "Cable Length"
     ],
     hue="is_pareto",
 )
 
-plt.savefig('aep_vs_area.png')
+plt.savefig('aep_vs_area_feasible.png')
 plt.close()
 # plt.show()
 
@@ -300,6 +306,7 @@ sns.pairplot(
         "Tower Base DEL [kNm]",
         "Yaw Bearings DEL [kNm]",
         "Avg Min Turbine Spacing [D]",
+        "turbine_spacing",
         # "Cable Length"
     ],
     hue="is_pareto",

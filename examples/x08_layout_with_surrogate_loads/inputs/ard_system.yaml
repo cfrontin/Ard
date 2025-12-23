@@ -133,7 +133,7 @@ analysis_options:
     # our NSGA2
     name: NSGA2
     options:
-      max_gen: 20
+      max_gen: 10
       pop_size: 20  # 50
       # Pc: 0.9
       # eta_c: 20.0
@@ -153,22 +153,22 @@ analysis_options:
   design_variables:
     x_turbines:
       units: km
-      lower: -1.0
-      upper: 1.0
-      scaler: 1.0e1
+      lower: -1.5
+      upper: 1.5
+      scaler: 1.0e-1
     y_turbines:
       units: km
-      lower: -1.0
-      upper: 1.0
-      scaler: 1.0e1
+      lower: -1.5
+      upper: 1.5
+      scaler: 1.0e-1
   constraints:
-    boundary_distances:
-      units: km
-      upper: 0.0
-      scaler: 2.0
+    # boundary_distances:
+    #   units: km
+    #   upper: 0.0
+    #   scaler: 2.0
     spacing_constraint.turbine_spacing:
       units: km
-      lower: 0.552
+      lower: 0.325
   objectives:
     AEP_farm:
       scaler: -1.0
