@@ -10,6 +10,8 @@ modeling_options: &modeling_options
   floris:
     peak_shaving_fraction: 0.2
     peak_shaving_TI_threshold: 0.0
+  ssrs:
+    presence_density_map: !load_npz eagle_presence_density.npz
   collection:
     max_turbines_per_string: 8
     solver_name: highs
@@ -64,13 +66,13 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-    exclusions:
-      type: component
-      module: ard.layout.exclusions
-      object: FarmExclusionDistancePolygon
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
+#    exclusions:
+#      type: component
+#      module: ard.layout.exclusions
+#      object: FarmExclusionDistancePolygon
+#      promotes: ["*"]
+#      kwargs:
+#        modeling_options: *modeling_options
     collection:
       type: component
       module: ard.collection.optiwindnet_wrap
@@ -174,7 +176,8 @@ analysis_options:
       lower: 0.5 # ~ 4D
     eagle_normalized_density:
       units: unitless
-      upper: 0.8
+      upper: 0.48
+      scaler: 1.0
   objectives:
     financese.lcoe:
       scaler: 1.0

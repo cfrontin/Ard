@@ -4,6 +4,8 @@ from os import PathLike
 import os
 import yaml
 
+import numpy as np
+
 
 class Loader(yaml.SafeLoader):
 
@@ -20,8 +22,18 @@ class Loader(yaml.SafeLoader):
         with open(filename, "r") as f:
             return yaml.load(f, self.__class__)
 
+    def load_npz(self, node):
+
+        filename = os.path.join(self._root, self.construct_scalar(node))
+
+        with np.load(filename) as data:
+            # convert NpzFile object to a Python dict
+            # convert arrays to lists for YAML compatibility
+            return {key: data[key].tolist() for key in data.files}
+
 
 Loader.add_constructor("!include", Loader.include)
+Loader.add_constructor("!load_npz", Loader.load_npz)
 
 
 def load_yaml(filename, loader=Loader, return_path=False) -> dict:
