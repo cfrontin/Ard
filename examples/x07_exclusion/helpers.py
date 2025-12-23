@@ -1,5 +1,6 @@
 import glob
 import numpy as np
+import ast
 import openmdao.api as om
 
 
@@ -46,6 +47,40 @@ def postproc_workdir(dpath,prefix,full_hist=False):
             pass
 
     return lcoe_hist, x_turbine, y_turbine, exclusion_dist
+
+
+def scrape_log(log):
+    lcoe_vals = []
+    xturb_vals = []
+    yturb_vals = []
+    dvstr = ''
+    readdv = False
+    with open(log, 'r') as f:
+        for line in f:
+            line = line.strip()
+
+            if line.startswith("'LCOE_val'"):
+                lcoe_vals.append(float(line.rstrip(',').split()[-1]))
+
+                # parse turb locs (can't handle numpy array)
+                dvstr = dvstr.replace('array(','')
+                dvstr = dvstr.replace(')','')
+                dv = ast.literal_eval(dvstr)
+
+                xturb_vals.append(np.array(dv['x_turbines']))
+                yturb_vals.append(np.array(dv['y_turbines']))
+
+            elif line == 'Design Vars':
+                assert readdv == False
+                readdv = True
+                dvstr = ''
+            elif line == '' and readdv:
+                readdv = False
+            elif readdv:
+                dvstr += line
+
+    return lcoe_vals, xturb_vals, yturb_vals
+
 
 def normalize_layout(x, y):
     """
