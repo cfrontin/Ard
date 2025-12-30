@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import RectBivariateSpline
 
 import openmdao.api as om
 
@@ -36,6 +37,7 @@ class EagleDensityFunction(om.ExplicitComponent):
         """Initialization of OM component."""
         self.options.declare("modeling_options")
 
+
     def setup(self):
         """Setup of OM component."""
 
@@ -44,7 +46,11 @@ class EagleDensityFunction(om.ExplicitComponent):
         self.windIO = self.modeling_options["windIO_plant"]
         self.N_turbines = modeling_options["layout"]["N_turbines"]
 
-        # self.eagle_density_function = lambda x, y: ???
+        self.pres = self.modeling_options['ssrs']['presence_density_map']
+        self.eagle_density_function = RectBivariateSpline(self.pres['x'],
+                                                          self.pres['y'],
+                                                          self.pres['normalized_presence_density'])
+        print('Created density interpolator')
 
         # add the full layout inputs
         self.add_input(
@@ -77,8 +83,5 @@ class EagleDensityFunction(om.ExplicitComponent):
         x_turbines = inputs["x_turbines"]  # m
         y_turbines = inputs["y_turbines"]  # m
 
-        raise NotImplementedError(
-            "@Eliot, you need to implement this!!!"
-        )
-
-        outputs["eagle_normalized_density"] = y  # on [0, 1]
+        outputs["eagle_normalized_density"] = [self.eagle_density_function(xt,yt)
+                                               for xt,yt in zip(x_turbines,y_turbines)]

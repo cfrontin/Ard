@@ -1,16 +1,6 @@
 modeling_options: &modeling_options
   windIO_plant: !include windio.yaml
-  heterogeneous_map:
-    x: [-100.0, -100.0, 1500.0, 1500.0, 1030.39]
-    y: [-100.0, 1500.0, 1500.0, -100.0, 919.56]
-    speed_multipliers: [
-      [1.0, 1.0, 1.0, 1.0, 1.125],
-      [1.0, 1.0, 1.0, 1.0, 1.125],
-      [1.0, 1.0, 1.0, 1.0, 1.125],
-    ]
-    wind_directions: [0.0, 157.5, 270.0]
-    wind_speeds: [6.0, 7.5, 12.0]
-    interp_method: linear
+  heterogeneous_map: !include wind_map.yaml
   layout:
     type: gridfarm
     N_turbines: 7
@@ -20,12 +10,15 @@ modeling_options: &modeling_options
   floris:
     peak_shaving_fraction: 0.2
     peak_shaving_TI_threshold: 0.0
+  ssrs:
+    presence_density_map: !load_npz eagle_presence_density.npz
   collection:
     max_turbines_per_string: 8
     solver_name: highs
     solver_options:
       time_limit: 60
       mip_gap: 0.02
+      #seed: 42
     model_options:
       topology: radial  # radial, branched
       feeder_route: segmented
@@ -33,22 +26,25 @@ modeling_options: &modeling_options
   offshore: false
   floating: false
   costs:
-    rated_power: 3400000.0  # W
+    # generated from WISDEM (v3.13.x)
+    # https://github.com/NREL/openfast-turbine-models/blob/main/IEA-scaled/NREL-2.8-127/20_monolithic_opt2/NREL-2.8-127.yaml
+    # converted with https://github.com/IEAWindSystems/windIO/tree/main/windIO/converters
+    rated_power: 2820000.0  # W
     num_blades: 3
-    rated_thrust_N: 645645.83964671
+    rated_thrust_N: 394071.5511477288
     gust_velocity_m_per_s: 52.5
-    blade_surface_area: 69.7974979
-    tower_mass: 620.4407337521
-    nacelle_mass: 101.98582836439
-    hub_mass: 8.38407517646
-    blade_mass: 14.56341339641
+    blade_surface_area: 59.707910759797734
+    tower_mass: 178.86839386450217
+    nacelle_mass: 83.28780050671293
+    hub_mass: 7.728056554744464
+    blade_mass: 13.986721230923094
     foundation_height: 0.0
     commissioning_cost_kW: 44.0
     decommissioning_cost_kW: 58.0
     trench_len_to_substation_km: 50.0
     distance_to_interconnect_mi: 4.97096954
     interconnect_voltage_kV: 130.0
-    tcc_per_kW: 1300.00  # (USD/kW)
+    tcc_per_kW: 706.411091392774  # (USD/kW)
     opex_per_kW: 44.00  # (USD/kWh)
 
 system:
@@ -70,13 +66,13 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-    exclusions:
-      type: component
-      module: ard.layout.exclusions
-      object: FarmExclusionDistancePolygon
-      promotes: ["*"]
-      kwargs:
-        modeling_options: *modeling_options
+#    exclusions:
+#      type: component
+#      module: ard.layout.exclusions
+#      object: FarmExclusionDistancePolygon
+#      promotes: ["*"]
+#      kwargs:
+#        modeling_options: *modeling_options
     collection:
       type: component
       module: ard.collection.optiwindnet_wrap
@@ -149,8 +145,9 @@ analysis_options:
     options:
       optimizer: COBYLA
       opt_settings:
-        rhobeg: 2.0
-        maxiter: 250
+        rhobeg: 1.0  # initial exploration scale
+        #maxiter: 250
+        maxiter: 50
       debug_print:
         - desvars
         - objs
@@ -159,12 +156,12 @@ analysis_options:
       units: km
       lower: -0.100
       upper:  2.100
-      scaler: 0.5
+      scaler: 2.0  # rhobeg [units] / scaler = 500 m
     y_turbines:
       units: km
       lower: -0.500
       upper:  2.300
-      scaler: 0.5
+      scaler: 2.0  # rhobeg [units] / scaler = 500 m
   constraints:
     boundary_distances:
       units: km
@@ -176,10 +173,11 @@ analysis_options:
     #   scaler: 2.0
     spacing_constraint.turbine_spacing:
       units: km
-      lower: 0.552
+      lower: 0.5 # ~ 4D
     eagle_normalized_density:
       units: unitless
-      upper: 0.8
+      upper: 0.48
+      scaler: 1.0
   objectives:
     financese.lcoe:
       scaler: 1.0

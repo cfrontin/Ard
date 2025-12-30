@@ -54,7 +54,7 @@ conda install python=3.12
 
 #### Or, on Intel
 ```shell
-create --name ard-env
+conda create --name ard-env
 conda activate ard-env
 conda install python=3.12 pip mamba -y
 ```
