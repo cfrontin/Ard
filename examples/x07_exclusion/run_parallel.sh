@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ard
 #SBATCH --account=erf
-#SBATCH --time=8:00:00
+#SBATCH --time=10:00:00
 #SBATCH --ntasks=96
 #SBATCH -N 1
 #SBATCH --exclusive
@@ -23,8 +23,10 @@ NPROCS=8 # 0.83 min for 50 iters
 NPROCS=96 # 1.5 min for 50 iters
 
 prefix='nonuniform'
+export prefix
+
 starts=`seq 0 1023`
-threshold_values='0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.8 0.9 1'  # 21
+threshold_values='0.18 0.2 0.22 0.24 0.25 0.26 0.27 0.28 0.29 0.3 0.31 0.32 0.33 0.34 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.8 0.9 1'  # 25
 
 run_opt() {
     probnum=$1
@@ -33,8 +35,7 @@ run_opt() {
     work_dir="thresh_${thresh}"
     mkdir -p $work_dir
 
-    prefix="${work_dir}/nonuniform"
-    outfile="${prefix}${probnum}.log"
+    outfile="${work_dir}/${prefix}${probnum}.log"
 
     if grep '^Optimization' $outfile &> /dev/null; then
         echo "Skipping opt prob $probnum with thresh=$thresh"
