@@ -133,8 +133,8 @@ analysis_options:
     # our NSGA2
     name: NSGA2
     options:
-      max_gen: 10
-      pop_size: 20  # 50
+      max_gen: 60
+      pop_size: 80  # 50
       # Pc: 0.9
       # eta_c: 20.0
       # Pm: 0.1
@@ -168,7 +168,7 @@ analysis_options:
     #   scaler: 2.0
     spacing_constraint.turbine_spacing:
       units: km
-      lower: 0.325
+      lower: 0.260
   objectives:
     AEP_farm:
       scaler: -1.0

@@ -248,6 +248,8 @@ constraint_feasible_idx_map = np.where(constraint_feasible)[0]
 for pareto_rank, indices in enumerate(idx_pareto):
     for index in indices:
         obj_data.loc[constraint_feasible_idx_map[index], "pareto_rank"] = pareto_rank
+obj_data["is_pareto"] = (obj_data["pareto_rank"] == 0)
+obj_data["is_feasible"] = constraint_feasible
 obj_data.sort_values(
     [
         "pareto_rank",
@@ -264,8 +266,7 @@ obj_data.sort_values(
     ascending=False,
     inplace=True,
 )
-obj_data["is_pareto"] = (obj_data["pareto_rank"] == 0)
-obj_data["is_feasible"] = constraint_feasible
+
 
 # print(obj_data)
 # data_pareto = obj_data[obj_data["is_pareto"]]
@@ -315,3 +316,6 @@ sns.pairplot(
 plt.savefig('aep_vs_area_pareto.png')
 plt.close()
 # plt.show()
+
+obj_data.to_pickle(prob.get_outputs_dir() / "obj_data")
+
