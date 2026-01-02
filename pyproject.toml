@@ -49,6 +49,7 @@ dependencies = [
   "openmdao",
   "optiwindnet>=0.0.6",
   "pyyaml",
+  "scikit-learn",
   "seaborn",
   "shapely",
   "statsmodels",
