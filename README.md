@@ -46,7 +46,7 @@ At this point, although not strictly required, we recommend creating a dedicated
 #### On Apple silicon
 For Apple silicon, we recommend installing Ard natively.
 ```shell
-conda CONDA_SUBDIR=osx-arm64 conda create -n ard-env 
+CONDA_SUBDIR=osx-arm64 conda create -n ard-env 
 conda activate ard-env
 conda env config vars set CONDA_SUBDIR=osx-arm64 # this command makes the environment permanently native
 conda install python=3.12
