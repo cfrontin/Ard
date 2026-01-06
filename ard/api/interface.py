@@ -1,6 +1,7 @@
 import importlib
 import openmdao.api as om
 from openmdao.drivers.doe_driver import DOEGenerator
+from wisdem.optimization_drivers.nsga2_driver import NSGA2Driver
 from openmdao.utils.file_utils import clean_outputs
 from wisdem.optimization_drivers.nsga2_driver import NSGA2Driver
 from ard.utils.io import load_yaml, replace_key_value
