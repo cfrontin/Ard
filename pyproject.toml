@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 # https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["ard", "ard.*"]
+include = ["ard", "ard.*", "flowers"]
 
 [tool.setuptools.package-data]
 "ard.api.default_systems" = ["*.yaml"]
