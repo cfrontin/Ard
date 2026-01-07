@@ -20,6 +20,7 @@ def test_regression_aep():
         Path(flowers.__file__).parent,
         "..",
         "examples",
+        "flowers",
         "inputs",
         "HKW_wind_rose.csv",
     )
