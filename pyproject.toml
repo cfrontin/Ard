@@ -23,6 +23,7 @@ authors = [
   {name = "Cory Frontin", email = "cory.frontin@nrel.gov"},
   {name = "Rafael Mudafort", email = "rafael.mudafort@nrel.gov"},
   {name = "Jared Thomas", email = "jared.thomas@nrel.gov"},
+  {name = "Christopher Bay", email = "christopher.bay@nrel.gov"},
 ]
 description = "A package for multidisciplinary and/or multifidelity wind farm design"
 readme= "README.md"
@@ -39,6 +40,9 @@ classifiers = [
 ]
 dependencies = [
   "numpy",
+  "matplotlib",
+  "scipy",
+  "pandas",
   "floris>=4.3",
   "wisdem>=3.21",
   "NLopt",

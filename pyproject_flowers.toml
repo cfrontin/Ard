@@ -16,7 +16,6 @@ packages = ["flowers"]
 name = "FLOWERS"
 version = "1.0.0-alpha0"
 authors = [
-  {name = "Christopher Bay", email = "christopher.bay@nrel.gov"},
 ]
 description = "A package for rapid energy simulation of wind farms"
 readme= "README.md"
