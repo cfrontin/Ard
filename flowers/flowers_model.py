@@ -245,17 +245,19 @@ class FlowersModel():
 
         # Normalize wind speed by cut-out speed
         wr["ws"] /= self.U
-        u_ct_table = np.array(u_ct_table)/self.U
-        u_cp_table = np.array(u_cp_table)/self.U
+        u_ct_table = None if u_ct_table is None else np.array(u_ct_table)/self.U
+        u_cp_table = None if u_cp_table is None else np.array(u_cp_table)/self.U
 
         # Look up thrust and power coefficients for each wind direction bin
         if (u_ct_table is None) or (ct_table is None):
             ct = tl.ct_lookup(wr.ws,self.turbine)
         else:
+            # pull out the thrust lookup interpolation
             ct = np.interp(wr.ws, u_ct_table, ct_table)
         if (u_cp_table is None) or (cp_table is None):
             cp = tl.cp_lookup(wr.ws,self.turbine)
         else:
+            # pull out the power lookup interpolation
             cp = np.interp(wr.ws, u_cp_table, cp_table)
 
         # Average freestream term
