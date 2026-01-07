@@ -1,4 +1,3 @@
-
 import copy
 
 import numpy as np
@@ -14,6 +13,7 @@ from shapely.geometry import Polygon, Point
 # Layout generation
 ###########################################################################
 
+
 def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
     """
     Generate a random wind farm layout within the specified boundaries.
@@ -27,7 +27,7 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
         min_dist (float): enforced minimum spacing between turbine centers
             normalized by rotor diameter
         idx (int, optional): random number generator seed
-    
+
     Args:
         xx (np.array): x-positions of each turbine
         yy (np.array): y-positions of each turbine
@@ -39,7 +39,7 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
     # Verify that boundaries and turbines are supplied
     if not boundaries:
         raise ValueError("Must supply boundaries to generate wind farm.")
-    
+
     if n_turb <= 0:
         raise ValueError("Must supply number of turbines.")
 
@@ -47,8 +47,8 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
     if idx != None:
         np.random.seed(idx)
 
-    xx = -1000*np.ones(n_turb)
-    yy = -1000*np.ones(n_turb)
+    xx = -1000 * np.ones(n_turb)
+    yy = -1000 * np.ones(n_turb)
 
     xmin = np.min([tup[0] for tup in boundaries])
     xmax = np.max([tup[0] for tup in boundaries])
@@ -63,7 +63,9 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
         prop_x = np.random.uniform(low=xmin, high=xmax)
         prop_y = np.random.uniform(low=ymin, high=ymax)
         pt = Point(prop_x, prop_y)
-        while np.any(np.sqrt((prop_x - xx)**2 + (prop_y - yy)**2) < min_dist*D) or not pt.within(poly):
+        while np.any(
+            np.sqrt((prop_x - xx) ** 2 + (prop_y - yy) ** 2) < min_dist * D
+        ) or not pt.within(poly):
             prop_x = np.random.uniform(low=xmin, high=xmax)
             prop_y = np.random.uniform(low=ymin, high=ymax)
             pt = Point(prop_x, prop_y)
@@ -71,6 +73,7 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
         yy[i] = prop_y
 
     return xx, yy
+
 
 def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
     """
@@ -85,7 +88,7 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
         min_dist (float): enforced minimum spacing between turbine centers
             normalized by rotor diameter
         idx (int, optional): random number generator seed
-    
+
     Args:
         xx (np.array): x-positions of each turbine
         yy (np.array): y-positions of each turbine
@@ -93,7 +96,7 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
     """
 
     print("Generating wind farm layout.")
-    
+
     if n_turb <= 0:
         raise ValueError("Must supply number of turbines.")
 
@@ -107,42 +110,44 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
     # Indices of discrete grid
     sx = n_turb + 1
     sy = 6
-    x_idx = np.random.randint(0,sx,n_turb)
-    y_idx = np.random.randint(0,sy,n_turb)
-    pts = [(x_idx[i],y_idx[i]) for i in range(n_turb)]
+    x_idx = np.random.randint(0, sx, n_turb)
+    y_idx = np.random.randint(0, sy, n_turb)
+    pts = [(x_idx[i], y_idx[i]) for i in range(n_turb)]
     while len(np.unique(pts)) < len(pts):
         tmp = np.unique(pts)
         new_set = []
         for i in range(n_turb):
             if i not in tmp:
                 new_set.append(i)
-        x_idx[new_set] = np.random.randint(0,sx,len(new_set))
-        y_idx[new_set] = np.random.randint(0,sy,len(new_set))
-        pts = [(x_idx[i],y_idx[i]) for i in range(n_turb)]
+        x_idx[new_set] = np.random.randint(0, sx, len(new_set))
+        y_idx[new_set] = np.random.randint(0, sy, len(new_set))
+        pts = [(x_idx[i], y_idx[i]) for i in range(n_turb)]
 
     # Check that all combinations of x,y are unique
 
-    xx = np.array(min_dist*D * x_idx)
-    yy = np.array(min_dist*D * y_idx)
+    xx = np.array(min_dist * D * x_idx)
+    yy = np.array(min_dist * D * y_idx)
 
     if spacing:
-        x_rel = (xx - np.reshape(xx,(-1,1)))/D
-        y_rel = (yy - np.reshape(yy,(-1,1)))/D
+        x_rel = (xx - np.reshape(xx, (-1, 1))) / D
+        y_rel = (yy - np.reshape(yy, (-1, 1))) / D
         r_rel = np.sqrt(x_rel**2 + y_rel**2)
-        r_rel = np.ma.masked_where(np.eye(len(xx)),r_rel)
-        ss = np.mean(np.min(r_rel,-1))
+        r_rel = np.ma.masked_where(np.eye(len(xx)), r_rel)
+        ss = np.mean(np.min(r_rel, -1))
         return xx, yy, ss
     else:
         return xx, yy
 
+
 def load_layout(idx, case, boundaries=True):
-    file = './layouts/' + case + str(idx) + '.p'
-    layout_x, layout_y, boundaries = pickle.load(open(file,'rb'))
+    file = "./layouts/" + case + str(idx) + ".p"
+    layout_x, layout_y, boundaries = pickle.load(open(file, "rb"))
 
     if boundaries:
         return layout_x, layout_y, boundaries
     else:
         return layout_x, layout_y
+
 
 ###########################################################################
 # Wind rose sampling
@@ -155,7 +160,7 @@ def load_layout(idx, case, boundaries=True):
 #     Args:
 #         lat (float): latitude of wind farm site (in continental US)
 #         long (float): longitude of wind farm site (in continental US)
-    
+
 #     Returns:
 #         df (pandas.DataFrame): A dataframe for the wind rose in the FLORIS
 #             format containing the following information:
@@ -177,6 +182,7 @@ def load_layout(idx, case, boundaries=True):
 #     )
 #     return df
 
+
 def load_wind_rose(idx):
     """
     Load a locally-stored wind rose saved to a pickle file.
@@ -184,7 +190,7 @@ def load_wind_rose(idx):
 
     Args:
         idx (int): index of desired wind rose
-    
+
     Returns:
         df (pandas.DataFrame): A dataframe for the wind rose in the FLORIS
             format containing the following information:
@@ -195,10 +201,11 @@ def load_wind_rose(idx):
     """
 
     print("Generating wind rose.")
-    file_name = './wind_roses/wr' + str(idx) + '.p'
+    file_name = "./wind_roses/wr" + str(idx) + ".p"
     df = pd.read_pickle(file_name)
-    
+
     return df
+
 
 def resample_wind_direction(df, wd=np.arange(0, 360, 5.0)):
     """
@@ -245,7 +252,7 @@ def resample_wind_direction(df, wd=np.arange(0, 360, 5.0)):
     df["wd"] = tmp
 
     if negative_overhang < 0:
-        #print("Correcting negative Overhang:%.1f" % negative_overhang)
+        # print("Correcting negative Overhang:%.1f" % negative_overhang)
         df["wd"] = np.where(
             df.wd.values >= 360.0 + negative_overhang,
             df.wd.values - 360.0,
@@ -254,7 +261,7 @@ def resample_wind_direction(df, wd=np.arange(0, 360, 5.0)):
 
     # Check on other side
     if positive_overhang > 0:
-        #print("Correcting positive Overhang:%.1f" % positive_overhang)
+        # print("Correcting positive Overhang:%.1f" % positive_overhang)
         df["wd"] = np.where(
             df.wd.values <= positive_overhang, df.wd.values + 360.0, df.wd.values
         )
@@ -275,13 +282,14 @@ def resample_wind_direction(df, wd=np.arange(0, 360, 5.0)):
     for c in [c for c in df.columns if c != "freq_val"]:
         df[c] = df[c].astype(float)
         df[c] = df[c].astype(float)
-    
+
     tmp = df.wd
     tmp = np.where(tmp < 0.0, tmp + 360.0, tmp)
     tmp = np.where(tmp >= 360.0, tmp - 360.0, tmp)
     df["wd"] = tmp
 
     return df
+
 
 def resample_wind_speed(df, ws=np.arange(0, 26, 1.0)):
     """
@@ -335,8 +343,9 @@ def resample_wind_speed(df, ws=np.arange(0, 26, 1.0)):
 
     return df
 
+
 def resample_average_ws_by_wd(wind_rose):
-        """
+    """
         Calculate the mean wind speed for each wind direction bin
         and resample the wind rose. (Copied from FLORIS)
 
@@ -355,53 +364,54 @@ def resample_average_ws_by_wd(wind_rose):
             - 'freq_val': The resampled frequency of occurance of the
                 wind conditions in the other columns.
 
-        """
-        # Make a copy of incoming FLORIS WindRose object
-        df = copy.deepcopy(wind_rose)
-        # wind_rose = copy.deepcopy(wind_rose)
+    """
+    # Make a copy of incoming FLORIS WindRose object
+    df = copy.deepcopy(wind_rose)
+    # wind_rose = copy.deepcopy(wind_rose)
 
-        ws_avg = []
+    ws_avg = []
 
-        for val in df.wd.unique():
-            ws_avg.append(
-                np.array(
-                    df.loc[df["wd"] == val]["ws"] * df.loc[df["wd"] == val]["freq_val"]
-                ).sum()
-                / df.loc[df["wd"] == val]["freq_val"].sum()
-            )
+    for val in df.wd.unique():
+        ws_avg.append(
+            np.array(
+                df.loc[df["wd"] == val]["ws"] * df.loc[df["wd"] == val]["freq_val"]
+            ).sum()
+            / df.loc[df["wd"] == val]["freq_val"].sum()
+        )
 
-        # freq_avg = np.sum(wind_rose.freq_table, axis=1)
-        # ws_avg = np.sum(
-        #     wind_rose.freq_table * wind_rose.wind_speeds.reshape(1, -1), axis=1
-        # ) / freq_avg
+    # freq_avg = np.sum(wind_rose.freq_table, axis=1)
+    # ws_avg = np.sum(
+    #     wind_rose.freq_table * wind_rose.wind_speeds.reshape(1, -1), axis=1
+    # ) / freq_avg
 
-        # print(wind_rose.wind_directions)
-        # print(wind_rose.freq_table)
-        # print(ws_avg)
-        # lkj
-        # df = pd.DataFrame()
-        # df["wd"] = wind_rose.wind_directions
-        # df["ws"] = ws_avg
-        # df["freq_val"] = freq_avg
+    # print(wind_rose.wind_directions)
+    # print(wind_rose.freq_table)
+    # print(ws_avg)
+    # lkj
+    # df = pd.DataFrame()
+    # df["wd"] = wind_rose.wind_directions
+    # df["ws"] = ws_avg
+    # df["freq_val"] = freq_avg
 
-        # Regroup
-        df = df.groupby("wd").sum()
+    # Regroup
+    df = df.groupby("wd").sum()
 
-        df["ws"] = ws_avg
+    df["ws"] = ws_avg
 
-        # Reset the index
-        df = df.reset_index()
+    # Reset the index
+    df = df.reset_index()
 
-        # Set to float
-        df["ws"] = df.ws.astype(float)
-        df["wd"] = df.wd.astype(float)
+    # Set to float
+    df["ws"] = df.ws.astype(float)
+    df["wd"] = df.wd.astype(float)
 
-        return df
+    return df
 
 
 ###########################################################################
 # Turbine parameter tables
 ###########################################################################
+
 
 def ct_lookup(u, turbine_type, ct=None):
     """
@@ -417,21 +427,125 @@ def ct_lookup(u, turbine_type, ct=None):
 
     if ct != None:
         ct_table = np.array([0.0, 0.0, ct, ct, 0.0, 0.0])
-        u_table = 1/25. * np.array([0.0, 2.0, 2.5, 25.01, 25.02, 50.])
-    elif turbine_type == 'nrel_5MW':
-        ct_table = np.array([0.0, 0.0, 0.0, 0.99, 0.99, 0.97373036, 0.92826162, 0.89210543,
-        0.86100905, 0.835423, 0.81237673, 0.79225789, 0.77584769, 0.7629228, 0.76156073,
-        0.76261984, 0.76169723, 0.75232027, 0.74026851, 0.72987175, 0.70701647, 0.54054532,
-        0.45509459, 0.39343381, 0.34250785, 0.30487242, 0.27164979, 0.24361964, 0.21973831,
-        0.19918151, 0.18131868, 0.16537679, 0.15103727, 0.13998636, 0.1289037, 0.11970413,
-        0.11087113, 0.10339901, 0.09617888, 0.09009926, 0.08395078, 0.0791188, 0.07448356,
-        0.07050731, 0.06684119, 0.06345518, 0.06032267, 0.05741999, 0.05472609, 0.0, 0.0])
-        u_table = 1 / 25. * np.array([0.0, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0,
-        6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5,
-        14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0,
-        20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, 25.0, 25.01, 25.02, 50.0])
+        u_table = 1 / 25.0 * np.array([0.0, 2.0, 2.5, 25.01, 25.02, 50.0])
+    elif turbine_type == "nrel_5MW":
+        ct_table = np.array(
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.99,
+                0.99,
+                0.97373036,
+                0.92826162,
+                0.89210543,
+                0.86100905,
+                0.835423,
+                0.81237673,
+                0.79225789,
+                0.77584769,
+                0.7629228,
+                0.76156073,
+                0.76261984,
+                0.76169723,
+                0.75232027,
+                0.74026851,
+                0.72987175,
+                0.70701647,
+                0.54054532,
+                0.45509459,
+                0.39343381,
+                0.34250785,
+                0.30487242,
+                0.27164979,
+                0.24361964,
+                0.21973831,
+                0.19918151,
+                0.18131868,
+                0.16537679,
+                0.15103727,
+                0.13998636,
+                0.1289037,
+                0.11970413,
+                0.11087113,
+                0.10339901,
+                0.09617888,
+                0.09009926,
+                0.08395078,
+                0.0791188,
+                0.07448356,
+                0.07050731,
+                0.06684119,
+                0.06345518,
+                0.06032267,
+                0.05741999,
+                0.05472609,
+                0.0,
+                0.0,
+            ]
+        )
+        u_table = (
+            1
+            / 25.0
+            * np.array(
+                [
+                    0.0,
+                    2.0,
+                    2.5,
+                    3.0,
+                    3.5,
+                    4.0,
+                    4.5,
+                    5.0,
+                    5.5,
+                    6.0,
+                    6.5,
+                    7.0,
+                    7.5,
+                    8.0,
+                    8.5,
+                    9.0,
+                    9.5,
+                    10.0,
+                    10.5,
+                    11.0,
+                    11.5,
+                    12.0,
+                    12.5,
+                    13.0,
+                    13.5,
+                    14.0,
+                    14.5,
+                    15.0,
+                    15.5,
+                    16.0,
+                    16.5,
+                    17.0,
+                    17.5,
+                    18.0,
+                    18.5,
+                    19.0,
+                    19.5,
+                    20.0,
+                    20.5,
+                    21.0,
+                    21.5,
+                    22.0,
+                    22.5,
+                    23.0,
+                    23.5,
+                    24.0,
+                    24.5,
+                    25.0,
+                    25.01,
+                    25.02,
+                    50.0,
+                ]
+            )
+        )
 
     return np.interp(u, u_table, ct_table)
+
 
 def cp_lookup(u, turbine_type, cp=None):
     """
@@ -446,18 +560,121 @@ def cp_lookup(u, turbine_type, cp=None):
     """
     if cp != None:
         cp_table = np.array([0.0, 0.0, cp, cp, 0.0, 0.0])
-        u_table = 1/25. * np.array([0.0, 2.0, 2.5, 25.01, 25.02, 50.])
-    elif turbine_type == 'nrel_5MW':
-        cp_table = np.array([0.0, 0.0, 0.0, 0.178085, 0.289075, 0.349022, 0.384728,
-        0.406059, 0.420228, 0.428823, 0.433873, 0.436223, 0.436845, 0.436575, 0.436511,
-        0.436561, 0.436517, 0.435903, 0.434673, 0.433230, 0.430466, 0.378869, 0.335199,
-        0.297991, 0.266092, 0.238588, 0.214748, 0.193981, 0.175808, 0.159835, 0.145741,
-        0.133256, 0.122157, 0.112257, 0.103399, 0.095449, 0.088294, 0.081836, 0.075993,
-        0.070692, 0.065875, 0.061484, 0.057476, 0.053809, 0.050447, 0.047358, 0.044518,
-        0.041900, 0.039483, 0.0, 0.0])
-        u_table = 1 / 25. * np.array([0.0, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0,
-        6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5,
-        14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0,
-        20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, 25.0, 25.01, 25.02, 50.0])
+        u_table = 1 / 25.0 * np.array([0.0, 2.0, 2.5, 25.01, 25.02, 50.0])
+    elif turbine_type == "nrel_5MW":
+        cp_table = np.array(
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.178085,
+                0.289075,
+                0.349022,
+                0.384728,
+                0.406059,
+                0.420228,
+                0.428823,
+                0.433873,
+                0.436223,
+                0.436845,
+                0.436575,
+                0.436511,
+                0.436561,
+                0.436517,
+                0.435903,
+                0.434673,
+                0.433230,
+                0.430466,
+                0.378869,
+                0.335199,
+                0.297991,
+                0.266092,
+                0.238588,
+                0.214748,
+                0.193981,
+                0.175808,
+                0.159835,
+                0.145741,
+                0.133256,
+                0.122157,
+                0.112257,
+                0.103399,
+                0.095449,
+                0.088294,
+                0.081836,
+                0.075993,
+                0.070692,
+                0.065875,
+                0.061484,
+                0.057476,
+                0.053809,
+                0.050447,
+                0.047358,
+                0.044518,
+                0.041900,
+                0.039483,
+                0.0,
+                0.0,
+            ]
+        )
+        u_table = (
+            1
+            / 25.0
+            * np.array(
+                [
+                    0.0,
+                    2.0,
+                    2.5,
+                    3.0,
+                    3.5,
+                    4.0,
+                    4.5,
+                    5.0,
+                    5.5,
+                    6.0,
+                    6.5,
+                    7.0,
+                    7.5,
+                    8.0,
+                    8.5,
+                    9.0,
+                    9.5,
+                    10.0,
+                    10.5,
+                    11.0,
+                    11.5,
+                    12.0,
+                    12.5,
+                    13.0,
+                    13.5,
+                    14.0,
+                    14.5,
+                    15.0,
+                    15.5,
+                    16.0,
+                    16.5,
+                    17.0,
+                    17.5,
+                    18.0,
+                    18.5,
+                    19.0,
+                    19.5,
+                    20.0,
+                    20.5,
+                    21.0,
+                    21.5,
+                    22.0,
+                    22.5,
+                    23.0,
+                    23.5,
+                    24.0,
+                    24.5,
+                    25.0,
+                    25.01,
+                    25.02,
+                    50.0,
+                ]
+            )
+        )
 
     return np.interp(u, u_table, cp_table)

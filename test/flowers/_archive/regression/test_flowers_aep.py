@@ -21,7 +21,7 @@ def test_regression_aep():
         "..",
         "examples",
         "flowers",
-        "inputs",
+        "data",
         "HKW_wind_rose.csv",
     )
     df = pd.read_csv(wind_rose_file)
