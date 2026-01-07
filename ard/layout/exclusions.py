@@ -39,7 +39,7 @@ class FarmExclusionDistancePolygon(om.ExplicitComponent):
         self.windIO = self.modeling_options["windIO_plant"]
         self.N_turbines = int(self.modeling_options["layout"]["N_turbines"])
 
-        # load boundary vertices from windIO file
+        # load exclusion vertices from windIO file
         if "exclusions" not in self.windIO["site"]:
             raise KeyError(
                 "You have requested an exclusion but no exclusions were found in the windIO file."
@@ -71,13 +71,13 @@ class FarmExclusionDistancePolygon(om.ExplicitComponent):
             ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting, [0, 1]
         )
 
-        # set up inputs and outputs for mooring system
+        # set up inputs and outputs for turbine exclusion distances
         self.add_input(
             "x_turbines", jnp.zeros((self.N_turbines,)), units="m"
-        )  # x location of the mooring platform in m w.r.t. reference coordinates
+        )  # x location of the turbines in m w.r.t. reference coordinates
         self.add_input(
             "y_turbines", jnp.zeros((self.N_turbines,)), units="m"
-        )  # y location of the mooring platform in m w.r.t. reference coordinates
+        )  # y location of the turbines in m w.r.t. reference coordinates
 
         self.add_output(
             "exclusion_distances",
