@@ -3,13 +3,13 @@ import openmdao.api as om
 
 import pytest
 
-import ard.layout.boundary as boundary
+import ard.layout.exclusions as exclusions
 
 
 @pytest.mark.usefixtures("subtests")
-class TestFarmBoundaryDistancePolygon:
+class TestFarmExclusionDistancePolygon:
     """
-    Test the FarmBoundaryDistancePolygon component.
+    Test the FarmExclusionDistancePolygon component.
     """
 
     def setup_method(self):
@@ -35,7 +35,7 @@ class TestFarmBoundaryDistancePolygon:
                 "name": "unit test dummy",
                 "site": {
                     "name": "unit test site",
-                    "boundaries": {
+                    "exclusions": {
                         "polygons": [
                             {
                                 "x": [0.0, 1000.0, 1000.0, 0.0],
@@ -58,8 +58,8 @@ class TestFarmBoundaryDistancePolygon:
         # set up openmdao problem
         model_single = om.Group()
         model_single.add_subsystem(
-            "boundary",
-            boundary.FarmBoundaryDistancePolygon(
+            "exclusions",
+            exclusions.FarmExclusionDistancePolygon(
                 modeling_options=modeling_options_single,
             ),
             promotes=["*"],
@@ -72,12 +72,12 @@ class TestFarmBoundaryDistancePolygon:
 
         prob_single.run_model()
 
-        expected_distances = np.array(
+        expected_distances = -np.array(
             [0.0, 0.0, 0.0, 0.0, -400.0, -200.0, 0.0, -200.0, -200.0]
         )
 
         assert np.allclose(
-            prob_single["boundary_distances"], expected_distances, atol=1e-3
+            prob_single["exclusion_distances"], expected_distances, atol=1e-3
         )
 
     def test_single_polygon_derivatives(self, subtests):
@@ -88,7 +88,7 @@ class TestFarmBoundaryDistancePolygon:
                 "name": "unit test dummy",
                 "site": {
                     "name": "unit test site",
-                    "boundaries": {
+                    "exclusions": {
                         "polygons": [
                             {
                                 "x": [0.0, 1000.0, 1000.0, 0.0],
@@ -111,8 +111,8 @@ class TestFarmBoundaryDistancePolygon:
         # set up openmdao problem
         model_single = om.Group()
         model_single.add_subsystem(
-            "boundary",
-            boundary.FarmBoundaryDistancePolygon(
+            "exclusions",
+            exclusions.FarmExclusionDistancePolygon(
                 modeling_options=modeling_options_single,
             ),
             promotes=["*"],
@@ -126,12 +126,12 @@ class TestFarmBoundaryDistancePolygon:
         prob_single.run_model()
 
         derivatives_computed = prob_single.compute_totals(
-            of=["boundary_distances"],
+            of=["exclusion_distances"],
             wrt=["x_turbines", "y_turbines"],
         )
 
         derivatives_expected = {
-            ("boundary_distances", "x_turbines"): np.array(
+            ("exclusion_distances", "x_turbines"): -np.array(
                 [
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -144,7 +144,7 @@ class TestFarmBoundaryDistancePolygon:
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5],
                 ]
             ),
-            ("boundary_distances", "y_turbines"): np.array(
+            ("exclusion_distances", "y_turbines"): -np.array(
                 [
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -162,14 +162,14 @@ class TestFarmBoundaryDistancePolygon:
         # assert a match
         with subtests.test("wrt x_turbines"):
             assert np.allclose(
-                derivatives_computed[("boundary_distances", "x_turbines")],
-                derivatives_expected[("boundary_distances", "x_turbines")],
+                derivatives_computed[("exclusion_distances", "x_turbines")],
+                derivatives_expected[("exclusion_distances", "x_turbines")],
                 atol=1e-3,
             )
         with subtests.test("wrt y_turbines"):
             assert np.allclose(
-                derivatives_computed[("boundary_distances", "y_turbines")],
-                derivatives_expected[("boundary_distances", "y_turbines")],
+                derivatives_computed[("exclusion_distances", "y_turbines")],
+                derivatives_expected[("exclusion_distances", "y_turbines")],
                 atol=1e-3,
             )
 
@@ -203,7 +203,7 @@ class TestFarmBoundaryDistancePolygon:
                 "name": "unit test dummy",
                 "site": {
                     "name": "unit test site",
-                    "boundaries": {
+                    "exclusions": {
                         "polygons": [
                             {
                                 "x": boundary_vertices_0[:, 0].tolist(),
@@ -225,16 +225,16 @@ class TestFarmBoundaryDistancePolygon:
             "layout": {
                 "N_turbines": self.N_turbines,
             },
-            "boundary": {
-                "turbine_region_assignments": region_assignments,
+            "exclusions": {
+                "turbine_exclusion_assignments": region_assignments,
             },
         }
 
         # set up openmdao problem
         model = om.Group()
         model.add_subsystem(
-            "boundary",
-            boundary.FarmBoundaryDistancePolygon(
+            "exclusions",
+            exclusions.FarmExclusionDistancePolygon(
                 modeling_options=modeling_options_multi,
             ),
             promotes=["*"],
@@ -247,12 +247,12 @@ class TestFarmBoundaryDistancePolygon:
 
         prob.run_model()
 
-        expected_distances = np.array(
+        expected_distances = -np.array(
             [0.0, 0.0, 0.0, 0.0, -100.0, -100.0, 0.0, -300.0, -200.0]
         )
 
         # assert a match: loose tolerance for turbines in corners due to using the smooth min
-        assert np.allclose(prob["boundary_distances"], expected_distances, atol=1e-2)
+        assert np.allclose(prob["exclusion_distances"], expected_distances, atol=1e-2)
 
     def test_multi_polygon_derivatives(self, subtests):
 
@@ -284,7 +284,7 @@ class TestFarmBoundaryDistancePolygon:
                 "name": "unit test dummy",
                 "site": {
                     "name": "unit test site",
-                    "boundaries": {
+                    "exclusions": {
                         "polygons": [
                             {
                                 "x": boundary_vertices_0[:, 0].tolist(),
@@ -306,16 +306,16 @@ class TestFarmBoundaryDistancePolygon:
             "layout": {
                 "N_turbines": self.N_turbines,
             },
-            "boundary": {
-                "turbine_region_assignments": region_assignments,
+            "exclusions": {
+                "turbine_exclusion_assignments": region_assignments,
             },
         }
 
         # set up openmdao problem
         model = om.Group()
         model.add_subsystem(
-            "boundary",
-            boundary.FarmBoundaryDistancePolygon(
+            "exclusions",
+            exclusions.FarmExclusionDistancePolygon(
                 modeling_options=modeling_options_multi,
             ),
             promotes=["*"],
@@ -329,12 +329,12 @@ class TestFarmBoundaryDistancePolygon:
         prob.run_model()
 
         derivatives_computed = prob.compute_totals(
-            of=["boundary_distances"],
+            of=["exclusion_distances"],
             wrt=["x_turbines", "y_turbines"],
         )
 
         derivatives_expected = {
-            ("boundary_distances", "x_turbines"): np.array(
+            ("exclusion_distances", "x_turbines"): -np.array(
                 [
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -347,7 +347,7 @@ class TestFarmBoundaryDistancePolygon:
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
                 ]
             ),
-            ("boundary_distances", "y_turbines"): np.array(
+            ("exclusion_distances", "y_turbines"): -np.array(
                 [
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -365,13 +365,13 @@ class TestFarmBoundaryDistancePolygon:
         # assert a match
         with subtests.test("wrt x_turbines"):
             assert np.allclose(
-                derivatives_computed[("boundary_distances", "x_turbines")],
-                derivatives_expected[("boundary_distances", "x_turbines")],
+                derivatives_computed[("exclusion_distances", "x_turbines")],
+                derivatives_expected[("exclusion_distances", "x_turbines")],
                 atol=1e-3,
             )
         with subtests.test("wrt y_turbines"):
             assert np.allclose(
-                derivatives_computed[("boundary_distances", "y_turbines")],
-                derivatives_expected[("boundary_distances", "y_turbines")],
+                derivatives_computed[("exclusion_distances", "y_turbines")],
+                derivatives_expected[("exclusion_distances", "y_turbines")],
                 atol=1e-3,
             )
