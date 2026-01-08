@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 import numpy as np
@@ -11,9 +10,29 @@ from flowers import FlowersModel
 
 def test_regression_aep():
     # Create generic layout
-    D = 126.
-    layout_x = D * np.array([0.,0.,0.,7.,7.,7.,14.,14.,14.,21.,21.,21.,28.,28.,28.])
-    layout_y = D * np.array([0.,7.,14.,0.,7.,14.,0.,7.,14.,0.,7.,14.,0.,7.,14.])
+    D = 126.0
+    layout_x = D * np.array(
+        [
+            0.0,
+            0.0,
+            0.0,
+            7.0,
+            7.0,
+            7.0,
+            14.0,
+            14.0,
+            14.0,
+            21.0,
+            21.0,
+            21.0,
+            28.0,
+            28.0,
+            28.0,
+        ]
+    )
+    layout_y = D * np.array(
+        [0.0, 7.0, 14.0, 0.0, 7.0, 14.0, 0.0, 7.0, 14.0, 0.0, 7.0, 14.0, 0.0, 7.0, 14.0]
+    )
 
     # Load in wind data
     wind_rose_file = Path(
