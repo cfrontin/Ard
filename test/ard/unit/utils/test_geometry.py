@@ -55,7 +55,9 @@ class TestDistancePointToMultiPolygonRayCasting:
         )
         pass
 
-    def test_distance_multi_point_to_multi_polygon_inside_outside_single_region(self):
+    def test_distance_multi_point_to_multi_polygon_inside_outside_single_square_region(
+        self,
+    ):
 
         points = np.array([[0.25, 0.5], [1.5, 0.5]])
         polygons = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
@@ -67,6 +69,44 @@ class TestDistancePointToMultiPolygonRayCasting:
             points_x=points[:, 0],
             points_y=points[:, 1],
             regions=np.array([0, 0]),
+        )
+
+        assert np.allclose(test_result, expected_distance)
+
+    def test_distance_multi_point_to_multi_polygon_inside_outside_single_offsettriangle_region(
+        self,
+    ):
+
+        points = np.array(
+            [
+                [0.2, 0.6],
+                [0.6, 0.2],
+                [0.4, 0.8],
+                [0.8, 0.8],
+            ]
+        )
+        polygons = [
+            np.array(
+                [
+                    [0.0, 0.2],
+                    [0.8, 1.0],
+                    [0.0, 1.0],
+                ]
+            )
+        ]
+
+        expected_distance = [
+            -0.1 * np.sqrt(2),
+            0.3 * np.sqrt(2),
+            -0.1 * np.sqrt(2),
+            0.1 * np.sqrt(2),
+        ]
+
+        test_result = geo_utils.distance_multi_point_to_multi_polygon_ray_casting(
+            boundary_vertices=polygons,
+            points_x=points[:, 0],
+            points_y=points[:, 1],
+            regions=np.array([0, 0, 0, 0]),
         )
 
         assert np.allclose(test_result, expected_distance)
@@ -148,20 +188,37 @@ class TestDistancePointToPolygonRayCasting:
         )
         pass
 
-    def test_distance_point_to_polygon_inside(self):
+    def test_distance_point_to_unitsquare_inside(self, subtests):
 
-        point = np.array([0.25, 0.5])
         polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
 
-        expected_distance = -0.25
+        for idx_point, (point, expected_distance) in enumerate(
+            [(np.array([0.25, 0.5]), -0.25)]
+        ):
 
-        test_result = geo_utils.distance_point_to_polygon_ray_casting(
-            point, vertices=polygon
-        )
+            with subtests.test(f"point {idx_point}"):
+                test_result = geo_utils.distance_point_to_polygon_ray_casting(
+                    point, vertices=polygon
+                )
+                assert test_result == pytest.approx(expected_distance)
 
-        assert test_result == pytest.approx(expected_distance)
+    def test_distance_point_to_offsettriangle_inside(self, subtests):
 
-    def test_distance_point_to_polygon_center(self):
+        polygon = np.array([[0.0, 0.2], [0.8, 1.0], [0.0, 1.0]])
+
+        for idx_point, (point, expected_distance) in enumerate([
+            (np.array([0.2, 0.6]), -0.14142135623730953),
+            (np.array([0.4, 0.8]), -0.14142135623730953),
+            (np.array([0.8, 0.8]), 0.14142135623730953),
+        ]):
+
+            with subtests.test(f"point {idx_point}"):
+                test_result = geo_utils.distance_point_to_polygon_ray_casting(
+                    point, vertices=polygon
+                )
+                assert test_result == pytest.approx(expected_distance)
+
+    def test_distance_point_to_unitsquare_center(self):
 
         point = np.array([0.5, 0.5])
         polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
@@ -174,7 +231,7 @@ class TestDistancePointToPolygonRayCasting:
 
         assert test_result == pytest.approx(expected_distance, rel=1e-2)
 
-    def test_distance_point_to_polygon_outside(self):
+    def test_distance_point_to_unitsquare_outside(self):
 
         point = np.array([-0.5, 0.5])
         polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
@@ -187,7 +244,7 @@ class TestDistancePointToPolygonRayCasting:
 
         assert test_result == pytest.approx(expected_distance, rel=1e-2)
 
-    def test_distance_point_to_polygon_grad_2d(self, subtests):
+    def test_distance_point_to_unitsquare_grad_2d(self, subtests):
 
         point = np.array([-0.25, 0.5], dtype=float)
         polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=float)
