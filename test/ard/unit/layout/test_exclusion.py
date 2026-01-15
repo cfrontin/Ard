@@ -30,6 +30,8 @@ class TestFarmExclusionDistancePolygon:
     def test_single_trapezoid_distance(self):
 
         # set modeling options
+        ex = [0.0, 600.0, 1000.0, 1000.0]
+        ey = [0.0, 0.0, 400.0, 1000.0]
         modeling_options_single = {
             "windIO_plant": {
                 "name": "unit test dummy",
@@ -38,8 +40,8 @@ class TestFarmExclusionDistancePolygon:
                     "exclusions": {
                         "polygons": [
                             {
-                                "x": [0.0, 600.0, 1000.0, 1000.0],
-                                "y": [0.0, 0.0, 400.0, 1000.0],
+                                "x": ex,
+                                "y": ey,
                             },
                         ],
                     },
@@ -85,7 +87,17 @@ class TestFarmExclusionDistancePolygon:
                 0.0000000000000,
             ]
         )
-
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(1)
+        ax.plot(np.append(ex, ex[0]), np.append(ey, ey[0]))
+        ax.scatter(self.x_turbines, self.y_turbines)
+        
+        # Add boundary distance labels to turbines
+        for i, (x, y) in enumerate(zip(self.x_turbines, self.y_turbines)):
+            ax.text(x, y, f"{prob_single['exclusion_distances'][i]:.1f}", 
+                   fontsize=8, ha='right', va='bottom')
+        plt.show()
+        import pdb; pdb.set_trace()
         assert np.allclose(
             prob_single["exclusion_distances"], expected_distances, atol=1e-3
         )
