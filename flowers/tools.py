@@ -543,6 +543,8 @@ def ct_lookup(u, turbine_type, ct=None):
                 ]
             )
         )
+    else:
+        NotImplementedError("your specified turbine type was not found.")
 
     return np.interp(u, u_table, ct_table)
 
@@ -676,5 +678,7 @@ def cp_lookup(u, turbine_type, cp=None):
                 ]
             )
         )
+    else:
+        NotImplementedError("your specified turbine type was not found.")
 
     return np.interp(u, u_table, cp_table)
