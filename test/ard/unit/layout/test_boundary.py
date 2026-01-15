@@ -339,7 +339,7 @@ class TestFarmBoundaryDistancePolygon:
 
         prob_single.run_model()
 
-        expected_distances = np.array(  # minus sign on the data from exclusion
+        expected_distances = np.array(
             [
                 200.000000000000,  # 0
                 424.2640687119286,  # 1
@@ -352,19 +352,6 @@ class TestFarmBoundaryDistancePolygon:
                 141.4213562373095,  # 8
             ]
         )
-
-        # import matplotlib.pyplot as plt
-        # fig, ax = plt.subplots(1)
-        # ax.plot(bx, by)
-        # ax.scatter(self.x_turbines, self.y_turbines)
-        
-        # # Add boundary distance labels to turbines
-        # for i, (x, y) in enumerate(zip(self.x_turbines, self.y_turbines)):
-        #     ax.text(x, y, f"{prob_single['boundary_distances'][i]:.1f}", 
-        #            fontsize=8, ha='right', va='bottom')
-        # plt.show()
-        
-        # import pdb; pdb.set_trace()
 
         assert np.allclose(
             prob_single["boundary_distances"], expected_distances, atol=1e-3
@@ -430,19 +417,6 @@ class TestFarmBoundaryDistancePolygon:
                 0.0,  # 8
             ]
         )
-
-        # import matplotlib.pyplot as plt
-        # fig, ax = plt.subplots(1)
-        # ax.plot(bx, by)
-        # ax.scatter(self.x_turbines, self.y_turbines)
-        
-        # # Add boundary distance labels to turbines
-        # for i, (x, y) in enumerate(zip(self.x_turbines, self.y_turbines)):
-        #     ax.text(x, y, f"{prob_single['boundary_distances'][i]:.1f}", 
-        #            fontsize=8, ha='right', va='bottom')
-        # plt.show()
-        
-        # import pdb; pdb.set_trace()
 
         assert np.allclose(
             prob_single["boundary_distances"], expected_distances, atol=1e-3
@@ -531,20 +505,6 @@ class TestFarmBoundaryDistancePolygon:
         expected_distances = np.array(
             [0.0, 0.0, 0.0, 0.0, -100.0, -100.0, 0.0, -300.0, -200.0]
         )
-
-        # import matplotlib.pyplot as plt
-        # fig, ax = plt.subplots(1)
-        # ax.plot(bx1, by1)
-        # ax.plot(bx2, by2)
-        # ax.scatter(self.x_turbines, self.y_turbines)
-        
-        # # Add boundary distance labels to turbines
-        # for i, (x, y) in enumerate(zip(self.x_turbines, self.y_turbines)):
-        #     ax.text(x, y, f"{prob['boundary_distances'][i]:.1f}", 
-        #            fontsize=8, ha='right', va='bottom')
-        # plt.show()
-        
-        # import pdb; pdb.set_trace()
 
         # assert a match: loose tolerance for turbines in corners due to using the smooth min
         assert np.allclose(prob["boundary_distances"], expected_distances, atol=1e-2)

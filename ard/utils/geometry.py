@@ -69,6 +69,10 @@ def get_nearest_polygons(
 
     return region
 
+# Pad all polygons to have the same number of vertices
+def pad_polygon(polygon, max_vertices):
+    padding = max_vertices - len(polygon)
+    return jnp.pad(polygon, ((0, padding), (0, 0)), mode="edge")
 
 def distance_multi_point_to_multi_polygon_ray_casting(
     points_x: np.ndarray[float],
@@ -97,35 +101,33 @@ def distance_multi_point_to_multi_polygon_ray_casting(
         np.ndarray: Constraint values for each turbine.
         np.ndarray (optional): Region assignments for each turbine (if `return_region` is True).
     """
-
     # Combine points_x and points_y into a single array of points
     points = jnp.stack([points_x, points_y], axis=1)
 
-    # Determine the maximum number of vertices in any polygon
-    max_vertices = max(len(polygon) for polygon in boundary_vertices)
-
-    # Pad all polygons to have the same number of vertices
-    def pad_polygon(polygon):
-        padding = max_vertices - len(polygon)
-        return jnp.pad(polygon, ((0, padding), (0, 0)), mode="edge")
-
-    padded_boundary_vertices = jnp.stack(
-        [pad_polygon(polygon) for polygon in boundary_vertices]
-    )
-
-    # Define a function to compute the distance for a single point and its assigned region
+    # Convert boundary_vertices to JAX arrays
+    boundary_vertices_jax = [jnp.asarray(poly, dtype=jnp.float32) for poly in boundary_vertices]
+    
+    # Create a function for each polygon that computes distance
+    def make_distance_func(vertices):
+        def compute_for_polygon(point):
+            return distance_point_to_polygon_ray_casting(
+                point=point,
+                vertices=vertices,
+                s=s,
+                shift=tol,
+                return_distance=True,
+            )
+        return compute_for_polygon
+    
+    # Create list of functions, one per polygon
+    distance_funcs = [make_distance_func(vertices) for vertices in boundary_vertices_jax]
+    
+    # Define function to compute distance using jax.lax.switch
     def compute_distance(point, region_idx):
-        vertices = padded_boundary_vertices[region_idx]
-        return distance_point_to_polygon_ray_casting(
-            point=point,
-            vertices=vertices,
-            s=s,
-            shift=tol,
-            return_distance=True,
-        )
-
-    # Vectorize the computation over all points
-    distances = jax.vmap(compute_distance, in_axes=(0, 0))(points, regions)
+        return jax.lax.switch(region_idx, distance_funcs, point)
+    
+    # Vectorize over all points
+    distances = jax.vmap(compute_distance)(points, regions)
 
     return distances
 
@@ -164,7 +166,8 @@ def process_edge(
     # including when the point is directly below a vertical edge
     x_condition = ((edge_start[0] <= point[0]) & (point[0] < edge_end[0])) | (
                    (edge_start[0] >= point[0]) & (point[0] > edge_end[0])) | (
-                   (edge_start[0] == edge_end[0]) & (point[0] == edge_start[0]))
+                   (jnp.isclose(edge_start[0], edge_end[0]) & jnp.isclose(point[0], edge_start[0]))
+                   )
 
     # Calculate the y-coordinate of the edge at the x-coordinate of the point
     y = ((edge_end[1] - edge_start[1]) / (edge_end[0] - edge_start[0] + shift)) * (
@@ -183,7 +186,6 @@ def process_edge(
 
     # Calculate the distance to the edge
     distance = distance_point_to_lineseg_nd(point, edge_start, edge_end)
-
 
     return is_below, distance, vertex_crossing
 
@@ -219,6 +221,7 @@ def distance_point_to_polygon_ray_casting(
     Returns:
         float: Signed distance or inside/outside status. Negative if inside, positive if outside.
     """
+    
     # Ensure inputs are JAX arrays with explicit data types
     point = jnp.asarray(point, dtype=jnp.float32)
     vertices = jnp.asarray(vertices, dtype=jnp.float32)
@@ -248,7 +251,7 @@ def distance_point_to_polygon_ray_casting(
     if return_distance:
         c_prime = smooth_min(distances, s=s)
     else:
-        c_prime = 1.0
+        c_prime = 1
 
     c = jax.lax.cond(
             intersection_counter % 2 == 1,
@@ -257,8 +260,6 @@ def distance_point_to_polygon_ray_casting(
             operand=None,
         )
     
-
-
     return c
 
 
