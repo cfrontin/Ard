@@ -27,7 +27,7 @@ authors = [
 ]
 description = "A package for multidisciplinary and/or multifidelity wind farm design"
 readme= "README.md"
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 4 - Beta",
   "License :: OSI Approved :: Apache Software License",
@@ -44,7 +44,7 @@ dependencies = [
   "scipy",
   "pandas",
   "floris>=4.3",
-  "wisdem>=3.21",
+  "wisdem>=4.0.5",
   "NLopt",
   "marmot-agents",
   "openmdao",
