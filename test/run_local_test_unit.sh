@@ -11,10 +11,15 @@ case "$1" in
     ;;
 esac
 
+IDX_CASE=0
 for CASE in $CASES_TO_RUN; do
-  if python -c "import optiwindnet" 2>/dev/null || [[ "$CASE" != "ard" ]] ; then
-    pytest --cov=$CASE --cov-report=html test/$CASE/unit
-  else
-    pytest --cov=$CASE --cov-report=html test/$CASE/unit --cov-config=.coveragerc_no_optiwindnet
+  FLAGS="--cov-report=html"
+  if [[ IDX_CASE -gt 0 ]] ; then
+    FLAGS="$FLAGS --cov-append"
   fi
+  if [[ "$CASE" == "ard" ]] && ! python -c "import optiwindnet" 2>/dev/null ; then
+    FLAGS="$FLAGS --cov-config=.coveragerc_no_optiwindnet"
+  fi
+  pytest --cov=$CASE ${FLAGS} test/$CASE/unit
+  ((IDX_CASE++))
 done
