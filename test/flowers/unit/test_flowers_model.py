@@ -88,7 +88,7 @@ class TestFlowersModel:
             AEP_calculated = self.flowers_model.calculate_aep() / 1e9  # GWh
             assert AEP_ref == AEP_calculated
 
-    def test_raise_Error_reference_IEA22MW(self, subtests):
+    def test_raise_error_reference_IEA22MW(self, subtests):
         with pytest.raises(NotImplementedError):
             busted_flowers_model = flowers.FlowersModel(
                 self.wind_rose,
@@ -162,14 +162,17 @@ class TestCustomFlowersModel:
             is_plausible_cf = (capacity_factor > 0.25) & (capacity_factor < 0.75)
             assert is_plausible_cf
 
-        AEP_calculated2, dAEP_calculated = [
+    def test_custom_IEA3p4_derivatives(self, subtests):
+
+        # get the computed estimate
+        AEP_calculated, dAEP_calculated = [
             v / 1.0e9 for v in self.flowers_model.calculate_aep(gradient=True)
         ]
 
         # compute the AEP and compare it to a pyrite-standard value
         with subtests.test("matching pyrite AEP value on derivative calc"):
             AEP_ref = 922.0285639699603  # GWh
-            assert AEP_calculated2 == AEP_ref
+            assert AEP_calculated == AEP_ref
 
         Nt, Nd = dAEP_calculated.shape
         eps_val = 1.0e-6
