@@ -25,6 +25,12 @@ class FarmExclusionDistancePolygon(om.ExplicitComponent):
     y_turbines : np.ndarray
         a 1D numpy array indicating the y-dimension locations of the turbines,
         with length `N_turbines` (mirrored w.r.t. `FarmAeroTemplate`)
+
+    Outputs
+    -------
+    exclusion_distances : np.ndarray
+        a 1D array of distances (in meters) from each turbine to its assigned
+        polygonal exclusion region
     """
 
     def initialize(self):
@@ -49,7 +55,7 @@ class FarmExclusionDistancePolygon(om.ExplicitComponent):
                 "The circular exclusions from windIO have not been implemented here, yet."
             )
         if "polygons" not in self.windIO["site"]["exclusions"]:
-            raise KeyError(
+            raise NotImplementedError(
                 "Currently only polygon exclusions from windIO have been implemented and none were found."
             )
         self.exclusion_vertices = [
@@ -62,7 +68,7 @@ class FarmExclusionDistancePolygon(om.ExplicitComponent):
             for polygon in self.windIO["site"]["exclusions"]["polygons"]
         ]
         self.exclusion_regions = self.modeling_options.get("exclusions", {}).get(
-            "turbine_exclusion_assignments",  # get the exclusion region assignments from modeling_options, if there
+            "turbine_exclusion_assignments",  # exclusion region assignments, if there
             np.zeros(self.N_turbines, dtype=int),  # default to zero for all turbines
         )
 
@@ -87,7 +93,7 @@ class FarmExclusionDistancePolygon(om.ExplicitComponent):
 
     def setup_partials(self):
         """Derivative setup for the OpenMDAO component."""
-        # the default (but not preferred!) derivatives are FDM
+        # override the OpenMDAO default FDM derivatives by declaring exact derivatives
         self.declare_partials(
             "*",
             "*",
