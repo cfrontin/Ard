@@ -193,9 +193,7 @@ class TestCustomFlowersModel:
                 # assign a ping to the right direction
                 layout_x[i_t] += (i_d == 0) * eps_val * np.mean(np.abs(layout_x_orig))
                 layout_y[i_t] += (i_d == 1) * eps_val * np.mean(np.abs(layout_y_orig))
-                self.flowers_model.reinitialize(
-                    layout_x=layout_x, layout_y=layout_y
-                )
+                self.flowers_model.reinitialize(layout_x=layout_x, layout_y=layout_y)
                 # compute the new AEP, the change, the derivative
                 AEP_plus = self.flowers_model.calculate_aep() / 1e9
                 dAEP = AEP_plus - AEP_calculated
