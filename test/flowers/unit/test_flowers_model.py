@@ -169,45 +169,47 @@ class TestCustomFlowersModel:
             v / 1.0e9 for v in self.flowers_model.calculate_aep(gradient=True)
         ]
 
-        # compute the AEP and compare it to a pyrite-standard value
+        # compute the AEP through the derivative construct and pyrite-verify it
         with subtests.test("matching pyrite AEP value on derivative calc"):
             AEP_ref = 922.0285639699603  # GWh
             assert AEP_calculated == AEP_ref
 
+        # unpack the shape and set the epsilon
         Nt, Nd = dAEP_calculated.shape
         eps_val = 1.0e-6
-
-        print(f"Nd, Nt: {Nd}, {Nt}")
 
         # break out and copy the layout variables
         layout_x_orig, layout_y_orig = self.flowers_model.get_layout()
         layout_x_orig = layout_x_orig.copy()
         layout_y_orig = layout_y_orig.copy()
 
+        dAEP_ping = np.zeros_like(dAEP_calculated)
+        # loop over turbines
         for i_t in range(Nt):
-            with subtests.test(f"match derivative on turbine {i_t}"):
-                for i_d in range(Nd):
-                    layout_x = layout_x_orig.copy()
-                    layout_y = layout_y_orig.copy()
-                    if i_d:
-                        layout_y[i_t] += eps_val * np.mean(np.abs(layout_y_orig))
-                    else:
-                        layout_x[i_t] += eps_val * np.mean(np.abs(layout_x_orig))
-                    self.flowers_model.reinitialize(
-                        layout_x=layout_x, layout_y=layout_y
-                    )
-                    AEP_plus = self.flowers_model.calculate_aep() / 1e9
-                    dAEP = AEP_plus - AEP_calculated
-                    dXY = (
-                        (layout_y[i_t] - layout_y_orig[i_t])
-                        if i_d
-                        else (layout_x[i_t] - layout_x_orig[i_t])
-                    )
-                    dAEPdXY = dAEP / dXY
+            for i_d in range(Nd):
+                # copy the original layout variables
+                layout_x = layout_x_orig.copy()
+                layout_y = layout_y_orig.copy()
+                # assign a ping to the right direction
+                layout_x[i_t] += (i_d == 0) * eps_val * np.mean(np.abs(layout_x_orig))
+                layout_y[i_t] += (i_d == 1) * eps_val * np.mean(np.abs(layout_y_orig))
+                self.flowers_model.reinitialize(
+                    layout_x=layout_x, layout_y=layout_y
+                )
+                # compute the new AEP, the change, the derivative
+                AEP_plus = self.flowers_model.calculate_aep() / 1e9
+                dAEP = AEP_plus - AEP_calculated
+                dXY = (
+                    (layout_y[i_t] - layout_y_orig[i_t])
+                    if i_d
+                    else (layout_x[i_t] - layout_x_orig[i_t])
+                )
+                dAEP_ping[i_t, i_d] = dAEP / dXY
 
-                    assert np.isclose(
-                        dAEP_calculated[i_t, i_d],
-                        dAEPdXY,
-                        rtol=1.0e-4,
-                        atol=1.0e-4,
-                    )
+        # make sure the analytic derivative matches the ping test data
+        assert np.allclose(
+            dAEP_calculated,
+            dAEP_ping,
+            rtol=1.0e-4,
+            atol=1.0e-4,
+        )
