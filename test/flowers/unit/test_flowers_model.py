@@ -57,7 +57,7 @@ class TestFlowersModel:
         with subtests.test("pyrite AEP value"):
             AEP_ref = 904.2681563494169  # GWh
             AEP_calculated = self.flowers_model.calculate_aep() / 1e9  # GWh
-            assert AEP_ref == AEP_calculated
+            assert AEP_calculated == AEP_ref
 
     def test_reinit_reference_NREL5MW(self, subtests):
 
@@ -87,6 +87,17 @@ class TestFlowersModel:
             AEP_ref = 976.2494933660288  # GWh
             AEP_calculated = self.flowers_model.calculate_aep() / 1e9  # GWh
             assert AEP_ref == AEP_calculated
+
+    def test_raise_Error_reference_IEA22MW(self, subtests):
+        with pytest.raises(NotImplementedError):
+            busted_flowers_model = flowers.FlowersModel(
+                self.wind_rose,
+                layout_x=self.layout_x,
+                layout_y=self.layout_y,
+                num_terms=50,
+                k=0.05,
+                turbine="iea_22MW",
+            )
 
 
 class TestCustomFlowersModel:
@@ -150,3 +161,50 @@ class TestCustomFlowersModel:
             capacity_factor = AEP_calculated / rated_production
             is_plausible_cf = (capacity_factor > 0.25) & (capacity_factor < 0.75)
             assert is_plausible_cf
+
+        AEP_calculated2, dAEP_calculated = [
+            v / 1.0e9 for v in self.flowers_model.calculate_aep(gradient=True)
+        ]
+
+        # compute the AEP and compare it to a pyrite-standard value
+        with subtests.test("matching pyrite AEP value on derivative calc"):
+            AEP_ref = 922.0285639699603  # GWh
+            assert AEP_calculated2 == AEP_ref
+
+        Nt, Nd = dAEP_calculated.shape
+        eps_val = 1.0e-6
+
+        print(f"Nd, Nt: {Nd}, {Nt}")
+
+        # break out and copy the layout variables
+        layout_x_orig, layout_y_orig = self.flowers_model.get_layout()
+        layout_x_orig = layout_x_orig.copy()
+        layout_y_orig = layout_y_orig.copy()
+
+        for i_t in range(Nt):
+            with subtests.test(f"match derivative on turbine {i_t}"):
+                for i_d in range(Nd):
+                    layout_x = layout_x_orig.copy()
+                    layout_y = layout_y_orig.copy()
+                    if i_d:
+                        layout_y[i_t] += eps_val * np.mean(np.abs(layout_y_orig))
+                    else:
+                        layout_x[i_t] += eps_val * np.mean(np.abs(layout_x_orig))
+                    self.flowers_model.reinitialize(
+                        layout_x=layout_x, layout_y=layout_y
+                    )
+                    AEP_plus = self.flowers_model.calculate_aep() / 1e9
+                    dAEP = AEP_plus - AEP_calculated
+                    dXY = (
+                        (layout_y[i_t] - layout_y_orig[i_t])
+                        if i_d
+                        else (layout_x[i_t] - layout_x_orig[i_t])
+                    )
+                    dAEPdXY = dAEP / dXY
+
+                    assert np.isclose(
+                        dAEP_calculated[i_t, i_d],
+                        dAEPdXY,
+                        rtol=1.0e-4,
+                        atol=1.0e-4,
+                    )
