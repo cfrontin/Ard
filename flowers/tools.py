@@ -103,9 +103,6 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, seed_val=None, spacing=Fals
     if seed_val != None:
         np.random.seed(seed_val)
 
-    xx = np.zeros(n_turb)
-    yy = np.zeros(n_turb)
-
     # Indices of discrete grid
     sx = n_turb + 1
     sy = 6
@@ -152,35 +149,6 @@ def load_layout(idx, case, boundaries=True):
 ###########################################################################
 # Wind rose sampling
 ###########################################################################
-
-# def toolkit_wind_rose(lat, long):
-#     """
-#     Sample a wind rose from the WIND Toolkit (copied from FLORIS)
-
-#     Args:
-#         lat (float): latitude of wind farm site (in continental US)
-#         long (float): longitude of wind farm site (in continental US)
-
-#     Returns:
-#         df (pandas.DataFrame): A dataframe for the wind rose in the FLORIS
-#             format containing the following information:
-#                 - 'ws' (float): wind speeds [m/s]
-#                 - 'wd' (float): wind directions [deg]
-#                 - 'freq_val' (float): frequency for each wind speed and direction
-
-#     """
-
-#     wind_rose = rose.WindRose()
-#     wd_list = np.arange(0, 360, 1)
-#     ws_list = np.arange(0, 26, 1)
-#     df = wind_rose.import_from_wind_toolkit_hsds(
-#         lat,
-#         long,
-#         ht=100,
-#         wd=wd_list,
-#         ws=ws_list,
-#     )
-#     return df
 
 
 def load_wind_rose(idx):

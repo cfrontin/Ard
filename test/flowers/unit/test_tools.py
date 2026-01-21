@@ -279,14 +279,14 @@ class TestToolsLookup:
     def test_notimplemented_raised(self, subtests):
         with subtests.test("lookup cp invalid turbine raises error"):
             with pytest.raises(NotImplementedError):
-                cp_u = flowers.tools.cp_lookup(
+                flowers.tools.cp_lookup(
                     self.u_samples,
                     turbine_type="the_greatest_turbine",
                     # cp=None,  # defaulted to None
                 )
         with subtests.test("lookup ct invalid turbine raises error"):
             with pytest.raises(NotImplementedError):
-                ct_u = flowers.tools.ct_lookup(
+                flowers.tools.ct_lookup(
                     self.u_samples,
                     turbine_type="the_greatest_turbine",
                     # ct=None,  # defaulted to None

@@ -1,6 +1,5 @@
 import numpy as np
 import pyoptsparse
-from shapely.geometry import Polygon, Point, LineString
 
 ### THE FOLLOWING CODE IS LEGACY FLOWERS CODE AND IS NOT ACTIVELY MAINTAINED OR
 ### TESTED IN THE MOST RECENT ARD DEPLOYMENT OF THE FLOWERS METHOD
@@ -192,11 +191,6 @@ class LayoutOptimizer:
                         - self._boundaries[0, (idx + 1) % self._nbounds]
                     ) / self._boundary_len[idx]
 
-        # Distance is negative if inside boundary for optimization problem
-        # if gradient:
-        #     return self._norm(C, self._xmin, self._xmax), Cx, Cy
-        # else:
-        #     return self._norm(C, self._xmin, self._xmax)
         if gradient:
             return C, Cx, Cy
         else:
@@ -408,9 +402,3 @@ class ConventionalOptimizer(LayoutOptimizer):
 
         fail = False
         return funcs, fail
-
-    # Optionally, the user can supply the optimization with gradients
-    # def _sens_func(self, varDict, funcs):
-    #     funcsSens = {}
-    #     fail = False
-    #     return funcsSens, fail

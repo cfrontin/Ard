@@ -208,16 +208,8 @@ def plot_optimal_layout(
     if ax is None:
         _, ax = plt.subplots()
 
-    # if not boundaries.any():
-    #     raise ValueError("Must supply boundaries to plot layout.")
-
-    # if x_final or not x_init or not y_final or not y_init:
-    #     raise ValueError("Must supply all required layout coordinates.")
-
     if norm:
-        x0 = x_init / D
         x1 = x_final / D
-        y0 = y_init / D
         y1 = y_final / D
         verts = np.array(boundaries) / D
         r = 0.5
@@ -225,9 +217,7 @@ def plot_optimal_layout(
         ylab = "y/D"
 
     else:
-        x0 = x_init
         x1 = x_final
-        y0 = y_init
         y1 = y_final
         verts = boundaries
         r = D
@@ -235,17 +225,11 @@ def plot_optimal_layout(
         ylab = "y [m]"
 
     # Plot turbine locations
-    # ax.scatter(x0, y0, s=0.01, color=color_initial)
     ax.scatter(x1, y1, s=0.01, color=color_final)
-    # for x, y in zip(x0, y0):
-    #     ax.add_patch(plt.Circle((x, y), r, color=color_initial))
     for x, y in zip(x1, y1):
         ax.add_patch(plt.Circle((x, y), r, color=color_final))
     ax.set(xlabel=xlab, ylabel=ylab, aspect="equal")
     ax.legend(["Final"], markerscale=50)
-    # ax.legend(['Initial','Final'],markerscale=50)
-    # leg.legendHandles[0]._legmarker.set_markersize(6)
-    # leg.legendHandles[1]._legmarker.set_markersize(6)
     ax.grid()
 
     if verts.ndim == 2:

@@ -90,7 +90,7 @@ class TestFlowersModel:
 
     def test_raise_error_reference_IEA22MW(self, subtests):
         with pytest.raises(NotImplementedError):
-            busted_flowers_model = flowers.FlowersModel(
+            _ = flowers.FlowersModel(
                 self.wind_rose,
                 layout_x=self.layout_x,
                 layout_y=self.layout_y,
