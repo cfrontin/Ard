@@ -2,7 +2,9 @@ import os
 from pathlib import Path
 import pickle
 
+from narwhals import col
 import numpy as np
+import pandas as pd
 
 from ard.utils.test_utils import pyrite_validator
 import flowers.tools
@@ -12,6 +14,7 @@ import pytest
 
 @pytest.mark.usefixtures("subtests")
 def test_random_layout(subtests):
+
     boundaries_values = [
         (1000.0, 1000.0),
         (-1000.0, 1000.0),
@@ -66,7 +69,6 @@ def test_random_layout(subtests):
             + (yy_spec_noseeds - np.atleast_2d(yy_spec_noseeds).T) ** 2
         )
         np.fill_diagonal(dist_mtx, np.inf)
-        print(dist_mtx)
         assert np.all(dist_mtx >= 2 * D)
 
     with subtests.test("random_layout specified seed pyrite data match"):
@@ -126,6 +128,8 @@ def test_discrete_layout(subtests):
 
 
 def test_load_layout(subtests):
+
+    # specify some figures
     idx = 5
     case = "garbage"
 
@@ -134,14 +138,15 @@ def test_load_layout(subtests):
     path_wd = Path(__file__).parent
     os.chdir(path_wd)
 
+    # load the layout
     layout_x, layout_y, boundaries = flowers.tools.load_layout(
         idx, case, boundaries=True
     )
-    print(layout_x, layout_y, boundaries)
 
     # change the cwd back
     os.chdir(CWD)
 
+    # validate against pyrite data
     pyrite_validator(
         data_for_validation={"xx": layout_x, "yy": layout_y, "boundaries": boundaries},
         filename_pyrite=Path(__file__).parent / "test_tool_random_pyrite",
@@ -150,20 +155,113 @@ def test_load_layout(subtests):
 
 
 class TestToolsWindRose:
+
     def setup_method(self):
-        pass
+        self.path_csv = (
+            Path(__file__).parents[3]
+            / "examples"
+            / "flowers"
+            / "data"
+            / "HKW_wind_rose.csv"
+        )
+        self.df_wr = pd.read_csv(self.path_csv)
+        self.len_df_wr = len(self.df_wr)
+
+        self.wr_idx = 4
 
     def test_load_wind_rose(self, subtests):
-        raise NotImplementedError("this unit test has not been implemented!")
+
+        # change the cwd
+        CWD = os.getcwd()
+        path_wd = Path(__file__).parent
+        os.chdir(path_wd)
+
+        # use the wind rose loader
+        df_wr_loaded = flowers.tools.load_wind_rose(self.wr_idx)
+
+        # change the cwd back
+        os.chdir(CWD)
+
+        # make sure allclose on each column
+        for column in self.df_wr.columns:
+            with subtests.test(f"loaded df matches on {column}"):
+                assert np.allclose(df_wr_loaded[column], self.df_wr[column])
 
     def test_resample_wind_direction(self, subtests):
-        raise NotImplementedError("this unit test has not been implemented!")
+
+        # resample the wind direction
+        # wd_unique_orig = self.df_wr.wd.unique()
+        df_resampled = flowers.tools.resample_wind_direction(
+            self.df_wr, wd=np.arange(0, 360, 10.0)
+        )
+        wd_unique_new = df_resampled.wd.unique()
+
+        # get and sort the values for comparison
+        df_check = self.df_wr[self.df_wr.wd.isin(wd_unique_new)].sort_values(
+            ["ws", "wd"]
+        )
+        df_resampled = df_resampled.sort_values(["ws", "wd"])
+
+        # make sure allclose on each column that's not frequency
+        for column in df_check:
+            if column == "freq_val":
+                continue  # frequency is re-computed
+            with subtests.test(f"resampled df matches on {column}"):
+                assert np.allclose(df_resampled[column], df_check[column])
+
+        # resample should be approximately one
+        with subtests.test(f"ensure freq_val sums to one"):
+            assert np.isclose(np.sum(df_resampled.freq_val), 1.0, atol=0.025)
 
     def test_resample_wind_speed(self, subtests):
-        raise NotImplementedError("this unit test has not been implemented!")
+
+        # resample the wind speed
+        # wd_unique_orig = self.df_wr.wd.unique()
+        df_resampled = flowers.tools.resample_wind_speed(
+            self.df_wr, ws=np.arange(0, 25.0, 2.0)
+        )
+        ws_unique_new = df_resampled.ws.unique()
+
+        # get and sort the values for comparison
+        df_check = self.df_wr[self.df_wr.ws.isin(ws_unique_new)].sort_values(
+            ["ws", "wd"]
+        )
+        df_resampled = df_resampled.sort_values(["ws", "wd"])
+
+        # make sure allclose on each column that's not frequency
+        for column in df_check:
+            if column == "freq_val":
+                continue  # frequency is re-computed
+            with subtests.test(f"resampled df matches on {column}"):
+                assert np.allclose(df_resampled[column], df_check[column])
+
+        # resample should be approximately one
+        with subtests.test(f"ensure freq_val sums to one"):
+            assert np.isclose(np.sum(df_resampled.freq_val), 1.0, atol=0.025)
 
     def test_resample_average_ws_by_wd(self, subtests):
-        raise NotImplementedError("this unit test has not been implemented!")
+
+        # get the resample
+        df_resampled = flowers.tools.resample_average_ws_by_wd(self.df_wr)
+
+        # check wd values
+        with subtests.test(f"resampling has same wd values"):
+            assert np.allclose(df_resampled.wd.unique(), self.df_wr.wd.unique())
+
+        # check freq_val
+        with subtests.test("frequency bins correct"):
+            assert np.allclose(
+                df_resampled.freq_val,
+                self.df_wr.groupby("wd").agg({"freq_val": np.sum}).freq_val,
+            )
+
+        # check average ws
+        with subtests.test("average speed correct"):
+            weighted_ws = self.df_wr.groupby("wd").apply(
+                lambda group: np.sum(group["ws"] * group["freq_val"])
+                / np.sum(group["freq_val"])
+            )
+            assert np.allclose(df_resampled.ws, weighted_ws)
 
 
 class TestToolsLookup:
