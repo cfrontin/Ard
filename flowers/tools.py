@@ -13,7 +13,7 @@ from shapely.geometry import Polygon, Point
 ###########################################################################
 
 
-def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
+def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, seed_val=None):
     """
     Generate a random wind farm layout within the specified boundaries.
     Minimum spacing between turbines is 2D.
@@ -25,7 +25,7 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
         D (float): rotor diameter [m]
         min_dist (float): enforced minimum spacing between turbine centers
             normalized by rotor diameter
-        idx (int, optional): random number generator seed
+        seed_val (int, optional): random number generator seed
 
     Args:
         xx (np.array): x-positions of each turbine
@@ -43,8 +43,8 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
         raise ValueError("Must supply number of turbines.")
 
     # Initialize RNG and containers
-    if idx != None:
-        np.random.seed(idx)
+    if seed_val != None:
+        np.random.seed(seed_val)
 
     xx = -1000 * np.ones(n_turb)
     yy = -1000 * np.ones(n_turb)
@@ -74,7 +74,7 @@ def random_layout(boundaries=[], n_turb=0, D=126.0, min_dist=2.0, idx=None):
     return xx, yy
 
 
-def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
+def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, seed_val=None, spacing=False):
     """
     Generate a random wind farm layout within the specified boundaries.
     Minimum spacing between turbines is 2D.
@@ -100,8 +100,8 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
         raise ValueError("Must supply number of turbines.")
 
     # Initialize RNG and containers
-    if idx != None:
-        np.random.seed(idx)
+    if seed_val != None:
+        np.random.seed(seed_val)
 
     xx = np.zeros(n_turb)
     yy = np.zeros(n_turb)
@@ -140,10 +140,11 @@ def discrete_layout(n_turb=0, D=126.0, min_dist=3.0, idx=None, spacing=False):
 
 def load_layout(idx, case, boundaries=True):
     file = "./layouts/" + case + str(idx) + ".p"
-    layout_x, layout_y, boundaries = pickle.load(open(file, "rb"))
+    with open(file, "rb") as infile:
+        layout_x, layout_y, boundaries_val = pickle.load(infile)
 
     if boundaries:
-        return layout_x, layout_y, boundaries
+        return layout_x, layout_y, boundaries_val
     else:
         return layout_x, layout_y
 
@@ -543,7 +544,7 @@ def ct_lookup(u, turbine_type, ct=None):
             )
         )
     else:
-        NotImplementedError("your specified turbine type was not found.")
+        raise NotImplementedError("your specified turbine type was not found.")
 
     return np.interp(u, u_table, ct_table)
 
@@ -678,6 +679,6 @@ def cp_lookup(u, turbine_type, cp=None):
             )
         )
     else:
-        NotImplementedError("your specified turbine type was not found.")
+        raise NotImplementedError("your specified turbine type was not found.")
 
     return np.interp(u, u_table, cp_table)
