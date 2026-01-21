@@ -5,7 +5,6 @@ import pandas as pd
 import pickle
 from shapely.geometry import Polygon, Point
 
-
 # import floris.tools.wind_rose as rose
 
 

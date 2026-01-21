@@ -2,9 +2,9 @@ import numpy as np
 import pyoptsparse
 from shapely.geometry import Polygon, Point, LineString
 
-
 ### THE FOLLOWING CODE IS LEGACY FLOWERS CODE AND IS NOT ACTIVELY MAINTAINED OR
 ### TESTED IN THE MOST RECENT ARD DEPLOYMENT OF THE FLOWERS METHOD
+
 
 class LayoutOptimizer:
     """

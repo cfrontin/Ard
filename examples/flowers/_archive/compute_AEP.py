@@ -3,7 +3,6 @@ import pandas as pd
 
 from flowers import FlowersModel
 
-
 # Create generic layout
 D = 126.0
 layout_x = D * np.array(
