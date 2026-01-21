@@ -8,6 +8,9 @@ import flowers.optimization.optimization_interface as opt
 import flowers.tools.tools as tl
 
 
+### THE FOLLOWING CODE IS LEGACY FLOWERS CODE AND IS NOT ACTIVELY MAINTAINED OR
+### TESTED IN THE MOST RECENT ARD DEPLOYMENT OF THE FLOWERS METHOD
+
 class AEPInterface:
     """
     AEPInterface is a high-level user interface to compare AEP estimates between
