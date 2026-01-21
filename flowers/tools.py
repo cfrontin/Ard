@@ -217,7 +217,7 @@ def resample_wind_direction(df, wd=np.arange(0, 360, 5.0)):
             columns:
             - 'wd': Wind direction bin center values (deg).
             - 'ws': Wind speed bin center values (m/s).
-            - 'freq_val': The frequency of occurance of the
+            - 'freq_val': The frequency of occurence of the
                 wind conditions in the other columns.
 
         wd (np.array, optional): List of new wind direction center bins
@@ -227,7 +227,7 @@ def resample_wind_direction(df, wd=np.arange(0, 360, 5.0)):
         New wind rose DataFrame containing the following columns:
             - 'wd': New wind direction bin center values from wd argument (deg).
             - 'ws': Resampled wind speed bin center values (m/s).
-            - 'freq_val': The resampled frequency of occurance of the
+            - 'freq_val': The resampled frequency of occurence of the
                 wind conditions in the other columns.
     """
 
@@ -301,7 +301,7 @@ def resample_wind_speed(df, ws=np.arange(0, 26, 1.0)):
             columns:
             - 'wd': Wind direction bin center values (deg).
             - 'ws': Wind speed bin center values (m/s).
-            - 'freq_val': The frequency of occurance of the
+            - 'freq_val': The frequency of occurence of the
                 wind conditions in the other columns.
 
         ws (np.array, optional): List of new wind direction center bins
@@ -311,7 +311,7 @@ def resample_wind_speed(df, ws=np.arange(0, 26, 1.0)):
         New wind rose DataFrame containing the following columns:
             - 'wd': New wind direction bin center values from wd argument (deg).
             - 'ws': Resampled wind speed bin center values (m/s).
-            - 'freq_val': The resampled frequency of occurance of the
+            - 'freq_val': The resampled frequency of occurence of the
                 wind conditions in the other columns.
     """
     # Make a copy of incoming dataframe
@@ -354,14 +354,14 @@ def resample_average_ws_by_wd(wind_rose):
             columns:
             - 'wd': Wind direction bin center values (deg).
             - 'ws': Wind speed bin center values (m/s).
-            - 'freq_val': The frequency of occurance of the
+            - 'freq_val': The frequency of occurence of the
                 wind conditions in the other columns.
 
     Returns:
         New wind rose DataFrame containing the following columns:
             - 'wd': Wind direction bin center values (deg).
             - 'ws': Resampled average wind speed values (m/s).
-            - 'freq_val': The resampled frequency of occurance of the
+            - 'freq_val': The resampled frequency of occurence of the
                 wind conditions in the other columns.
 
     """

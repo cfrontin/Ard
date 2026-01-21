@@ -6,11 +6,8 @@ from pathlib import Path
 import tqdm
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-import flowers
 import ard
 import floris
 

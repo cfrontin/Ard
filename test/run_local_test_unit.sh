@@ -21,7 +21,7 @@ esac
 IDX_CASE=0
 for CASE in $CASES_TO_RUN; do
   FLAGS="--cov-report=html"  # default flag: html coverage report
-  if [[ IDX_CASE -gt 0 ]] ; then
+  if [[ $IDX_CASE -gt 0 ]] ; then
     FLAGS="$FLAGS --cov-append"  # append after the first case for multiple
   fi
   if [[ "$CASE" == "ard" ]] && ! python -c "import optiwindnet" 2>/dev/null ; then

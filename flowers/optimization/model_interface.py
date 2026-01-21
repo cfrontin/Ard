@@ -57,12 +57,6 @@ class AEPInterface:
             wind_rose, layout_x, layout_y, num_terms=num_terms, k=k, turbine=turbine
         )
 
-        # Initialize FLORIS
-        # if conventional_model is None or conventional_model == 'jensen':
-        #     self.floris_interface = wfct.floris_interface.FlorisInterface("./input/jensen.yaml")
-        # elif conventional_model == 'gauss':
-        #     self.floris_interface = wfct.floris_interface.FlorisInterface("./input/gauss.yaml")
-
         wd_array = np.array(wind_rose["wd"].unique(), dtype=float)
         ws_array = np.array(wind_rose["ws"].unique(), dtype=float)
         wd_grid, ws_grid = np.meshgrid(wd_array, ws_array, indexing="ij")

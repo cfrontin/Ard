@@ -23,7 +23,7 @@ def plot_wind_rose(
     legend_kwargs={},
 ):
     """
-    Plots a wind rose showing the frequency of occurance
+    Plots a wind rose showing the frequency of occurence
     of the specified wind direction and wind speed bins. If no axis is
     provided, a new one is created. (Copied from FLORIS)
 
