@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .test_rotational_workbench import *
+from . import test_rotational_workbench
 
 
 class TestFLOWERSRotationalConsistency:
@@ -30,7 +30,9 @@ class TestFLOWERSRotationalConsistency:
         # run FLOWERS using the shared toolset
         AEP_FLOWERS_vec = np.zeros_like(wd_vec)
         for idx, wd_val in enumerate(wd_vec):
-            AEP_FLOWERS_vec[idx] = run_FLOWERS(flowers_turbine, wd_val=wd_val)
+            AEP_FLOWERS_vec[idx] = test_rotational_workbench.run_FLOWERS(
+                flowers_turbine, wd_val=wd_val
+            )
 
         # assert that the reference matches what we calculated
         assert np.allclose(AEP_FLOWERS_vec, AEP_FLOWERS_vec_ref)
@@ -48,7 +50,7 @@ class TestFLOWERSRotationalConsistency:
         # run FLOWERS using the shared toolset
         AEP_FLOWERS_vec = np.zeros_like(orientation_vec)
         for idx, orientation_val in enumerate(orientation_vec):
-            AEP_FLOWERS_vec[idx] = run_FLOWERS(
+            AEP_FLOWERS_vec[idx] = test_rotational_workbench.run_FLOWERS(
                 flowers_turbine, orientation=orientation_val
             )
 

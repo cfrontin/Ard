@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import ard
 import floris
 
-from test_rotational_workbench import *
+import test_rotational_workbench
 
 plt.style.use(ard.get_house_style(use_tex=True))
 
@@ -27,7 +27,7 @@ run_debug_mode = False
 
 if show_plots or save_plots:
     # demo wraparound gaussian pulse resource for nearly single-directional wind
-    (WD, WS, FREQ), df_wr = f_windrose(-5.0, 8.0)
+    (WD, WS, FREQ), df_wr = test_rotational_workbench.f_windrose(-5.0, 8.0)
     fig, ax = plt.subplots()
     ct0 = ax.contourf(WD, WS, FREQ)
     ax.set_xlabel("wind direction, (°)")
@@ -40,7 +40,14 @@ if show_plots or save_plots:
 
     # demo the layout generator w/o rotational symmetries
     fig, ax = plt.subplots()
-    ax.scatter(*[v.flat for v in layout_generator(diameter=130.0, orientation=0.0)])
+    ax.scatter(
+        *[
+            v.flat
+            for v in test_rotational_workbench.layout_generator(
+                diameter=130.0, orientation=0.0
+            )
+        ]
+    )
     ax.set_xlabel("turbine x location/relative easting, (m)")
     ax.set_ylabel("turbine y location/relative northing, (m)")
     if save_plots:
@@ -55,7 +62,7 @@ floris_model = floris.FlorisModel(path_floris_config)
 
 # a function to run either wind direction or orientation sweeps
 def run_floris(wd_val=0.0, orientation=0.0):
-    WD, WS, FREQ = f_windrose(
+    WD, WS, FREQ = test_rotational_workbench.f_windrose(
         wd_center=wd_val,
         ws_center=8.0,
     )[0]
@@ -66,7 +73,7 @@ def run_floris(wd_val=0.0, orientation=0.0):
         freq_table=FREQ,
     )
 
-    X, Y = layout_generator(D_rotor, orientation)
+    X, Y = test_rotational_workbench.layout_generator(D_rotor, orientation)
     floris_model.set(
         wind_data=wind_rose,
         layout_x=X.flatten(),
@@ -132,7 +139,9 @@ wd_vec = np.arange(0.0, 360.001, 1.0 if not run_debug_mode else 10.0)
 AEP_FLOWERS_e1_vec = np.zeros_like(wd_vec)
 AEP_FLORIS_e1_vec = np.zeros_like(wd_vec)
 for idx, wd_val in enumerate(tqdm.tqdm(wd_vec)):
-    AEP_FLOWERS_e1_vec[idx] = run_FLOWERS(flowers_turbine, wd_val=wd_val)
+    AEP_FLOWERS_e1_vec[idx] = test_rotational_workbench.run_FLOWERS(
+        flowers_turbine, wd_val=wd_val
+    )
     AEP_FLORIS_e1_vec[idx] = run_floris(wd_val=wd_val)
 
 # plot the results of the experiment
@@ -154,7 +163,9 @@ orientation_vec = np.arange(0.0, 360.001, 1.0 if not run_debug_mode else 10.0)
 AEP_FLOWERS_e2_vec = np.zeros_like(orientation_vec)
 AEP_FLORIS_e2_vec = np.zeros_like(orientation_vec)
 for idx, orientation_val in enumerate(tqdm.tqdm(orientation_vec)):
-    AEP_FLOWERS_e2_vec[idx] = run_FLOWERS(flowers_turbine, orientation=orientation_val)
+    AEP_FLOWERS_e2_vec[idx] = test_rotational_workbench.run_FLOWERS(
+        flowers_turbine, orientation=orientation_val
+    )
     AEP_FLORIS_e2_vec[idx] = run_floris(orientation=orientation_val)
 
 # plot the results of the experiment
