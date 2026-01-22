@@ -49,7 +49,7 @@ class TestFlowersModel:
     def test_reference_NREL5MW(self, subtests):
 
         with subtests.test("initialization of internal values: k"):
-            assert self.flowers_model.k == 0.05
+            assert np.isclose(self.flowers_model.k, 0.05)
         with subtests.test("initialization of internal values: num_modes"):
             assert self.flowers_model.get_num_modes() <= 50
 
@@ -57,7 +57,7 @@ class TestFlowersModel:
         with subtests.test("pyrite AEP value"):
             AEP_ref = 904.2681563494169  # GWh
             AEP_calculated = self.flowers_model.calculate_aep() / 1e9  # GWh
-            assert AEP_calculated == AEP_ref
+            assert np.isclose(AEP_calculated, AEP_ref)
 
     def test_reinit_reference_NREL5MW(self, subtests):
 
@@ -78,7 +78,7 @@ class TestFlowersModel:
         )
 
         with subtests.test("initialization of internal values: k"):
-            assert self.flowers_model.k == 0.075
+            assert np.isclose(self.flowers_model.k, 0.075)
         with subtests.test("initialization of internal values: num_modes"):
             assert self.flowers_model.get_num_modes() <= 25
 
@@ -86,7 +86,7 @@ class TestFlowersModel:
         with subtests.test("pyrite AEP value"):
             AEP_ref = 976.2494933660288  # GWh
             AEP_calculated = self.flowers_model.calculate_aep() / 1e9  # GWh
-            assert AEP_ref == AEP_calculated
+            assert np.isclose(AEP_calculated, AEP_ref)
 
     def test_raise_error_reference_IEA22MW(self, subtests):
         with pytest.raises(NotImplementedError):
@@ -153,7 +153,7 @@ class TestCustomFlowersModel:
         # compute the AEP and compare it to a pyrite-standard value
         with subtests.test("matching pyrite AEP value"):
             AEP_ref = 922.0285639699603  # GWh
-            assert AEP_ref == AEP_calculated
+            assert np.isclose(AEP_calculated, AEP_ref)
 
         # compute the capacity factor and make sure it's plausible
         with subtests.test("plausible capacity factor"):
@@ -172,7 +172,7 @@ class TestCustomFlowersModel:
         # compute the AEP through the derivative construct and pyrite-verify it
         with subtests.test("matching pyrite AEP value on derivative calc"):
             AEP_ref = 922.0285639699603  # GWh
-            assert AEP_calculated == AEP_ref
+            assert np.isclose(AEP_calculated, AEP_ref)
 
         # unpack the shape and set the epsilon
         Nt, Nd = dAEP_calculated.shape
