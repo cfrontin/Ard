@@ -21,7 +21,7 @@ def plot_wind_rose(
     ws_right_edges=np.array([5, 10, 15, 20, 25]),
     wd_bins=np.arange(0, 360, 15.0),
     legend_kwargs={},
-):  # pragma: no cover
+):
     """
     Plots a wind rose showing the frequency of occurence
     of the specified wind direction and wind speed bins. If no axis is
@@ -108,7 +108,7 @@ def plot_wind_rose(
 
 def plot_layout(
     layout_x, layout_y, D=126.0, boundaries=None, norm=True, ax=None, color="tab:blue"
-):  # pragma: no cover
+):
     """
     Plot a wind farm layout. The turbine markers are properly scaled
     relative to the domain.
@@ -177,7 +177,7 @@ def plot_optimal_layout(
     color_final="tab:orange",
     norm=True,
     ax=None,
-):  # pragma: no cover
+):
     """
     Plot the initial and final solution of a layout optimization study.
     The turbine markers are properly scaled relative to the domain.
@@ -278,7 +278,7 @@ def animate_layout_history(
     D=126.0,
     norm=True,
     show=True,
-):  # pragma: no cover
+):
     """
     Animate the history of the wind farm layout. Plots the wind farm
     layout at each iteration and saves to the given file as an MP4.
@@ -356,7 +356,7 @@ def plot_convergence_history(
     ax_aep=None,
     ax_opt=None,
     ax_feas=None,
-):  # pragma: no cover
+):
     """
     Plots the convergence history of AEP (objective function),
     optimality, and feasibility. Axes should be supplied for any
@@ -408,7 +408,7 @@ def plot_convergence_history(
 
 def plot_constraints(
     ax_boundary, ax_spacing, boundary_constraint, spacing_constraint
-):  # pragma: no cover
+):
     """
     Plots the convergence history of the objective function and the wind farm
         layout (optional)
@@ -435,7 +435,7 @@ def plot_constraints(
     ax_spacing.grid()
 
 
-def plot_flow_field(fi, ax, bounds, pts=200, cmin=2, cmax=10):  # pragma: no cover
+def plot_flow_field(fi, ax, bounds, pts=200, cmin=2, cmax=10):
     """
     Plots a filled contour map of the annually-averaged flow field.
 
@@ -495,7 +495,7 @@ def plot_flow_field(fi, ax, bounds, pts=200, cmin=2, cmax=10):  # pragma: no cov
 
 def plot_floris_field(
     fli, ax, wind_rose, bounds, pts=200, cmin=2, cmax=10
-):  # pragma: no cover
+):
     """
     Plots a filled contour map of the annually-averaged flow field using FLORIS.
 
