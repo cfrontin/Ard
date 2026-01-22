@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 
-import flowers.tools.tools as tl
+import flowers.tools as tl
 
 ###########################################################################
 # Wind rose methods
