@@ -46,7 +46,7 @@ jobs:
       run: |
         pip install .[dev]
 
-  test-unit-ard:
+  test-ard-unit:
     name: Run Ard unit tests
     needs: setup-install
     strategy:
@@ -88,7 +88,7 @@ jobs:
 
   test-ard-system:
     name: Run Ard system tests
-    needs: test-unit-ard
+    needs: test-ard-unit
     strategy:
       matrix:
         python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
@@ -127,7 +127,7 @@ jobs:
         pytest --cov=ard --cov-fail-under=50 test/ard/system
         # pytest --cov=ard --cov-fail-under=80 test/ard/system
 
-  test-unit-flowers:
+  test-flowers-unit:
     name: Run FLOWERS unit tests
     needs: setup-install
     strategy:
@@ -169,7 +169,7 @@ jobs:
 
   test-flowers-system:
     name: Run FLOWERS system tests
-    needs: test-unit-flowers
+    needs: test-flowers-unit
     strategy:
       matrix:
         python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
@@ -210,7 +210,7 @@ jobs:
 
   find-examples:
     name: Find all examples
-    needs: [test-unit-ard, test-ard-system]
+    needs: [test-ard-unit, test-ard-system, test-flowers-unit, test-flowers-system]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -288,7 +288,7 @@ jobs:
 
   find-examples_nb:
     name: Find all example notebooks
-    needs: [test-unit-ard, test-ard-system]
+    needs: [test-ard-unit, test-ard-system, test-flowers-unit, test-flowers-system]
     if: needs.find-examples_nb.outputs.scripts != '[]'  # skip empty
     runs-on: ubuntu-latest
     steps:
