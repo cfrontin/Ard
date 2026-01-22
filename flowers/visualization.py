@@ -406,9 +406,7 @@ def plot_convergence_history(
 ## Legacy functions
 
 
-def plot_constraints(
-    ax_boundary, ax_spacing, boundary_constraint, spacing_constraint
-):
+def plot_constraints(ax_boundary, ax_spacing, boundary_constraint, spacing_constraint):
     """
     Plots the convergence history of the objective function and the wind farm
         layout (optional)
@@ -493,9 +491,7 @@ def plot_flow_field(fi, ax, bounds, pts=200, cmin=2, cmax=10):
     return im
 
 
-def plot_floris_field(
-    fli, ax, wind_rose, bounds, pts=200, cmin=2, cmax=10
-):
+def plot_floris_field(fli, ax, wind_rose, bounds, pts=200, cmin=2, cmax=10):
     """
     Plots a filled contour map of the annually-averaged flow field using FLORIS.
 
