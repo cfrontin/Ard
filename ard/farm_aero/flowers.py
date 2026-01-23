@@ -97,7 +97,7 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         )
 
     def setup_partials(self):
-        super().setup_partials()
+        self.declare_partials("AEP_farm", ["x_turbines", "y_turbines"], method="exact")
 
     def compute(self, inputs, outputs):
 
@@ -167,6 +167,3 @@ class FLOWERSAEP(templates.FarmAEPTemplate):
         )
         partials["AEP_farm", "x_turbines"] = gradient[:, 0]
         partials["AEP_farm", "y_turbines"] = gradient[:, 1]
-
-    def setup_partials(self):
-        self.declare_partials("AEP_farm", ["x_turbines", "y_turbines"], method="exact")

@@ -13,7 +13,7 @@ import floris
 
 import test_rotational_workbench
 
-plt.style.use(ard.get_house_style(use_tex=True))
+# plt.style.use(ard.get_house_style(use_tex=True))
 
 ## configuration settings
 
