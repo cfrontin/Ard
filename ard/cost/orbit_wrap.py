@@ -16,6 +16,7 @@ from ard.collection.optiwindnet_wrap import _S_from_terse_links
 from ard.collection.optiwindnet_wrap import _own_L_from_inputs
 from ard.cost.wisdem_wrap import ORBIT_setup_latents
 
+
 def generate_orbit_location_from_graph(
     terse_links,
     X_turbines,
