@@ -4,11 +4,21 @@ import networkx as nx
 import numpy as np
 
 from optiwindnet.mesh import make_planar_embedding
-from optiwindnet.interarraylib import L_from_site
+from optiwindnet.interarraylib import L_from_site, calcload
 from optiwindnet.heuristics import EW_presolver
 from optiwindnet.MILP import OWNWarmupFailed, solver_factory, ModelOptions
 
 from . import templates
+
+
+def _S_from_terse_links(terse_links, **kwargs):
+    T = terse_links.shape[0]
+    S = nx.Graph(T=T, R=abs(terse_links.min()), **kwargs)
+    S.add_edges_from(tuple(zip(range(T), terse_links)))
+    calcload(S)
+    if "capacity" not in kwargs:
+        S.graph["capacity"] = S.graph["max_load"]
+    return S
 
 
 def _own_L_from_inputs(inputs: dict, discrete_inputs: dict) -> nx.Graph:
