@@ -61,18 +61,6 @@ def generate_orbit_location_from_graph(
 
     # create graph from terse links
     tlm = np.astype(terse_links, np.int_)
-    L = _own_L_from_inputs(
-        {
-            "x_turbines": X_turbines,
-            "y_turbines": Y_turbines,
-            "x_substations": X_substations,
-            "y_substations": Y_substations,
-        },
-        {
-            "x_border": None,
-            "y_border": None,
-        },
-    )
     graph = _S_from_terse_links(tlm)
 
     # get all edges, sorted by the first node then the second node
