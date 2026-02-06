@@ -4,6 +4,8 @@ modeling_options: &modeling_options
     N_turbines: 25
     N_substations: 1
   site_depth: 200.0
+  aero:
+    return_turbine_output: True
   collection:
     max_turbines_per_string: 8
     solver_name: "highs"
@@ -75,9 +77,8 @@ analysis_options:
       units: "m"
       upper: 0.0
       scaler: 0.004128137384  # 1/D_rotor
-  objective:
-    name: AEP_farm
-    options:
+  objectives:
+    AEP_farm:
       scaler: -1.0e-9
   recorder:
     filepath: opt_results.sql
