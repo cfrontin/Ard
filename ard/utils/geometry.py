@@ -70,7 +70,6 @@ def get_nearest_polygons(
     return region
 
 
-
 def distance_multi_point_to_multi_polygon_ray_casting(
     points_x: np.ndarray[float],
     points_y: np.ndarray[float],
