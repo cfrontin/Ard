@@ -20,8 +20,8 @@ Moreover, the design of any *one* of these aspects affects all the rest!
 In brief, we are designing `Ard` to be: principled, modular, extensible, and effective, to allow resource-specific wind farm layout optimization with realistic, well-posed constraints, holistic and complex objectives, and natural incorporation of multiple fidelities and disciplines.
 
 ## Documentation
+Ard documentation is available at [https://NLRWindSystems.github.io/Ard](https://NLRWindSystems.github.io/Ard)
 
-Ard documentation is available at [https://wisdem.github.io/Ard](https://wisdem.github.io/Ard)
 
 ## Installation instructions
 
@@ -145,7 +145,7 @@ In this example, the wind farm layout is parametrized with two angles, named ori
 Additionally, we have offshore examples adjacent to the onshore example in the `examples` subdirectory.
 In the beta pre-release stage, the constituent subcomponents of these problems are known to work and have full testing coverage.
 
-These cases start from a four parameter farm layout, compute land use area, make FLORIS estimates of annual energy production (AEP), compute turbine capital costs, balance-of-station (BOS), and operational costs elements of NREL's turbine systems engineering tool [WISDEM](https://github.com/wisdem/wisdem), and finally give summary estimates of plant finance figures.
+These cases start from a four parameter farm layout, compute land use area, make FLORIS estimates of annual energy production (AEP), compute turbine capital costs, balance-of-station (BOS), and operational costs elements of NREL's turbine systems engineering tool [WISDEM](https://github.com/NLRWindSystems/wisdem), and finally give summary estimates of plant finance figures.
 The components that achieve this can be assembled to either run a single top-down analysis run, or run an optimization.
 
 # Contributing to `Ard`
