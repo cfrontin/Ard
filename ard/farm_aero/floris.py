@@ -208,8 +208,8 @@ class FLORISFarmComponent:
             turbine_type=[
                 create_FLORIS_turbine_from_windIO(self.windIO, self.modeling_options),
             ],
-            wind_shear=self.windIO["site"]["energy_resource"]["wind_resource"].get(
-                "shear"
+            wind_shear=self.windIO["site"]["energy_resource"]["wind_resource"]["shear"].get(
+                "alpha"
             ),
             reference_wind_height=getattr(
                 self.wind_query,
@@ -288,6 +288,7 @@ class FLORISFarmComponent:
         SATI = self.fmodel.get_turbine_SATI() * 100
         SAWS = self.fmodel.get_turbine_SAWS()
         turbine_powers_percent = self.fmodel.get_turbine_powers_percent().flatten()
+        turbine_powers_percent = np.ones_like(turbine_powers_percent) * 100.
 
         SATI_collapsed = SATI.reshape(-1, SATI.shape[-1])
         SAWS_collapsed = SAWS.reshape(-1, SAWS.shape[-1])
