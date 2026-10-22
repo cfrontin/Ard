@@ -137,7 +137,7 @@ def ANN_DEL_factory(name_QoI, ANN_DEL_params):
         x1 = np.array(x1, dtype=np.float64)
         if x1.ndim == 1:
             x1 = x1.reshape(1, -1)
-        if x1.shape[1] != 10:
+        if x1.ndim != 2 or x1.shape[1] != 10:
             raise ValueError("Input must have shape (Q, 10)")
 
         # Z-score normalization parameters (fit on training data)
