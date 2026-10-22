@@ -590,6 +590,7 @@ class FLORISSurrogateDELs(FLORISAEP):
 
     def setup(self):
         super().setup()  # run super class script first!
+        self.fmodel.core.wake.enable_turbine_turbulence_grid = True
 
         self.add_output(
             "blade_root_DEL",
