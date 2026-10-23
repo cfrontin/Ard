@@ -18,11 +18,11 @@ include = ["ard", "ard.*"]
 
 [project]
 name = "ard-nrel"
-version = "0.1.0-beta5"
+version = "0.1.0-beta6"
 authors = [
-  {name = "Cory Frontin", email = "cory.frontin@nrel.gov"},
-  {name = "Rafael Mudafort", email = "rafael.mudafort@nrel.gov"},
-  {name = "Jared Thomas", email = "jared.thomas@nrel.gov"},
+  {name = "Cory Frontin", email = "cory.frontin@nlr.gov"},
+  {name = "Rafael Mudafort", email = "rafael.mudafort@nlr.gov"},
+  {name = "Jared Thomas", email = "jared.thomas@nlr.gov"},
 ]
 description = "A package for multidisciplinary and/or multifidelity wind farm design"
 readme= "README.md"
@@ -39,14 +39,14 @@ classifiers = [
 ]
 dependencies = [
   "numpy",
-  "floris>=4.3",
-  "wisdem",
+  "floris>=4.7",
+  "wisdem<4.2.8",
   "NLopt",
   "marmot-agents",
-  "openmdao",
+  "openmdao[doe]<3.45.1",
   "shapely",
   "jax",
-  "optiwindnet>=0.2.2",
+  "optiwindnet>=0.3.2,<0.4",
   "statsmodels",
   "highspy",
   "pyyaml",
